@@ -1,9 +1,6 @@
-bm_data/*
-climate_data/*
-gen_data/*
-plots/*
-pn_data/*
-weather_data/*
-*.parquet
-config.ini
+*.ini
 *.pyc
+*.nc
+*.nc*
+*.png
+*.parquet
