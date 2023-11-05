@@ -1,0 +1,15 @@
+name: bm_analysis
+channels:
+  - defaults
+dependencies:
+  - boto3
+  - bs4
+  - hdf4
+  - hdf5
+  - matplotlib=3.7.*
+  - netcdf4=1.6.*
+  - pandas=1.5.*
+  - pyarrow=11.*
+  - requests
+  - scipy=1.10.*
+  - xarray
