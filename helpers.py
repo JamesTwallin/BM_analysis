@@ -4,6 +4,7 @@ import pandas as pd
 import configparser
 from bs4 import BeautifulSoup
 import os
+import time
 
 
 class APIError(Exception):
@@ -80,6 +81,31 @@ def get_windfarm_details():
     windfarm_details_.loc[filt, 'capacity'] = 68.0
     return windfarm_details_
 
+
+def get_uk_windfarms():
+    url = 'https://query.wikidata.org/sparql'
+    # Q194356 is wind farm
+    # P17 is country
+    query = """
+    SELECT ?windFarm ?windFarmLabel ?country ?countryLabel
+    WHERE {
+    ?windFarm wdt:P31 wd:Q194356.  # Instances of wind farm
+    ?windFarm wdt:P17 ?country.    # Country property
+    SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
+    }"""
+    r = requests.get(url, params = {'format': 'json', 'query': query})
+    data = r.json()
+    row_list = []
+    for wf in data['results']['bindings']:
+        wf_dict  = {}
+        for key in wf.keys():
+            wf_dict[key] = wf[key]['value']
+        row_list.append(wf_dict)
+    windfarm_details = pd.DataFrame(row_list)
+    return windfarm_details
+
+
+    
 def _get_windfarm_name(id):
     try:
       
@@ -101,17 +127,42 @@ def _get_windfarm_name(id):
     except:
       return ''
     
+def get_windfarm_type(url):
+    try:
+        item_id = url.split('/')[-1]
+        endpoint_url = 'https://query.wikidata.org/sparql'
+        
+        query = f"""
+        SELECT ?property ?propertyLabel ?value ?valueLabel
+        WHERE {{
+        wd:{item_id} wdt:P31 ?value .
+        SERVICE wikibase:label {{ bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }}
+        }}
+        """
+        success = False
+        while not success:
+            r = requests.get(endpoint_url, params={'format': 'json', 'query': query})
+            if r.status_code == 200:
+                success = True
+                data = r.json()
+                for wf in data['results']['bindings']:
+                    return wf['valueLabel']['value']
+            else:
+                print(f"Retry due to HTTP status: {r.status_code}, {item_id}")
+                time.sleep(10)
+    except Exception as e:
+        print(f"Error: {e}")
+        return ''
 
 def load_windfarms_geojson():
     # read in the .geojson file
-    root = os.path.dirname(os.path.abspath(__file__))
-    filename = root + '/windfarms.geojson'
-    # use json
-    with open(filename) as f:
-        data = json.load(f)
+    data = _load_raw_windfarms_geojson()
     rows = []
     for feature in data['features']:
+
         bmu_dict = {}
+        if 'wiki' in feature['id']:
+            bmu_dict['gen_type'] = get_windfarm_type(feature['id'])
         for key in feature['properties'].keys():
             bmu_dict[key] = feature['properties'][key]
         try:
@@ -121,9 +172,21 @@ def load_windfarms_geojson():
                     bmu_dict['lat'] = feature['geometry']['coordinates'][1]
         except:
             pass
+        # if the length of the bmrs_id is 1 then it is a string
         rows.append(bmu_dict)
     data = pd.DataFrame(rows)
     return data
 
+def _load_raw_windfarms_geojson():
+    root = os.path.dirname(os.path.abspath(__file__))
+    filename = root + '/windfarms.geojson'
+    # use json
+    with open(filename) as f:
+        data = json.load(f)
+    return data
+
 if __name__ == '__main__':
-    load_windfarms_geojson()
+    # get the geo_json file
+    data = load_windfarms_geojson() 
+    print(data.head())
+
