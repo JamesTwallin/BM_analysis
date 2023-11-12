@@ -5,6 +5,7 @@ import requests
 import pandas as pd
 assert pd.__version__ >= '1.5'
 import os, sys
+import ast
 
 
 import src.utils.helpers as helpers
@@ -152,8 +153,14 @@ def _get_gen_df(date, bmu_id, redo=False):
     date_string = date.strftime('%Y-%m-%d')
     filename = os.path.join(folder_path, f'{date_string}.parquet')
 
+
+    empty_filename = os.path.join(folder_path, f'{date_string}_empty.txt')
+
     if os.path.exists(filename) and not redo:
         print(f"File exists: {filename}")
+        return
+    if os.path.exists(empty_filename) and not redo:
+        print(f"This date has no data: {date_string}")
         return
 
     try:
@@ -162,7 +169,14 @@ def _get_gen_df(date, bmu_id, redo=False):
 
         if response.status_code != 200:
             raise APIError(f"API call failed for {date_string}")
+        
         df = pd.DataFrame(response.text.splitlines())
+
+        if df.empty:
+          # make a file to indicate that there is no data
+          with open(empty_filename, 'w') as f:
+            f.write('No data')
+          raise NoDataError(f"No data for {bmu_id} on {date_string}")
 
         # split ',' delimited columns into separate columns
         df = df[0].str.split(',', expand=True)
@@ -171,9 +185,7 @@ def _get_gen_df(date, bmu_id, redo=False):
         # make the first row the column names and drop the first row
         df.columns = df.iloc[0]
         df.drop(1, inplace=True)
-        # assert that length is greater than 1
-        if df.empty:
-            raise NoDataError(f"No data for {bmu_id} on {date_string}")
+
 
         df['SP'] = df['SP'].astype('int')
         df['Quantity (MW)'] = df['Quantity (MW)'].astype('float')
@@ -185,6 +197,8 @@ def _get_gen_df(date, bmu_id, redo=False):
     except (NoDataError, APIError) as e:
         print(e)
     except Exception as e:
+        with open(empty_filename, 'w') as f:
+            f.write('No data')
         print(f"Error at {filename}, {e}, Line: {sys.exc_info()[2].tb_lineno}")
 
 
@@ -220,4 +234,11 @@ def get_generation_data(bmu_id):
 
 
 if __name__ == "__main__":
-    get_generation_data('BEATO-3')
+    # get all the folders within the raw_gen_data folder
+    # read in the custom csv
+    bmu_ids = helpers.get_list_of_bmu_ids_from_custom_windfarm_csv()
+    for bmu_id in bmu_ids:
+      download_gen_data('2017-01-01', '2023-11-01', bmu_id)
+
+    # for bmu_id in bmu_ids:
+    #   download_gen_data('2017-01-01', '2023-11-01', bmu_id, redo=True)
