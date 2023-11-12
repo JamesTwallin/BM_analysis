@@ -1,3 +1,4 @@
+import ast
 import glob
 import json
 import requests
@@ -200,24 +201,22 @@ def read_custom_windfarm_csv():
     data = pd.read_csv("windfarms_details_jt.csv")
     return data
 
+def get_list_of_bmu_ids_from_custom_windfarm_csv():
+    windfarm_details = pd.read_csv("windfarms_details_jt.csv")
+    filt = windfarm_details['capacity'] > 1
+    windfarm_details = windfarm_details[filt]
+    # drop where bmrs_id is null
+    windfarm_details.dropna(subset=['bmrs_id'], inplace=True)
+    bmu_list = []
+    for index, row in windfarm_details.iterrows():
+        bmu_ids = ast.literal_eval(row['bmrs_id'])
+        bmu_list.extend(bmu_ids)
+    bmu_list = list(set(bmu_list))
+    # sort
+    bmu_list.sort()
+    return bmu_list
 
-def move_file(file):
-    # split the file on '\'
-    folder_name = file.split('\\')[0]
-    file_name = file.split('\\')[1]
-    # print(folder_name)
-    # print(file_name)
-    # split the file_name on '_'
-    bmu_id = file_name.split('_')[0]
-    date = file_name.split('_')[1].split('.')[0]
-    # print(f"bmu_id: {bmu_id}, date: {date}")
-    new_file_name = folder_name + '/' + bmu_id + '/' + date + '.parquet'
-    # print(new_file_name)
-    # check if the folder exists
-    if not os.path.exists(folder_name + '/' + bmu_id):
-        os.makedirs(folder_name + '/' + bmu_id)
-    # move the file
-    os.rename(file, new_file_name)
+
 
 
 def get_nearest_weather_data(weather_data,lat,lon):
