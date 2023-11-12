@@ -13,3 +13,4 @@ dependencies:
   - requests
   - scipy=1.10.*
   - xarray
+  - plotly
