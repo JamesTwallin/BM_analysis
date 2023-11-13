@@ -18,7 +18,8 @@ plt.rcParams['font.sans-serif'] = 'Open Sans'
 
 COLOURS = ['#3F7D20', '#A0DDE6', '#542e71','#3F7CAC','#698F3F']
 
-
+global project_root_path
+project_root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 class PCEY:
@@ -62,7 +63,7 @@ class PCEY:
     #sort the _df by the net yield column
     sorted_df = _df.sort_values(by=self.COL_NET_YIELD, ascending=False)
     # a cut off point for the max generation
-    max_gen = sorted_df[self.COL_NET_YIELD].iloc[int(len(sorted_df)*0.05)]
+    max_gen = sorted_df[self.COL_NET_YIELD].iloc[int(len(sorted_df)*0.10)]
 
     month_df['max_net_yield_GWh'] = _df[[self.COL_NET_YIELD]].resample('1MS').max()
     # calculate the availability for each month
@@ -165,9 +166,8 @@ class PCEY:
 
   def plot_generation(self):
         try:
-            root = os.path.dirname(os.path.abspath(__file__))
             # make a folder for the plots
-            plot_folder = os.path.join(root, 'plots')
+            plot_folder = os.path.join(project_root_path, 'plots')
             if not os.path.exists(plot_folder):
                 os.mkdir(plot_folder)
 
@@ -178,8 +178,8 @@ class PCEY:
 
             fig = go.Figure()
             fig.add_trace(go.Scattergl(x=plot_df.index, y=plot_df[self.COL_PREDICTED_MONTHLY], name='Predicted',mode='lines+markers'))
-            fig.add_trace(go.Scattergl(x=plot_df.index, y=plot_df[self.COL_IDEAL_YIELD], name='Generation - Curtailment', mode='lines+markers'))
             fig.add_trace(go.Scattergl(x=plot_df.index, y=plot_df[self.COL_NET_YIELD], name='Generation', mode='lines+markers'))
+            fig.add_trace(go.Scattergl(x=plot_df.index, y=plot_df[self.COL_IDEAL_YIELD], name='Generation - Curtailment', mode='lines+markers'))
             title = f"<span style='font-size: 20px; font-weight: bold;'>{self.name}</span><br><span style='font-size: 16px;'>{self.bmu}</span>"
             fig.update_layout(title=title, xaxis_title='Month', yaxis_title='GWh')
             # whit theme
@@ -194,9 +194,8 @@ class PCEY:
 
   def plot_scatter(self):
     try:
-        root = os.path.dirname(os.path.abspath(__file__))
         # make a folder for the plots
-        plot_folder = os.path.join(root, 'plots')
+        plot_folder = os.path.join(project_root_path, 'plots')
         if not os.path.exists(plot_folder):
             os.mkdir(plot_folder)
         filename = f'1_{self.bmu}_scatter'
@@ -301,9 +300,8 @@ class PCEY:
    
   def plot_p50(self):
     try:
-        root = os.path.dirname(os.path.abspath(__file__))
         # make a folder for the plots
-        plot_folder = os.path.join(root, 'plots')
+        plot_folder = os.path.join(project_root_path, 'plots')
         if not os.path.exists(plot_folder):
             os.mkdir(plot_folder)
         filename = f'3_{self.bmu}_p50'
