@@ -6,6 +6,7 @@ import pandas as pd
 assert pd.__version__ >= '1.5'
 import os, sys
 import ast
+import tqdm
 
 import src.utils.helpers as helpers
 global api_key
@@ -21,20 +22,143 @@ class APIError(Exception):
     pass
 
 
-
 def download_all_BAV_OAV_data(start_date, end_date, redo=False):
+    print(f"BMRS DATA: Downloading BAV and OAV from {start_date} to {end_date}")
     date_range = pd.date_range(start_date, end_date, freq='1D')
     with concurrent.futures.ThreadPoolExecutor() as executor:
-        results = list(executor.map(_download_accepted_volumes, date_range, itertools.repeat(redo)))
-    return results  # Collect and return results if needed
+        # tdqm
+        results = list(tqdm.tqdm(executor.map(_download_accepted_volumes, date_range, itertools.repeat(redo)), total=len(date_range)))
+    return results
+
 
 
 def download_gen_data(start, end, bmu_id, redo=False):
+    print(f"Downloading generation data for {bmu_id} from {start} to {end}")
     date_range = pd.date_range(start, end, freq='1D')
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        executor.map(_get_gen_df, date_range, itertools.repeat(bmu_id), itertools.repeat(redo))
+    with concurrent.futures.ProcessPoolExecutor() as executor:
+        results = list(tqdm.tqdm(executor.map(_get_gen_df, date_range, itertools.repeat(bmu_id), itertools.repeat(redo)), total=len(date_range)))
+    return results
 
+def _get_gen_df(date, bmu_id, redo=False, verbose=False):
+    folder_path = os.path.join(project_root_path, 'data', 'raw_gen_data', bmu_id)
+    os.makedirs(folder_path, exist_ok=True)
+    date_string = date.strftime('%Y-%m-%d')
+    filename = os.path.join(folder_path, f'{date_string}.parquet')
 
+    # Check if file exists or if there is a flag indicating no data for this date
+    if _check_file_status(filename, redo, verbose, date_string):
+        return
+
+    try:
+        df = _download_and_process_data(date_string, bmu_id, verbose)
+        if df is not None and not df.empty:
+            df.to_parquet(filename)
+            if verbose:
+                print(f"Saved {filename}")
+    except Exception as e:
+        _handle_download_error(e, folder_path, date_string, verbose)
+
+def _check_file_status(filename, redo, verbose, date_string):
+    """
+    Check if the file exists or if an empty flag file exists.
+    Return True if processing should be skipped, False otherwise.
+    """
+    empty_filename = filename.replace('.parquet', '_empty.txt')
+    if os.path.exists(filename) and not redo:
+        if verbose:
+            print(f"File exists: {filename}")
+        return True
+    if os.path.exists(empty_filename) and not redo:
+        if verbose:
+            print(f"No data for date: {date_string}")
+        return True
+    return False
+
+def _download_and_process_data(date_string, bmu_id, verbose):
+    """
+    Download and process data for a specific date and bmu_id.
+    """
+    endpoint = f"https://api.bmreports.com/BMRS/B1610/v2?APIKey={api_key}&SettlementDate={date_string}&Period=*&NGCBMUnitID={bmu_id}&ServiceType=csv"
+    response = requests.get(endpoint)
+    if response.status_code != 200:
+        if verbose:
+            print(f"Failed to download data for {date_string}, status code: {response.status_code}")
+        return None
+
+    df = pd.DataFrame(response.text.splitlines())
+    if df.empty:
+        if verbose:
+            print(f"No data for {date_string}")
+        return None
+
+    df = df[0].str.split(',', expand=True).drop(0).rename(columns=df.iloc[0]).drop(1)
+    df = df.astype({'SP': 'int', 'Quantity (MW)': 'float'})
+    df['Settlement Date'] = pd.to_datetime(df['Settlement Date'])
+    return df[['Settlement Date', 'SP', 'Quantity (MW)']]
+
+def _handle_download_error(e, folder_path, date_string, verbose):
+    """
+    Handle errors during data download and processing.
+    """
+    empty_filename = os.path.join(folder_path, f'{date_string}_empty.txt')
+    with open(empty_filename, 'w') as f:
+        f.write('No data')
+    if verbose:
+        print(f"Error at {date_string}, {e}, Line: {sys.exc_info()[2].tb_lineno}")
+        
+def get_generation_data(bmu_id, update=False):
+    """
+    Fetches the generation data for a given BMU ID. If update is True, it updates 
+    the data with new information since the last recorded date. If there are no new files to process,
+    returns the existing data or an empty DataFrame.
+    """
+    folder_path = os.path.join(project_root_path, 'data', 'preprocessed_data', bmu_id)
+    os.makedirs(folder_path, exist_ok=True)
+    file_name = os.path.join(folder_path, f'{bmu_id}_generation_data.parquet')
+
+    # Initialize variables
+    existing_df = None
+    last_date = None
+
+    # Check if the data file exists
+    if os.path.exists(file_name):
+        existing_df = pd.read_parquet(file_name)
+        print(f"File exists: {file_name}")
+        last_date = existing_df['Settlement Date'].max()
+
+    # Return existing data if not updating
+    if not update:
+        return existing_df if existing_df is not None else pd.DataFrame()
+
+    # Define the range for updating data
+    start_date = last_date + pd.Timedelta(days=1) if last_date is not None else pd.to_datetime('2017-01-01')
+    end_date = pd.to_datetime('today').floor('D') - pd.Timedelta(days=1)
+
+    # Download new data
+    download_gen_data(start_date, end_date, bmu_id)
+
+    # Check for new files and aggregate new data
+    new_file_list = [os.path.join(project_root_path, 'data', 'raw_gen_data', bmu_id, f"{date.strftime('%Y-%m-%d')}.parquet") for date in pd.date_range(start_date, end_date, freq='1D')]
+    new_file_list = [file for file in new_file_list if os.path.exists(file)]
+    if not new_file_list:
+        print("No new data to process.")
+        return existing_df if existing_df is not None else pd.DataFrame()
+
+    new_df = pd.concat([pd.read_parquet(file) for file in new_file_list], ignore_index=True)
+
+    # Process and format the new data
+    if not new_df.empty:
+        # Data processing steps (if any) can be added here
+
+        # Combine new data with existing data
+        updated_df = pd.concat([existing_df, new_df], ignore_index=True) if existing_df is not None else new_df
+
+        # Save the updated data
+        updated_df.to_parquet(file_name)
+        return updated_df
+    else:
+        print("No new processed data to save.")
+        return existing_df if existing_df is not None else pd.DataFrame()
 
 def _download_accepted_volumes(date,redo=False,verbose=False):
     date_str = date.strftime('%Y-%m-%d')
@@ -123,131 +247,61 @@ def get_bmu_curtailment_data(curtailment_df, bmu_id):
     df.to_parquet(filename)
     return df
   
-def fetch_all_curtailment_data():
+def fetch_all_curtailment_data(update=False):
+    """
+    Fetches and optionally updates the curtailment data. If update is False, 
+    it returns the existing data; if True, it updates the data up to yesterday.
+    """
+    # Set up the folder for preprocessed data
     preprocessed_folder = os.path.join(project_root_path, 'data', 'preprocessed_data')
     os.makedirs(preprocessed_folder, exist_ok=True)
 
+    # Define the filename for curtailment data
     filename = os.path.join(preprocessed_folder, 'curtailment_data.parquet')
 
+    # Initialize variables
+    existing_df = None
+    out_of_date = True
+
+    # Check if the data file exists and determine if it's out of date
     if os.path.exists(filename):
-        print(f"Loading curtailment data from file: {filename}")
-        return pd.read_parquet(filename)
+        existing_df = pd.read_parquet(filename)
+        last_date = existing_df['date'].max()
+        out_of_date = get_out_of_date_status(last_date)
 
+    # Return existing data if not updating or if data is already up to date
+    if not update or (update and not out_of_date):
+        if existing_df is not None:
+            print("fetch_all_curtailment_data(): Data is up to date" if not out_of_date else "fetch_all_curtailment_data(): Returning existing data")
+            return existing_df
+        else:
+            print("fetch_all_curtailment_data(): No existing data found. Fetching new data...")
+
+    # Determine the range for updating data
+    yesterday = pd.to_datetime('today').floor('D') - pd.Timedelta(days=1)
+    start_date = last_date if existing_df is not None else pd.to_datetime('2017-01-01')
+
+    # Download new data
+    download_all_BAV_OAV_data(start_date, yesterday)
+
+    # Aggregate new data from multiple files
     file_list = glob.glob(os.path.join(project_root_path, 'data', 'bm_data', '*BAV*.parquet'))
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        results = list(executor.map(pd.read_parquet, file_list))
+
+    # Combine new data into a single DataFrame
+    all_data = pd.concat(results, ignore_index=True)
+    all_data = all_data.astype({'HDR': str, 'BMU_id': str, 'Settlement Period': int, 'Total': float})
+    all_data['date'] = pd.to_datetime(all_data['date'])
+
+
+    # Save the updated data
+    all_data.to_parquet(filename, index=False)
+    return all_data
     
-    dataframes = [pd.read_parquet(file) for file in file_list]
 
-    df = pd.concat(dataframes, ignore_index=True)
-    # HDR, BMU_id are strings, Settlement Period is an int, Total is a float
-    df['HDR'] = df['HDR'].astype(str)
-    df['BMU_id'] = df['BMU_id'].astype(str)
-    
-    df['Settlement Period'] = df['Settlement Period'].astype(int)
-    df['Total'] = df['Total'].astype(float)
-    df['date'] = pd.to_datetime(df['date'])
+if __name__ == "__main__":
 
-    df.to_parquet(filename, index=False)
-    return df
-
-def _get_bav_df(date):
-    try:
-        folder_path = os.path.join(project_root_path, 'data', 'bm_data')
-        filename = os.path.join(folder_path, f'{date}_BAV.parquet')
-        _bav_df = pd.read_parquet(filename)
-        # make 'date' a datetime
-        # _bav_df['date'] = pd.to_datetime(_bav_df['date'])
-        return _bav_df
-    except Exception as e:
-        print(f"Error: {e}, date: {date}")
-        return None
-
-
-def _get_gen_df(date, bmu_id, redo=False):
-
-    folder_path = os.path.join(project_root_path, 'data', 'raw_gen_data', bmu_id)
-    os.makedirs(folder_path, exist_ok=True)
-
-    date_string = date.strftime('%Y-%m-%d')
-    filename = os.path.join(folder_path, f'{date_string}.parquet')
-
-
-    empty_filename = os.path.join(folder_path, f'{date_string}_empty.txt')
-
-    if os.path.exists(filename) and not redo:
-        print(f"File exists: {filename}")
-        return
-    if os.path.exists(empty_filename) and not redo:
-        print(f"This date has no data: {date_string}")
-        return
-
-    try:
-        endpoint = f"https://api.bmreports.com/BMRS/B1610/v2?APIKey={api_key}&SettlementDate={date_string}&Period=*&NGCBMUnitID={bmu_id}&ServiceType=csv"
-        response = requests.get(endpoint)
-
-        if response.status_code != 200:
-            raise APIError(f"API call failed for {date_string}")
-        
-        df = pd.DataFrame(response.text.splitlines())
-
-        if df.empty:
-          # make a file to indicate that there is no data
-          with open(empty_filename, 'w') as f:
-            f.write('No data')
-          raise NoDataError(f"No data for {bmu_id} on {date_string}")
-
-        # split ',' delimited columns into separate columns
-        df = df[0].str.split(',', expand=True)
-        # drop the first row
-        df.drop(0, inplace=True)
-        # make the first row the column names and drop the first row
-        df.columns = df.iloc[0]
-        df.drop(1, inplace=True)
-
-
-        df['SP'] = df['SP'].astype('int')
-        df['Quantity (MW)'] = df['Quantity (MW)'].astype('float')
-        df['Settlement Date'] = pd.to_datetime(df['Settlement Date'])
-        df = df[['Settlement Date', 'SP', 'Quantity (MW)']]
-
-        df.to_parquet(filename)
-        print(f"Saved {filename}")
-    except (NoDataError, APIError) as e:
-        print(e)
-    except Exception as e:
-        with open(empty_filename, 'w') as f:
-            f.write('No data')
-        print(f"Error at {filename}, {e}, Line: {sys.exc_info()[2].tb_lineno}")
-
-
-def get_generation_data(bmu_id):
-
-    folder_path = os.path.join(project_root_path,'data', 'preprocessed_data', bmu_id)
-    os.makedirs(folder_path, exist_ok=True)
-
-    file_name = os.path.join(folder_path, f'{bmu_id}_generation_data.parquet')
-
-    if os.path.exists(file_name):
-        print(f"File exists: {file_name}")
-        return pd.read_parquet(file_name)
-
-    try:
-        file_list = glob.glob(os.path.join(project_root_path,'data', 'raw_gen_data', bmu_id, '*.parquet'))
-        df = pd.concat([pd.read_parquet(file) for file in file_list], ignore_index=True)
-
-        df['SP'] = df['SP'].astype('int')
-        df['Quantity (MW)'] = df['Quantity (MW)'].astype('float')
-        df['Settlement Date'] = pd.to_datetime(df['Settlement Date'])
-        
-
-        df.set_index(pd.to_datetime(df['Settlement Date']) + pd.to_timedelta((df['SP'] - 1) * 30, unit='minute'), inplace=True)
-        df.index.name = 'utc_time'
-        df = df.resample('30T').last()
-
-        df.to_parquet(file_name)
-        return df
-    except Exception as e:
-        # raise  with the line number
-        raise Exception(f"bmrs.get_generation_data({bmu_id}): {e}, Line: {sys.exc_info()[2].tb_lineno}")
-
-
-
+    # fetch_all_curtailment_data(upcdate=True)
+    gen_df =  get_generation_data('BRDUW-1', update=True)
+    print(gen_df)
