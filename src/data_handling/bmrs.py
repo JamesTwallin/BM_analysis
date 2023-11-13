@@ -131,7 +131,7 @@ def get_generation_data(bmu_id, update=False, redo=False):
     """
     Fetches the generation data for a given BMU ID. If update is True, it updates 
     the data with new information since the last recorded date. If there are no new files to process,
-    returns the existing data or an empty DataFrame. Utilizes a data catalogue to track processed files.
+    returns the existing data or an empty DataFrame. Uses a data catalogue to track processed files.
 
     Args:
     bmu_id (str): The BMU ID to fetch the data for.
@@ -188,7 +188,7 @@ def get_generation_data(bmu_id, update=False, redo=False):
 
             return updated_df
     else:
-        print("No new processed data to save.")
+        print(f"{bmu_id} is up to date")
         return existing_df if existing_df is not None else pd.DataFrame()
 
 def download_all_BAV_OAV_data(start_date, end_date, redo=False):
