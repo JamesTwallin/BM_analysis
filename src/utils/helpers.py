@@ -190,8 +190,7 @@ def load_windfarms_geojson(get_type=True):
     return data
 
 def _load_raw_windfarms_geojson():
-    root = os.path.dirname(os.path.abspath(__file__))
-    filename = root + '/windfarms.geojson'
+    filename = project_root_path + '/windfarms.geojson'
     # use json
     with open(filename) as f:
         data = json.load(f)
