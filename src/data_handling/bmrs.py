@@ -7,7 +7,6 @@ assert pd.__version__ >= '1.5'
 import os, sys
 import ast
 
-
 import src.utils.helpers as helpers
 global api_key
 api_key = helpers.get_credentials()
@@ -23,10 +22,10 @@ class APIError(Exception):
 
 
 
-def get_all_accepted_volumes(start_date, end_date):
+def download_all_BAV_OAV_data(start_date, end_date, redo=False):
     date_range = pd.date_range(start_date, end_date, freq='1D')
     with concurrent.futures.ThreadPoolExecutor() as executor:
-        results = list(executor.map(_download_accepted_volumes, date_range))
+        results = list(executor.map(_download_accepted_volumes, date_range, itertools.repeat(redo)))
     return results  # Collect and return results if needed
 
 
@@ -37,9 +36,9 @@ def download_gen_data(start, end, bmu_id, redo=False):
 
 
 
-def _download_accepted_volumes(date):
+def _download_accepted_volumes(date,redo=False,verbose=False):
     date_str = date.strftime('%Y-%m-%d')
-    folder_path = os.path.join(project_root_path, 'bm_data')
+    folder_path = os.path.join(project_root_path,'data', 'bm_data')
 
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
@@ -47,16 +46,18 @@ def _download_accepted_volumes(date):
     oav_filename = os.path.join(folder_path, f'{date_str}_OAV.parquet')
     bav_filename = os.path.join(folder_path, f'{date_str}_BAV.parquet')
 
-    if os.path.exists(oav_filename) and os.path.exists(bav_filename):
-        print(f"Files already exist: {oav_filename}, {bav_filename}")
+    if os.path.exists(oav_filename) and os.path.exists(bav_filename) and not redo:
+        if verbose:
+            print(f"Files already exist: {oav_filename}, {bav_filename}")
         return None
-
-    print(f"Downloading data for {date_str}")
+    if verbose:
+        print(f"Downloading data for {date_str}")
     endpoint = f"https://api.bmreports.com/BMRS/DERBMDATA/v1?APIKey={api_key}&SettlementDate={date_str}&SettlementPeriod=*&BMUnitId=*&BMUnitType=*&LeadPartyName=*&NGCBMUnitName=*&ServiceType=csv"
     response = requests.get(endpoint)
 
     if response.status_code != 200:
-        print(f"Failed to download data for {date_str}, status code: {response.status_code}")
+        if verbose:
+            print(f"Failed to download data for {date_str}, status code: {response.status_code}")
         return None
 
     #turn the response into a dataframe, the text has a ',' delimiter
@@ -78,7 +79,8 @@ def _download_accepted_volumes(date):
 
         bav_df.to_parquet(bav_filename, index=False)
     except Exception as e:
-        print(f"Error: {e}, date: {date}")
+        if verbose:
+            print(f"Error: {e}, date: {date}")
         return None
 
     # process the OAV data:
@@ -92,7 +94,8 @@ def _download_accepted_volumes(date):
 
         oav_df.to_parquet(oav_filename, index=False)
     except Exception as e:
-        print(f"Error: {e}, date: {date}")
+        if verbose:
+            print(f"Error: {e}, date: {date}")
         return None
         
     
@@ -121,11 +124,8 @@ def get_bmu_curtailment_data(curtailment_df, bmu_id):
     return df
   
 def fetch_all_curtailment_data():
-
     preprocessed_folder = os.path.join(project_root_path, 'data', 'preprocessed_data')
-
-    if not os.path.exists(preprocessed_folder):
-        os.makedirs(preprocessed_folder)
+    os.makedirs(preprocessed_folder, exist_ok=True)
 
     filename = os.path.join(preprocessed_folder, 'curtailment_data.parquet')
 
@@ -134,15 +134,32 @@ def fetch_all_curtailment_data():
         return pd.read_parquet(filename)
 
     file_list = glob.glob(os.path.join(project_root_path, 'data', 'bm_data', '*BAV*.parquet'))
-    df = pd.DataFrame()
+    
+    dataframes = [pd.read_parquet(file) for file in file_list]
 
-    for file in file_list:
-        df = pd.concat([df, pd.read_parquet(file)], ignore_index=True)
+    df = pd.concat(dataframes, ignore_index=True)
+    # HDR, BMU_id are strings, Settlement Period is an int, Total is a float
+    df['HDR'] = df['HDR'].astype(str)
+    df['BMU_id'] = df['BMU_id'].astype(str)
+    
+    df['Settlement Period'] = df['Settlement Period'].astype(int)
+    df['Total'] = df['Total'].astype(float)
+    df['date'] = pd.to_datetime(df['date'])
 
-    df.to_parquet(filename)
+    df.to_parquet(filename, index=False)
     return df
 
-
+def _get_bav_df(date):
+    try:
+        folder_path = os.path.join(project_root_path, 'data', 'bm_data')
+        filename = os.path.join(folder_path, f'{date}_BAV.parquet')
+        _bav_df = pd.read_parquet(filename)
+        # make 'date' a datetime
+        # _bav_df['date'] = pd.to_datetime(_bav_df['date'])
+        return _bav_df
+    except Exception as e:
+        print(f"Error: {e}, date: {date}")
+        return None
 
 
 def _get_gen_df(date, bmu_id, redo=False):
@@ -230,15 +247,7 @@ def get_generation_data(bmu_id):
         return df
     except Exception as e:
         # raise  with the line number
-        raise Exception(f"get_generation_data({bmu_id})Error at {file_name}, {e}, Line: {sys.exc_info()[2].tb_lineno}")
+        raise Exception(f"bmrs.get_generation_data({bmu_id}): {e}, Line: {sys.exc_info()[2].tb_lineno}")
 
 
-if __name__ == "__main__":
-    # get all the folders within the raw_gen_data folder
-    # read in the custom csv
-    bmu_ids = helpers.get_list_of_bmu_ids_from_custom_windfarm_csv()
-    for bmu_id in bmu_ids:
-      download_gen_data('2017-01-01', '2023-11-01', bmu_id)
 
-    # for bmu_id in bmu_ids:
-    #   download_gen_data('2017-01-01', '2023-11-01', bmu_id, redo=True)
