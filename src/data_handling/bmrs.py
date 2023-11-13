@@ -9,6 +9,8 @@ import json
 import ast
 import tqdm
 
+
+
 import src.utils.helpers as helpers
 global api_key
 api_key = helpers.get_credentials()
@@ -37,19 +39,14 @@ def get_out_of_date_status(last_date):
 
 
 
-
-
 def download_gen_data(date_list, bmu_id, redo=False):
-    print(f"Downloading generation data for {bmu_id}")
     with concurrent.futures.ProcessPoolExecutor() as executor:
         results = list(tqdm.tqdm(executor.map(_get_gen_df, date_list, itertools.repeat(bmu_id), itertools.repeat(redo)), total=len(date_list)))
     return results
 
-
-def _get_gen_df(date, bmu_id, redo=False, verbose=False):
+def _get_gen_df(date_string, bmu_id, redo=False, verbose=False):
     folder_path = os.path.join(project_root_path, 'data', 'raw_gen_data', bmu_id)
     os.makedirs(folder_path, exist_ok=True)
-    date_string = date.strftime('%Y-%m-%d')
     filename = os.path.join(folder_path, f'{date_string}.parquet')
     empty_filename = os.path.join(folder_path, f'{date_string}_empty.txt')
 
@@ -61,7 +58,7 @@ def _get_gen_df(date, bmu_id, redo=False, verbose=False):
     if not redo and os.path.exists(empty_filename):
         if verbose:
             print(f"No data for {date_string}")
-        return empty_filename  # Return the empty file indicator
+        return None  # Return None to indicate no new data
 
     try:
         df = _download_and_process_data(date_string, bmu_id, verbose)
@@ -73,37 +70,24 @@ def _get_gen_df(date, bmu_id, redo=False, verbose=False):
         else:
             with open(empty_filename, 'w') as f:
                 f.write('No data')
-            return empty_filename
+            return None
     except Exception as e:
         if verbose:
-            print(f"Error at {date_string}: {e}")
+            print(f"Error processing data for {date_string}: {e}")
         return None
 
-def _check_file_status(filename, redo, verbose, date_string):
-    """
-    Check if the file exists or if an empty flag file exists.
-    Return True if processing should be skipped, False otherwise.
-    """
-    empty_filename = filename.replace('.parquet', '_empty.txt')
-    if os.path.exists(filename) and not redo:
-        if verbose:
-            print(f"File exists: {filename}")
-        return True
-    if os.path.exists(empty_filename) and not redo:
-        if verbose:
-            print(f"No data for date: {date_string}")
-        return True
-    return False
-
 def _download_and_process_data(date_string, bmu_id, verbose):
-    """
-    Download and process data for a specific date and bmu_id.
-    """
     endpoint = f"https://api.bmreports.com/BMRS/B1610/v2?APIKey={api_key}&SettlementDate={date_string}&Period=*&NGCBMUnitID={bmu_id}&ServiceType=csv"
-    response = requests.get(endpoint)
-    if response.status_code != 200:
+    try:
+        response = requests.get(endpoint)
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as e:
         if verbose:
-            print(f"Failed to download data for {date_string}, status code: {response.status_code}")
+            logging.error(f"HTTP error: {e}")
+        return None
+    except Exception as e:
+        if verbose:
+            logging.error(f"Error fetching data: {e}")
         return None
 
     df = pd.DataFrame(response.text.splitlines())
@@ -117,88 +101,86 @@ def _download_and_process_data(date_string, bmu_id, verbose):
     df['Settlement Date'] = pd.to_datetime(df['Settlement Date'])
     return df[['Settlement Date', 'SP', 'Quantity (MW)']]
 
-def _handle_download_error(e, folder_path, date_string, verbose):
-    """
-    Handle errors during data download and processing.
-    """
-    empty_filename = os.path.join(folder_path, f'{date_string}_empty.txt')
-    with open(empty_filename, 'w') as f:
-        f.write('No data')
-    if verbose:
-        print(f"Error at {date_string}, {e}, Line: {sys.exc_info()[2].tb_lineno}")
-        
 def get_generation_data(bmu_id, update=False, redo=False):
-    """
-    Fetches the generation data for a given BMU ID. If update is True, it updates 
-    the data with new information since the last recorded date. If there are no new files to process,
-    returns the existing data or an empty DataFrame. Uses a data catalogue to track processed files.
-
-    Args:
-    bmu_id (str): The BMU ID to fetch the data for.
-    update (bool): Whether to update the data.
-    redo (bool): If True, reprocesses the data even if it has been processed before.
-
-    Returns:
-    DataFrame: The DataFrame containing the generation data.
-    """
     folder_path = os.path.join(project_root_path, 'data', 'preprocessed_data', bmu_id)
     os.makedirs(folder_path, exist_ok=True)
     file_name = os.path.join(folder_path, f'{bmu_id}_generation_data.parquet')
     data_catalogue_filename = os.path.join(folder_path, f'{bmu_id}_catalogue.json')
 
-    # Load or initialize the data catalogue
+    data_catalog = {}
     if os.path.exists(data_catalogue_filename):
         with open(data_catalogue_filename, 'r') as f:
             data_catalog = json.load(f)
     else:
-        data_catalog = {}
         data_catalog['attempted'] = {}
         data_catalog['processed'] = {}
-        update = True  # Force update if no data catalogue exists
+        update = True
 
-    # Load existing data if available
-    existing_df = pd.read_parquet(file_name) if os.path.exists(file_name) else None
-    last_date = existing_df['Settlement Date'].max() if existing_df is not None else None
+    # glob the raw_gen_data folder to get all the dates that have been attempted
+    attempted_dates = glob.glob(os.path.join(project_root_path, 'data', 'raw_gen_data', bmu_id, "*"))
+    # take the first 10 characters of the filename to get the date
+    attempted_dates = [os.path.basename(date)[:10] for date in attempted_dates]
+    for _date in attempted_dates:
+        data_catalog['attempted'][_date] = True
+    if os.path.exists(file_name):
 
-    if not update and existing_df is not None:
+        existing_df = pd.read_parquet(file_name) 
+        last_date = existing_df['Settlement Date'].max()
+    
+    else:
+        # Use a ThreadPoolExecutor to read parquet files in parallel
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            files = glob.glob(os.path.join(project_root_path, 'data', 'raw_gen_data', bmu_id, "*.parquet"))
+            if files:  # Check if there are any files to process
+                future_to_parquet = {executor.submit(pd.read_parquet, file): file for file in files}
+                results = []
+                for future in concurrent.futures.as_completed(future_to_parquet):
+                    try:
+                        result = future.result()
+                        results.append(result)
+                    except Exception as exc:
+                        print('%r generated an exception: %s' % (future_to_parquet[future], exc))
+                
+                existing_df = pd.concat(results, ignore_index=True) if results else pd.DataFrame()
+                last_date = existing_df['Settlement Date'].max()
+                existing_df.to_parquet(file_name)
+
+            else:
+                existing_df = pd.DataFrame()
+                last_date = None
+
+
+    if not update and not existing_df.empty:
+        
         return existing_df
 
-    # Determine the date range for downloading new data
-    start_date = last_date + pd.Timedelta(days=1) if last_date is not None else pd.to_datetime('2017-01-01')
+    start_date = last_date + pd.Timedelta(days=1) if last_date else pd.to_datetime('2017-01-01')
     end_date = pd.to_datetime('today').floor('D') - pd.Timedelta(days=1)
-
     date_list = pd.date_range(start_date, end_date, freq='1D')
-    new_dates = [date for date in date_list if not data_catalog['attempted'].get(date.strftime('%Y-%m-%d'))]
-
-    if not update:
-        new_dates = [date for date in new_dates if not data_catalog['processed'].get(date.strftime('%Y-%m-%d'))]
-    
+    new_dates = [date for date in date_list if date.strftime('%Y-%m-%d') not in data_catalog['attempted']]
 
     if new_dates:
+        print(f"Downloading data for {bmu_id} from {new_dates[0]} to {new_dates[-1]}")
         results = download_gen_data(new_dates, bmu_id, redo)
-        # Update data_catalog with new dates
-        for date in new_dates:
-            data_catalog['attempted'][date.strftime('%Y-%m-%d')] = True
-
-
-        # Process and combine new data
         data_frames = [df for df in results if isinstance(df, pd.DataFrame)]
         if data_frames:
-            for df in data_frames:
-                data_catalog['processed'][df['Settlement Date'].iloc[0].strftime('%Y-%m-%d')] = True
-            with open(data_catalogue_filename, 'w') as f:
-                 json.dump(data_catalog, f)
             new_df = pd.concat(data_frames, ignore_index=True) if data_frames else pd.DataFrame()
             new_df.set_index(pd.to_datetime(new_df['Settlement Date']) + pd.to_timedelta((new_df['SP'] - 1) * 30, unit='minute'), inplace=True)
             new_df.index.name = 'utc_time'
             new_df = new_df.resample('30T').last()
-            updated_df = pd.concat([existing_df, new_df], ignore_index=True) if existing_df is not None else new_df
+            updated_df = pd.concat([existing_df, new_df], ignore_index=True) if not existing_df.empty else new_df
             updated_df.to_parquet(file_name)
-
-            return updated_df
+            for df in data_frames:
+                date_string = df['Settlement Date'].iloc[0].strftime('%Y-%m-%d')
+                data_catalog['processed'][date_string] = True
+        with open(data_catalogue_filename, 'w') as f:
+            json.dump(data_catalog, f)
     else:
+
         print(f"{bmu_id} is up to date")
-        return existing_df if existing_df is not None else pd.DataFrame()
+
+
+    return existing_df if not existing_df.empty else pd.DataFrame()
 
 def download_all_BAV_OAV_data(start_date, end_date, redo=False):
     """
@@ -351,4 +333,4 @@ def fetch_all_curtailment_data(update=False):
     return all_data
 
 if __name__ == "__main__":
-    df = get_generation_data('BRDUW-1', update=True)
+    df = get_generation_data('AFTOW-1')
