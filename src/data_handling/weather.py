@@ -8,7 +8,8 @@ import pandas as pd
 import concurrent.futures
 import netCDF4
 
-import utils.helpers as helpers
+# Custom modules
+import src.utils.helpers as helpers
 
 # Global variable for project root path
 project_root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -17,7 +18,7 @@ era5_bucket = 'era5-pds'
 client = boto3.client('s3', config=botocore.client.Config(signature_version=botocore.UNSIGNED))
 
 def get_era5_data(date, variable, locs):
-    folder = os.path.join(project_root_path, 'weather_data')
+    folder = os.path.join(project_root_path, 'data', 'weather_data')
     os.makedirs(folder, exist_ok=True)
     
     drive_filename = os.path.join(folder, f"{date.year}_{str(date.month).zfill(2)}_{variable}.parquet")
