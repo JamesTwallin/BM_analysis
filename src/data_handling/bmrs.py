@@ -152,6 +152,8 @@ def get_generation_data(bmu_id, update=False, redo=False):
             data_catalog = json.load(f)
     else:
         data_catalog = {}
+        data_catalog['attempted'] = {}
+        data_catalog['processed'] = {}
         update = True  # Force update if no data catalogue exists
 
     # Load existing data if available
@@ -166,19 +168,26 @@ def get_generation_data(bmu_id, update=False, redo=False):
     end_date = pd.to_datetime('today').floor('D') - pd.Timedelta(days=1)
 
     date_list = pd.date_range(start_date, end_date, freq='1D')
-    new_dates = [date for date in date_list if str(date.date()) not in data_catalog or redo]
+    new_dates = [date for date in date_list if not data_catalog['attempted'].get(date.strftime('%Y-%m-%d'))]
+
+    if not update:
+        new_dates = [date for date in new_dates if not data_catalog['processed'].get(date.strftime('%Y-%m-%d'))]
+    
 
     if new_dates:
         results = download_gen_data(new_dates, bmu_id, redo)
         # Update data_catalog with new dates
         for date in new_dates:
-            data_catalog[str(date.date())] = 'Processed'
-        with open(data_catalogue_filename, 'w') as f:
-            json.dump(data_catalog, f)
+            data_catalog['attempted'][date.strftime('%Y-%m-%d')] = True
+
 
         # Process and combine new data
         data_frames = [df for df in results if isinstance(df, pd.DataFrame)]
         if data_frames:
+            for df in data_frames:
+                data_catalog['processed'][df['Settlement Date'].iloc[0].strftime('%Y-%m-%d')] = True
+            with open(data_catalogue_filename, 'w') as f:
+                 json.dump(data_catalog, f)
             new_df = pd.concat(data_frames, ignore_index=True) if data_frames else pd.DataFrame()
             new_df.set_index(pd.to_datetime(new_df['Settlement Date']) + pd.to_timedelta((new_df['SP'] - 1) * 30, unit='minute'), inplace=True)
             new_df.index.name = 'utc_time'
@@ -341,3 +350,5 @@ def fetch_all_curtailment_data(update=False):
     all_data.to_parquet(filename, index=False)
     return all_data
 
+if __name__ == "__main__":
+    df = get_generation_data('BRDUW-1', update=True)
