@@ -341,13 +341,3 @@ def fetch_all_curtailment_data(update=False):
     all_data.to_parquet(filename, index=False)
     return all_data
 
-# if __name__ == "__main__":
-
-#     # fetch_all_curtailment_data(upcdate=True) 
-#     for bmu in ['BRDUW-1', 'ABRBO-1']:
-        
-#         gen_df =  get_generation_data(bmu)
-#         # what the datatypes
-#         print(gen_df.dtypes)
-#         # does it have an index?
-#         print(gen_df.index)
