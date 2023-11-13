@@ -179,8 +179,7 @@ if __name__ == "__main__":
 
       except Exception as e:
         # tell me which line it failed using sys.exc_info
-        exc_type, exc_obj, exc_tb = sys.exc_info()
-        print(f"Error on line {exc_tb.tb_lineno}: {e}")
+        print(e)
     df = pd.DataFrame(rows)
     df.to_csv('pcey.csv', index=False)
 
