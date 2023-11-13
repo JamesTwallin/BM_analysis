@@ -45,6 +45,8 @@ def download_gen_data(date_list, bmu_id, redo=False):
     return results
 
 def _get_gen_df(date_string, bmu_id, redo=False, verbose=False):
+    if isinstance(date_string, pd.Timestamp):
+        date_string = date_string.strftime('%Y-%m-%d')
     folder_path = os.path.join(project_root_path, 'data', 'raw_gen_data', bmu_id)
     os.makedirs(folder_path, exist_ok=True)
     filename = os.path.join(folder_path, f'{date_string}.parquet')
@@ -80,26 +82,25 @@ def _download_and_process_data(date_string, bmu_id, verbose):
     endpoint = f"https://api.bmreports.com/BMRS/B1610/v2?APIKey={api_key}&SettlementDate={date_string}&Period=*&NGCBMUnitID={bmu_id}&ServiceType=csv"
     try:
         response = requests.get(endpoint)
-        response.raise_for_status()
     except requests.exceptions.HTTPError as e:
         if verbose:
-            logging.error(f"HTTP error: {e}")
+            print(f"HTTP error: {e}")
         return None
     except Exception as e:
         if verbose:
-            logging.error(f"Error fetching data: {e}")
+            print(f"Error fetching data: {e}")
         return None
 
     df = pd.DataFrame(response.text.splitlines())
-    if df.empty:
+    try:
+        df = df[0].str.split(',', expand=True).drop(0).rename(columns=df.iloc[0]).drop(1)
+        df = df.astype({'SP': 'int', 'Quantity (MW)': 'float'})
+        df['Settlement Date'] = pd.to_datetime(df['Settlement Date'])
+        return df[['Settlement Date', 'SP', 'Quantity (MW)']]
+    except Exception as e:
         if verbose:
-            print(f"No data for {date_string}")
+            print(f"Error processing data: {e}")
         return None
-
-    df = df[0].str.split(',', expand=True).drop(0).rename(columns=df.iloc[0]).drop(1)
-    df = df.astype({'SP': 'int', 'Quantity (MW)': 'float'})
-    df['Settlement Date'] = pd.to_datetime(df['Settlement Date'])
-    return df[['Settlement Date', 'SP', 'Quantity (MW)']]
 
 def get_generation_data(bmu_id, update=False, redo=False):
     folder_path = os.path.join(project_root_path, 'data', 'preprocessed_data', bmu_id)
@@ -151,7 +152,8 @@ def get_generation_data(bmu_id, update=False, redo=False):
 
 
     if not update and not existing_df.empty:
-        
+        with open(data_catalogue_filename, 'w') as f:
+            json.dump(data_catalog, f)
         return existing_df
 
     start_date = last_date + pd.Timedelta(days=1) if last_date else pd.to_datetime('2017-01-01')
@@ -333,4 +335,4 @@ def fetch_all_curtailment_data(update=False):
     return all_data
 
 if __name__ == "__main__":
-    df = get_generation_data('AFTOW-1')
+    df = get_generation_data('MOWEO-3', update=True)
