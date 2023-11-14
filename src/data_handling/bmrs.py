@@ -334,5 +334,87 @@ def fetch_all_curtailment_data(update=False):
     all_data.to_parquet(filename, index=False)
     return all_data
 
+
+class BMU:
+    def __init__(self, bmu_id, update_gen_data=False):
+        self.bmu_id = bmu_id
+        self.raw_folder_path = os.path.join(project_root_path, 'data', 'raw_gen_data', self.bmu_id)
+        self.preprocessed_folder_path = os.path.join(project_root_path, 'data', 'preprocessed_data', self.bmu_id)
+        self.update_gen_data = update_gen_data
+        self._load_metadata_dict()
+        self.session = requests.Session()
+        
+
+    def _load_metadata_dict(self):
+        metadata_file = os.path.join(self.raw_folder_path, f'{self.bmu_id}_metadata.json')
+        if os.path.exists(metadata_file):
+            with open(metadata_file, 'r') as f:
+                metadata_dict = json.load(f)
+            self.metadata_dict = metadata_dict
+        else:
+            self.metadata_dict = {}
+            self.metadata_dict['attempted'] = {}
+            self.metadata_dict['processed'] = {}
+            self.update_gen_data = True
+
+    def _update_metadata_dict(self):
+        metadata_file = os.path.join(self.raw_folder_path, f'{self.bmu_id}_metadata.json')
+        with open(metadata_file, 'w') as f:
+            json.dump(self.metadata_dict, f)
+
+
+    def _get_gen_data(self):
+        try:
+            start_date = pd.to_datetime('2017-01-01')
+            end_date = pd.to_datetime('today').floor('D') - pd.Timedelta(days=1)
+            date_list = pd.date_range(start_date, end_date, freq='1D')
+            new_dates = [date for date in date_list if date.strftime('%Y-%m-%d') not in self.metadata_dict['attempted']]
+            if new_dates:
+                # do chunks of 250 dates at a time
+                chunks = [new_dates[i:i + 250] for i in range(0, len(new_dates), 250)]
+                for chunk in chunks:
+                # Use ThreadPoolExecutor to call API concurrently
+                    
+                    with concurrent.futures.ThreadPoolExecutor() as executor:
+                        futures = {executor.submit(self._call_api, date.strftime('%Y-%m-%d')): date for date in chunk}
+                        for future in concurrent.futures.as_completed(futures):
+                            date = futures[future]
+                            self.metadata_dict['attempted'][date.strftime('%Y-%m-%d')] = True
+                            if future.result():
+                                self.metadata_dict['processed'][date.strftime('%Y-%m-%d')] = True
+                            else:
+                                self.metadata_dict['processed'][date.strftime('%Y-%m-%d')] = False
+
+
+                    self._update_metadata_dict()
+            else:
+                print(f"{self.bmu_id} is up to date")
+        except Exception as e:
+            print(f"Error processing data for {self.bmu_id}: {e}")
+
+    def _call_api(self, date_string):
+        endpoint = f"https://api.bmreports.com/BMRS/B1610/v2?APIKey={api_key}&SettlementDate={date_string}&Period=*&NGCBMUnitID={self.bmu_id}&ServiceType=csv"
+        try:
+            print(f"Downloading data for {date_string}")
+            response = self.session.get(endpoint)
+            df = pd.DataFrame(response.text.splitlines())
+            df = df[0].str.split(',', expand=True)
+            df.columns = df.iloc[1]
+            df.drop([0, 1], inplace=True)
+
+            df = df.astype({'SP': 'int', 'Quantity (MW)': 'float'})
+            df['Settlement Date'] = pd.to_datetime(df['Settlement Date'])
+            df[['Settlement Date', 'SP', 'Quantity (MW)']].to_parquet(f"{self.raw_folder_path}/{date_string}.parquet")
+            return True
+        except Exception as e:
+            return False
+
+
+
+            
+
+
+
 if __name__ == "__main__":
-    df = get_generation_data('MOWEO-3', update=True)
+    bmu_obj = BMU('BTUIW-2')
+    bmu_obj._get_gen_data()
