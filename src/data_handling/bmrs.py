@@ -8,7 +8,7 @@ import os, sys
 import json
 import ast
 import tqdm
-
+import datetime as dt
 
 
 import src.utils.helpers as helpers
@@ -38,151 +38,6 @@ def get_out_of_date_status(last_date):
 
 
 
-
-def download_gen_data(date_list, bmu_id, redo=False):
-    with concurrent.futures.ProcessPoolExecutor() as executor:
-        results = list(tqdm.tqdm(executor.map(_get_gen_df, date_list, itertools.repeat(bmu_id), itertools.repeat(redo)), total=len(date_list)))
-    return results
-
-def _get_gen_df(date_string, bmu_id, redo=False, verbose=False):
-    if isinstance(date_string, pd.Timestamp):
-        date_string = date_string.strftime('%Y-%m-%d')
-    folder_path = os.path.join(project_root_path, 'data', 'raw_gen_data', bmu_id)
-    os.makedirs(folder_path, exist_ok=True)
-    filename = os.path.join(folder_path, f'{date_string}.parquet')
-    empty_filename = os.path.join(folder_path, f'{date_string}_empty.txt')
-
-    if not redo and os.path.exists(filename):
-        if verbose:
-            print(f"File exists: {filename}")
-        return pd.read_parquet(filename)
-
-    if not redo and os.path.exists(empty_filename):
-        if verbose:
-            print(f"No data for {date_string}")
-        return None  # Return None to indicate no new data
-
-    try:
-        df = _download_and_process_data(date_string, bmu_id, verbose)
-        if df is not None and not df.empty:
-            df.to_parquet(filename)
-            if verbose:
-                print(f"Saved {filename}")
-            return df
-        else:
-            with open(empty_filename, 'w') as f:
-                f.write('No data')
-            return None
-    except Exception as e:
-        if verbose:
-            print(f"Error processing data for {date_string}: {e}")
-        return None
-
-def _download_and_process_data(date_string, bmu_id, verbose):
-    endpoint = f"https://api.bmreports.com/BMRS/B1610/v2?APIKey={api_key}&SettlementDate={date_string}&Period=*&NGCBMUnitID={bmu_id}&ServiceType=csv"
-    try:
-        response = requests.get(endpoint)
-    except requests.exceptions.HTTPError as e:
-        if verbose:
-            print(f"HTTP error: {e}")
-        return None
-    except Exception as e:
-        if verbose:
-            print(f"Error fetching data: {e}")
-        return None
-
-    df = pd.DataFrame(response.text.splitlines())
-    try:
-        df = df[0].str.split(',', expand=True).drop(0).rename(columns=df.iloc[0]).drop(1)
-        df = df.astype({'SP': 'int', 'Quantity (MW)': 'float'})
-        df['Settlement Date'] = pd.to_datetime(df['Settlement Date'])
-        return df[['Settlement Date', 'SP', 'Quantity (MW)']]
-    except Exception as e:
-        if verbose:
-            print(f"Error processing data: {e}")
-        return None
-
-def get_generation_data(bmu_id, update=False, redo=False):
-    folder_path = os.path.join(project_root_path, 'data', 'preprocessed_data', bmu_id)
-    os.makedirs(folder_path, exist_ok=True)
-    file_name = os.path.join(folder_path, f'{bmu_id}_generation_data.parquet')
-    data_catalogue_filename = os.path.join(folder_path, f'{bmu_id}_catalogue.json')
-
-    data_catalog = {}
-    if os.path.exists(data_catalogue_filename):
-        with open(data_catalogue_filename, 'r') as f:
-            data_catalog = json.load(f)
-    else:
-        data_catalog['attempted'] = {}
-        data_catalog['processed'] = {}
-        update = True
-
-    # glob the raw_gen_data folder to get all the dates that have been attempted
-    attempted_dates = glob.glob(os.path.join(project_root_path, 'data', 'raw_gen_data', bmu_id, "*"))
-    # take the first 10 characters of the filename to get the date
-    attempted_dates = [os.path.basename(date)[:10] for date in attempted_dates]
-    for _date in attempted_dates:
-        data_catalog['attempted'][_date] = True
-    if os.path.exists(file_name):
-
-        existing_df = pd.read_parquet(file_name) 
-        last_date = existing_df['Settlement Date'].max()
-    
-    else:
-        # Use a ThreadPoolExecutor to read parquet files in parallel
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            files = glob.glob(os.path.join(project_root_path, 'data', 'raw_gen_data', bmu_id, "*.parquet"))
-            if files:  # Check if there are any files to process
-                future_to_parquet = {executor.submit(pd.read_parquet, file): file for file in files}
-                results = []
-                for future in concurrent.futures.as_completed(future_to_parquet):
-                    try:
-                        result = future.result()
-                        results.append(result)
-                    except Exception as exc:
-                        print('%r generated an exception: %s' % (future_to_parquet[future], exc))
-                
-                existing_df = pd.concat(results, ignore_index=True) if results else pd.DataFrame()
-                last_date = existing_df['Settlement Date'].max()
-                existing_df.to_parquet(file_name)
-
-            else:
-                existing_df = pd.DataFrame()
-                last_date = None
-
-
-    if not update and not existing_df.empty:
-        with open(data_catalogue_filename, 'w') as f:
-            json.dump(data_catalog, f)
-        return existing_df
-
-    start_date = last_date + pd.Timedelta(days=1) if last_date else pd.to_datetime('2017-01-01')
-    end_date = pd.to_datetime('today').floor('D') - pd.Timedelta(days=1)
-    date_list = pd.date_range(start_date, end_date, freq='1D')
-    new_dates = [date for date in date_list if date.strftime('%Y-%m-%d') not in data_catalog['attempted']]
-
-    if new_dates:
-        print(f"Downloading data for {bmu_id} from {new_dates[0]} to {new_dates[-1]}")
-        results = download_gen_data(new_dates, bmu_id, redo)
-        data_frames = [df for df in results if isinstance(df, pd.DataFrame)]
-        if data_frames:
-            new_df = pd.concat(data_frames, ignore_index=True) if data_frames else pd.DataFrame()
-            new_df.set_index(pd.to_datetime(new_df['Settlement Date']) + pd.to_timedelta((new_df['SP'] - 1) * 30, unit='minute'), inplace=True)
-            new_df.index.name = 'utc_time'
-            new_df = new_df.resample('30T').last()
-            updated_df = pd.concat([existing_df, new_df], ignore_index=True) if not existing_df.empty else new_df
-            updated_df.to_parquet(file_name)
-            for df in data_frames:
-                date_string = df['Settlement Date'].iloc[0].strftime('%Y-%m-%d')
-                data_catalog['processed'][date_string] = True
-        with open(data_catalogue_filename, 'w') as f:
-            json.dump(data_catalog, f)
-    else:
-
-        print(f"{bmu_id} is up to date")
-
-
-    return existing_df if not existing_df.empty else pd.DataFrame()
 
 def download_all_BAV_OAV_data(start_date, end_date, redo=False):
     """
@@ -363,18 +218,27 @@ class BMU:
             json.dump(self.metadata_dict, f)
 
 
-    def _get_gen_data(self):
+    def _update_gen_data(self):
         try:
             start_date = pd.to_datetime('2017-01-01')
             end_date = pd.to_datetime('today').floor('D') - pd.Timedelta(days=1)
-            date_list = pd.date_range(start_date, end_date, freq='1D')
-            new_dates = [date for date in date_list if date.strftime('%Y-%m-%d') not in self.metadata_dict['attempted']]
+            date_list = pd.date_range(start_date, end_date, freq='1D').to_list()
+            # get a list of dates that have not been processed True
+            for date in date_list:
+                #get the boolean value for the date
+                date_string = date.strftime('%Y-%m-%d')
+                processed = self.metadata_dict['processed'].get(date_string)
+                if processed:
+                    # if the date has been processed, remove it from the list
+                    date_list.remove(date)
+
+            # only keep more recent dates
+            new_dates = [date for date in date_list if date > pd.to_datetime('today').floor('D') - pd.Timedelta(days=14)]
             if new_dates:
                 # do chunks of 250 dates at a time
                 chunks = [new_dates[i:i + 250] for i in range(0, len(new_dates), 250)]
                 for chunk in chunks:
                 # Use ThreadPoolExecutor to call API concurrently
-                    
                     with concurrent.futures.ThreadPoolExecutor() as executor:
                         futures = {executor.submit(self._call_api, date.strftime('%Y-%m-%d')): date for date in chunk}
                         for future in concurrent.futures.as_completed(futures):
@@ -384,8 +248,7 @@ class BMU:
                                 self.metadata_dict['processed'][date.strftime('%Y-%m-%d')] = True
                             else:
                                 self.metadata_dict['processed'][date.strftime('%Y-%m-%d')] = False
-
-
+                    # every 250 dates, update the metadata file, to ensure that we don't re-run the same dates if the script crashes
                     self._update_metadata_dict()
             else:
                 print(f"{self.bmu_id} is up to date")
@@ -407,14 +270,59 @@ class BMU:
             df[['Settlement Date', 'SP', 'Quantity (MW)']].to_parquet(f"{self.raw_folder_path}/{date_string}.parquet")
             return True
         except Exception as e:
+            print(f"Error processing data for {date_string}: {e}")
             return False
 
+    def _get_new_processed_dates(self, last_date):
+        return [
+            date for date in self.metadata_dict['processed']
+            if self.metadata_dict['processed'][date] and pd.to_datetime(date) > last_date
+        ]
 
+    def _read_and_concatenate_dataframes(self, dates):
+        file_paths = [os.path.join(self.raw_folder_path, f'{date}.parquet') for date in dates]
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            dataframes = list(executor.map(pd.read_parquet, file_paths))
+        return pd.concat(dataframes, ignore_index=True)
+
+    def get_all_gen_data(self):
+        if self.update_gen_data:
+            self._update_gen_data()
+
+        gen_data_file = os.path.join(self.preprocessed_folder_path, f'{self.bmu_id}_generation_data.parquet')
+        if os.path.exists(gen_data_file):
+            all_data = pd.read_parquet(gen_data_file)
+            last_processed_date = all_data['Settlement Date'].max()
+
+            new_dates = self._get_new_processed_dates(last_processed_date)
+            if new_dates:
+                new_data = self._read_and_concatenate_dataframes(new_dates)
+                all_data = pd.concat([all_data, new_data], ignore_index=True)
+                all_data.to_parquet(gen_data_file)
+
+            return all_data
+
+        metadata_file = os.path.join(self.raw_folder_path, f'{self.bmu_id}_metadata.json')
+        with open(metadata_file, 'r') as file:
+            metadata_dict = json.load(file)
+
+        processed_dates = [date for date in metadata_dict['processed'] if metadata_dict['processed'][date]]
+        all_data = self._read_and_concatenate_dataframes(processed_dates)
+        all_data.to_parquet(gen_data_file)
+
+        return all_data
 
             
 
 
 
 if __name__ == "__main__":
-    bmu_obj = BMU('BTUIW-2')
-    bmu_obj._get_gen_data()
+    # get a ;ist opf all the BMUs
+    bmu_list = helpers.get_list_of_bmu_ids_from_custom_windfarm_csv()
+    for bmu_id in bmu_list:
+        try:
+            bmu_obj = BMU(bmu_id)
+            bmu_obj.update_gen_data = True
+            bmu_obj.get_all_gen_data()
+        except Exception as e:
+            print(f"Error processing {bmu_id}: {e}")
