@@ -191,13 +191,12 @@ def fetch_all_curtailment_data(update=False):
 
 
 class BMU:
-    def __init__(self, bmu_id, update_gen_data=False):
+    def __init__(self, bmu_id):
         self.bmu_id = bmu_id
         self.raw_folder_path = os.path.join(project_root_path, 'data', 'raw_gen_data', self.bmu_id)
         self.preprocessed_folder_path = os.path.join(project_root_path, 'data', 'preprocessed_data', self.bmu_id)
-        self.update_gen_data = update_gen_data
         self._load_metadata_dict()
-        self.session = requests.Session()
+
         
 
     def _load_metadata_dict(self):
@@ -235,6 +234,7 @@ class BMU:
             # only keep more recent dates
             new_dates = [date for date in date_list if date > pd.to_datetime('today').floor('D') - pd.Timedelta(days=14)]
             if new_dates:
+                self.session = requests.Session()
                 # do chunks of 250 dates at a time
                 chunks = [new_dates[i:i + 250] for i in range(0, len(new_dates), 250)]
                 for chunk in chunks:
@@ -285,8 +285,8 @@ class BMU:
             dataframes = list(executor.map(pd.read_parquet, file_paths))
         return pd.concat(dataframes, ignore_index=True)
 
-    def get_all_gen_data(self):
-        if self.update_gen_data:
+    def get_all_gen_data(self, update=False):
+        if update:
             self._update_gen_data()
 
         gen_data_file = os.path.join(self.preprocessed_folder_path, f'{self.bmu_id}_generation_data.parquet')
@@ -322,7 +322,6 @@ if __name__ == "__main__":
     for bmu_id in bmu_list:
         try:
             bmu_obj = BMU(bmu_id)
-            bmu_obj.update_gen_data = True
             bmu_obj.get_all_gen_data()
         except Exception as e:
             print(f"Error processing {bmu_id}: {e}")
