@@ -30,7 +30,25 @@ class BMRS:
         self.preprocessed_folder_path = os.path.join(project_root_path, 'data', 'preprocessed_data')
         self.bav_data = None
         self.oav_data = None
+        self._init_metadata_dict()
         self._load_metadata_dict()
+
+    def _init_metadata_dict(self):
+        # glob
+        metadata_file = os.path.join(self.folder_path, 'metadata.json')
+        files = glob.glob(os.path.join(self.folder_path, '*.parquet'))
+        dates = [os.path.basename(file).split('_')[0] for file in files]
+        dates = list(set(dates))
+        dates.sort()
+        processed_dates = {date: False for date in dates}
+        metadata_dict = {}
+        metadata_dict['processed'] = {}
+        for date in dates:
+            metadata_dict['processed'][date] = True
+
+        with open(metadata_file, 'w') as f:
+            json.dump(metadata_dict, f)
+        self.metadata_dict = metadata_dict
 
     
     def _load_metadata_dict(self):
@@ -40,9 +58,7 @@ class BMRS:
                 metadata_dict = json.load(f)
             self.metadata_dict = metadata_dict
         else:
-            self.metadata_dict = {}
-            self.metadata_dict['attempted'] = {}
-            self.metadata_dict['processed'] = {}
+            self._init_metadata_dict()
             self.update_bm_data = True
 
     def _update_metadata_dict(self):
@@ -173,6 +189,7 @@ class BMRS:
 
         processed_dates = [date for date in metadata_dict['processed'] if metadata_dict['processed'][date]]
         all_data = self._read_and_concatenate_dataframes(processed_dates, id)
+        all_data['date'] = pd.to_datetime(all_data['date'])
         
         all_data.to_parquet(file_path)
         if id.lower() == 'bav':
