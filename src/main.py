@@ -40,19 +40,19 @@ def get_type(bmu, windfarm_details):
 
 
 def calculate_wind_speed_and_direction(df):
-		v_df = df[['northward_wind_at_100_metres']].loc[df['northward_wind_at_100_metres'].notnull()]
-		# rename the variable column to 'V'
-		v_df = v_df.rename(columns={'northward_wind_at_100_metres': 'V'})
-		u_df = df[['eastward_wind_at_100_metres']].loc[df['eastward_wind_at_100_metres'].notnull()]
-		u_df = u_df.rename(columns={'eastward_wind_at_100_metres': 'U'})
-		# rename the variable column to 'V wind component'
-		# merge the two dfs
-		ws_df = pd.merge(v_df, u_df, on='utc_time')
-		# calculate the wind speed
-		ws_df['wind_speed'] = (ws_df['V']**2 + ws_df['U']**2)**0.5
-		ws_df['wind_direction_degrees'] = (270 - (180/3.14159)*ws_df['V']/ws_df['U'])%360
+	v_df = df[['northward_wind_at_100_metres']].loc[df['northward_wind_at_100_metres'].notnull()]
+	# rename the variable column to 'V'
+	v_df = v_df.rename(columns={'northward_wind_at_100_metres': 'V'})
+	u_df = df[['eastward_wind_at_100_metres']].loc[df['eastward_wind_at_100_metres'].notnull()]
+	u_df = u_df.rename(columns={'eastward_wind_at_100_metres': 'U'})
+	# rename the variable column to 'V wind component'
+	# merge the two dfs
+	ws_df = pd.merge(v_df, u_df, on='utc_time')
+	# calculate the wind speed
+	ws_df['wind_speed'] = (ws_df['V']**2 + ws_df['U']**2)**0.5
+	ws_df['wind_direction_degrees'] = (270 - (180/3.14159)*ws_df['V']/ws_df['U'])%360
 
-		return ws_df[['wind_speed', 'wind_direction_degrees']]
+	return ws_df[['wind_speed', 'wind_direction_degrees']]
 
 
 
