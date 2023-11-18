@@ -58,8 +58,10 @@ def fetch_all_weather_data():
         print('File exists:', filename)
         return pd.read_parquet(filename)
 
-    file_list = glob.glob(os.path.join(project_root_path, 'weather_data', '*100_*.parquet'))
-    df = pd.concat([pd.read_parquet(file) for file in file_list], ignore_index=True)
+    file_list = glob.glob(os.path.join(project_root_path, 'data', 'weather_data', '*.parquet'))
+    with concurrent.futures.ProcessPoolExecutor(max_workers=3) as executor:
+        dfs = executor.map(pd.read_parquet, file_list)
+    df = pd.concat(dfs)
     df.to_parquet(filename)
     return df
 

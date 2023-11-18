@@ -9,7 +9,8 @@ plt.rcParams['font.sans-serif'] = 'Open Sans'
 
 COLOURS = ['#3F7D20', '#A0DDE6', '#542e71','#3F7CAC','#698F3F']
 
-
+global project_root_path
+project_root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 class Plottter:
     def __init__(self, pcey_obj):
@@ -19,9 +20,8 @@ class Plottter:
 
     def plot_generation(self):
         try:
-            root = os.path.dirname(os.path.abspath(__file__))
             # make a folder for the plots
-            plot_folder = os.path.join(root, 'plots')
+            plot_folder = os.path.join(project_root_path, 'plots')
             if not os.path.exists(plot_folder):
                 os.mkdir(plot_folder)
 
@@ -48,9 +48,8 @@ class Plottter:
 
     def plot_scatter(self):
         try:
-            root = os.path.dirname(os.path.abspath(__file__))
             # make a folder for the plots
-            plot_folder = os.path.join(root, 'plots')
+            plot_folder = os.path.join(project_root_path, 'plots')
             if not os.path.exists(plot_folder):
                 os.mkdir(plot_folder)
             filename = f'1_{self.bmu}_scatter'
@@ -154,9 +153,8 @@ class Plottter:
 
     def plot_p50(self):
         try:
-            root = os.path.dirname(os.path.abspath(__file__))
             # make a folder for the plots
-            plot_folder = os.path.join(root, 'plots')
+            plot_folder = os.path.join(project_root_path, 'plots')
             if not os.path.exists(plot_folder):
                 os.mkdir(plot_folder)
             filename = f'3_{self.bmu}_p50'
