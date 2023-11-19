@@ -14,4 +14,4 @@ dependencies:
   - scipy=1.10.*
   - xarray
   - plotly
-  - tqdm
+  - scikit-learn
