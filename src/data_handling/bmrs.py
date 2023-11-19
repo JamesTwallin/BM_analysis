@@ -212,28 +212,31 @@ class BMRS:
         Returns:
         DataFrame: A DataFrame containing the filtered and processed curtailment data.
         """
-        folder_path = os.path.join(project_root_path, 'data', 'preprocessed_data', bmu_id)
-        os.makedirs(folder_path, exist_ok=True)
-        filename = os.path.join(folder_path, f'{bmu_id}_curtailment_data.parquet')
+        try:
+            folder_path = os.path.join(project_root_path, 'data', 'preprocessed_data', bmu_id)
+            os.makedirs(folder_path, exist_ok=True)
+            filename = os.path.join(folder_path, f'{bmu_id}_curtailment_data.parquet')
 
-        if os.path.exists(filename):
-            print('Loading from file')
-            return pd.read_parquet(filename)
-        
-        if self.bav_data is None:
-            self.get_all_accepted_volumes_data('BAV')
+            if os.path.exists(filename):
+                print('Loading from file')
+                return pd.read_parquet(filename)
             
+            if self.bav_data is None:
+                self.get_all_accepted_volumes_data('BAV')
+                
 
-        filt = self.bav_data['BMU_id'].str.contains(bmu_id)
-        df = self.bav_data[filt].copy()
-        df['Settlement Period'] = df['Settlement Period'].astype(int)
-        df.index = pd.to_datetime(df.pop('date'))
-        df['utc_time'] = df.index + pd.to_timedelta((df['Settlement Period'] - 1) * 30, unit='minute')
-        df.set_index('utc_time', inplace=True)
-        df = df.resample('30T').last()
-        df['Total'] = df['Total'].astype(float)
-        df.to_parquet(filename)
-        return df
+            filt = self.bav_data['BMU_id'].str.contains(bmu_id)
+            df = self.bav_data[filt].copy()
+            df['Settlement Period'] = df['Settlement Period'].astype(int)
+            df.index = pd.to_datetime(df.pop('date'))
+            df['utc_time'] = df.index + pd.to_timedelta((df['Settlement Period'] - 1) * 30, unit='minute')
+            df.set_index('utc_time', inplace=True)
+            df = df.resample('30T').last()
+            df['Total'] = df['Total'].astype(float)
+            df.to_parquet(filename)
+            return df
+        except Exception as e:
+            raise f"get_bav_data_for_bmu() failed for {bmu_id}: {e}"
 
 
 
@@ -327,11 +330,12 @@ class BMU:
         ]
 
     def _read_and_concatenate_dataframes(self, dates):
+
         file_paths = [os.path.join(self.raw_folder_path, f'{date}.parquet') for date in dates]
         with concurrent.futures.ThreadPoolExecutor() as executor:
             dataframes = list(executor.map(self.__preprocess_gen_data, file_paths))
         return pd.concat(dataframes)
-    
+
     def __preprocess_gen_data(self,file_path):
         df = pd.read_parquet(file_path)
         df['utc_time'] = df['Settlement Date'] + pd.to_timedelta((df['SP'] - 1) * 30, unit='minute')
@@ -342,32 +346,35 @@ class BMU:
         return df
 
     def get_all_gen_data(self, update=False):
-        if update:
-            self._update_gen_data()
+        try:
+            if update:
+                self._update_gen_data()
 
-        gen_data_file = os.path.join(self.preprocessed_folder_path, f'{self.bmu_id}_generation_data.parquet')
-        os.makedirs(self.preprocessed_folder_path, exist_ok=True)
-        if os.path.exists(gen_data_file):
-            all_data = pd.read_parquet(gen_data_file)
-            last_processed_date = all_data.index.max()
+            gen_data_file = os.path.join(self.preprocessed_folder_path, f'{self.bmu_id}_generation_data.parquet')
+            os.makedirs(self.preprocessed_folder_path, exist_ok=True)
+            if os.path.exists(gen_data_file):
+                all_data = pd.read_parquet(gen_data_file)
+                last_processed_date = all_data.index.max()
 
-            new_dates = self._get_new_processed_dates(last_processed_date)
-            if new_dates:
-                new_data = self._read_and_concatenate_dataframes(new_dates)
-                all_data = pd.concat([all_data, new_data])
-                all_data.to_parquet(gen_data_file)
+                new_dates = self._get_new_processed_dates(last_processed_date)
+                if new_dates:
+                    new_data = self._read_and_concatenate_dataframes(new_dates)
+                    all_data = pd.concat([all_data, new_data])
+                    all_data.to_parquet(gen_data_file)
+
+                return all_data
+
+            metadata_file = os.path.join(self.raw_folder_path, f'{self.bmu_id}_metadata.json')
+            with open(metadata_file, 'r') as file:
+                metadata_dict = json.load(file)
+
+            processed_dates = [date for date in metadata_dict['processed'] if metadata_dict['processed'][date]]
+            all_data = self._read_and_concatenate_dataframes(processed_dates)
+            all_data.to_parquet(gen_data_file)
 
             return all_data
-
-        metadata_file = os.path.join(self.raw_folder_path, f'{self.bmu_id}_metadata.json')
-        with open(metadata_file, 'r') as file:
-            metadata_dict = json.load(file)
-
-        processed_dates = [date for date in metadata_dict['processed'] if metadata_dict['processed'][date]]
-        all_data = self._read_and_concatenate_dataframes(processed_dates)
-        all_data.to_parquet(gen_data_file)
-
-        return all_data
+        except Exception as e:
+            raise f"get_all_gen_data() failed for {self.bmu_id}: {e}"
 
             
 
