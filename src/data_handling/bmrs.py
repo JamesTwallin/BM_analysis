@@ -348,8 +348,15 @@ class BMU:
         try:
             print(f"{self.bmu_id}: {date_string}, downloading data")
             response = self.session.get(endpoint)
-            assert response.status_code == 200
+            try:
+                response.raise_for_status()
+            except requests.exceptions.HTTPError as e:
+                raise APIError(f"{self.bmu_id}: {date_string}, API error: {e}")
             df = pd.DataFrame(response.text.splitlines())
+            try:
+                assert len(df) > 1
+            except AssertionError:
+                raise NoDataError(f"{self.bmu_id}: {date_string}, no data")
             df = df[0].str.split(',', expand=True)
             df.columns = df.iloc[1]
             df.drop([0, 1], inplace=True)
