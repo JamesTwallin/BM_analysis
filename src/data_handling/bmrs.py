@@ -1,6 +1,7 @@
 import concurrent.futures
 import glob
 import itertools
+import matplotlib.pyplot as plt
 import requests
 import pandas as pd
 assert pd.__version__ >= '1.5'
@@ -40,11 +41,12 @@ class BMRS:
         dates = [os.path.basename(file).split('_')[0] for file in files]
         dates = list(set(dates))
         dates.sort()
-        processed_dates = {date: False for date in dates}
         metadata_dict = {}
         metadata_dict['processed'] = {}
+        metadata_dict['attempted'] = {}
         for date in dates:
             metadata_dict['processed'][date] = True
+            metadata_dict['attempted'][date] = True
 
         with open(metadata_file, 'w') as f:
             json.dump(metadata_dict, f)
@@ -157,10 +159,13 @@ class BMRS:
         ]
     
     def _read_and_concatenate_dataframes(self, dates, id):
-        file_paths = [os.path.join(self.folder_path, f"{date}_{id}.parquet") for date in dates]
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            dataframes = list(executor.map(pd.read_parquet, file_paths))
-        return pd.concat(dataframes, ignore_index=True)
+        try:
+            file_paths = [os.path.join(self.folder_path, f"{date}_{id}.parquet") for date in dates]
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                dataframes = list(executor.map(pd.read_parquet, file_paths))
+            return pd.concat(dataframes, ignore_index=True)
+        except Exception as e:
+            raise Exception(f"_read_and_concatenate_dataframes() failed for {id}: {e}")
 
     
     def get_all_accepted_volumes_data(self, id, update=False):
@@ -236,18 +241,43 @@ class BMRS:
             df.to_parquet(filename)
             return df
         except Exception as e:
-            raise f"get_bav_data_for_bmu() failed for {bmu_id}: {e}"
+            raise Exception(f"get_bav_data_for_bmu() failed for {bmu_id}: {e}")
 
 
 
 
 
 class BMU:
-    def __init__(self, bmu_id):
+    def __init__(self, bmu_id,update=False):
         self.bmu_id = bmu_id
+        self.session = None
+        self.update = update
         self.raw_folder_path = os.path.join(project_root_path, 'data', 'raw_gen_data', self.bmu_id)
         self.preprocessed_folder_path = os.path.join(project_root_path, 'data', 'preprocessed_data', self.bmu_id)
+        self.plot_folder_path = os.path.join(project_root_path, 'plots', 'generation_data')
+        os.makedirs(self.raw_folder_path, exist_ok=True)
+        os.makedirs(self.preprocessed_folder_path, exist_ok=True)
         self._load_metadata_dict()
+
+    def _init_metadata_dict(self):
+        # glob
+        metadata_file = os.path.join(self.raw_folder_path, f'{self.bmu_id}_metadata.json')
+        files = glob.glob(os.path.join(self.raw_folder_path, '*.parquet'))
+        dates = [os.path.basename(file).split('.')[0] for file in files]
+        dates = list(set(dates))
+        dates.sort()
+        metadata_dict = {}
+        metadata_dict['processed'] = []
+        metadata_dict['attempted'] = []
+        for date in dates:
+            metadata_dict['processed'].append(date)
+            metadata_dict['attempted'].append(date)
+
+        with open(metadata_file, 'w') as f:
+            json.dump(metadata_dict, f)
+        self.metadata_dict = metadata_dict
+        self.update = True
+
 
     def _load_metadata_dict(self):
         metadata_file = os.path.join(self.raw_folder_path, f'{self.bmu_id}_metadata.json')
@@ -255,11 +285,9 @@ class BMU:
             with open(metadata_file, 'r') as f:
                 metadata_dict = json.load(f)
             self.metadata_dict = metadata_dict
+                # unique and sort
         else:
-            self.metadata_dict = {}
-            self.metadata_dict['attempted'] = {}
-            self.metadata_dict['processed'] = {}
-            self.update_gen_data = True
+            self._init_metadata_dict()
 
     def _update_metadata_dict(self):
         metadata_file = os.path.join(self.raw_folder_path, f'{self.bmu_id}_metadata.json')
@@ -267,22 +295,29 @@ class BMU:
             json.dump(self.metadata_dict, f)
 
 
-    def _update_gen_data(self):
-        try:
-            start_date = pd.to_datetime('2017-01-01')
-            end_date = pd.to_datetime('today').floor('D') - pd.Timedelta(days=1)
-            date_list = pd.date_range(start_date, end_date, freq='1D').to_list()
-            # get a list of dates that have not been processed True
-            for date in date_list:
-                #get the boolean value for the date
-                date_string = date.strftime('%Y-%m-%d')
-                processed = self.metadata_dict['processed'].get(date_string)
-                if processed:
-                    # if the date has been processed, remove it from the list
-                    date_list.remove(date)
+    def _update_gen_data(self, start_date=None, end_date=None, redo=False):
 
-            # only keep more recent dates
-            new_dates = [date for date in date_list if date > pd.to_datetime('today').floor('D') - pd.Timedelta(days=14)]
+        try:
+            if start_date is None:
+                start_date = pd.to_datetime('2017-01-01')
+            if end_date is None:
+                end_date = pd.to_datetime('today').floor('D') - pd.Timedelta(days=1)
+
+            date_list = pd.date_range(start_date, end_date, freq='1D').to_list()
+            
+            if not redo:
+                try:
+                    attempted_dates = self.metadata_dict['attempted']
+                    # remove from the attempted dates which are recent (1 week), becuase we want to re-attempt them in case they failed due to availability of data
+                    attempted_dates = [date for date in attempted_dates if pd.to_datetime(date) < pd.to_datetime('today').floor('D') - pd.Timedelta(days=3)]
+                    # remove dates that have already been attempted from the date_list
+                    new_dates = [date for date in date_list if date.strftime('%Y-%m-%d') not in attempted_dates]
+                # Filter dates that are not processed or are within the last 14 days
+                except Exception as e:
+                    print(f"{self.bmu_id}: {e}")
+                    new_dates = date_list
+            else:
+                new_dates = date_list
             if new_dates:
                 self.session = requests.Session()
                 # do chunks of 250 dates at a time
@@ -293,23 +328,27 @@ class BMU:
                         futures = {executor.submit(self._call_api, date.strftime('%Y-%m-%d')): date for date in chunk}
                         for future in concurrent.futures.as_completed(futures):
                             date = futures[future]
-                            self.metadata_dict['attempted'][date.strftime('%Y-%m-%d')] = True
+                            if date.strftime('%Y-%m-%d') not in self.metadata_dict['attempted']:
+                                self.metadata_dict['attempted'].append(date.strftime('%Y-%m-%d'))
                             if future.result():
-                                self.metadata_dict['processed'][date.strftime('%Y-%m-%d')] = True
-                            else:
-                                self.metadata_dict['processed'][date.strftime('%Y-%m-%d')] = False
+                                if date.strftime('%Y-%m-%d') not in self.metadata_dict['processed']:
+                                    self.metadata_dict['processed'].append(date.strftime('%Y-%m-%d'))                                      
                     # every 250 dates, update the metadata file, to ensure that we don't re-run the same dates if the script crashes
                     self._update_metadata_dict()
             else:
                 print(f"{self.bmu_id} is up to date")
         except Exception as e:
-            print(f"Error processing data for {self.bmu_id}: {e}")
+            # line number
+            print(f"_update_gen_data() failed for {self.bmu_id}: {e}, {sys.exc_info()[-1].tb_lineno}")
 
     def _call_api(self, date_string):
+        if self.session is None:
+            self.session = requests.Session()
         endpoint = f"https://api.bmreports.com/BMRS/B1610/v2?APIKey={api_key}&SettlementDate={date_string}&Period=*&NGCBMUnitID={self.bmu_id}&ServiceType=csv"
         try:
-            print(f"Downloading data for {date_string}")
+            print(f"{self.bmu_id}: {date_string}, downloading data")
             response = self.session.get(endpoint)
+            assert response.status_code == 200
             df = pd.DataFrame(response.text.splitlines())
             df = df[0].str.split(',', expand=True)
             df.columns = df.iloc[1]
@@ -320,17 +359,18 @@ class BMU:
             df[['Settlement Date', 'SP', 'Quantity (MW)']].to_parquet(f"{self.raw_folder_path}/{date_string}.parquet")
             return True
         except Exception as e:
-            print(f"Error processing data for {date_string}: {e}")
+            print(f"{self.bmu_id}: {date_string}, failed to download data: {e}")
             return False
 
-    def _get_new_processed_dates(self, last_date):
+    def _get_new_processed_dates(self, last_processed_dates):
+        # compare the processed dates in the metadata file with the last_processed_dates
         return [
             date for date in self.metadata_dict['processed']
-            if self.metadata_dict['processed'][date] and pd.to_datetime(date) > last_date
+            if date not in last_processed_dates
         ]
 
-    def _read_and_concatenate_dataframes(self, dates):
 
+    def _read_and_concatenate_dataframes(self, dates):
         file_paths = [os.path.join(self.raw_folder_path, f'{date}.parquet') for date in dates]
         with concurrent.futures.ThreadPoolExecutor() as executor:
             dataframes = list(executor.map(self.__preprocess_gen_data, file_paths))
@@ -345,18 +385,18 @@ class BMU:
         # interpolate missing values (don't do more than 2 consecutive missing values), then fill any remaining missing values with 0
         return df
 
-    def get_all_gen_data(self, update=False):
+    def get_all_gen_data(self,redo=False, start_date=None, end_date=None):
         try:
-            if update:
-                self._update_gen_data()
+            if self.update:
+                self._update_gen_data(start_date, end_date, redo)
 
             gen_data_file = os.path.join(self.preprocessed_folder_path, f'{self.bmu_id}_generation_data.parquet')
             os.makedirs(self.preprocessed_folder_path, exist_ok=True)
             if os.path.exists(gen_data_file):
                 all_data = pd.read_parquet(gen_data_file)
-                last_processed_date = all_data.index.max()
-
-                new_dates = self._get_new_processed_dates(last_processed_date)
+                last_processed_dates = all_data.index.strftime('%Y-%m-%d').unique()
+                new_dates = self._get_new_processed_dates(last_processed_dates)
+                print(f"Processing {len(new_dates)} new dates")
                 if new_dates:
                     new_data = self._read_and_concatenate_dataframes(new_dates)
                     all_data = pd.concat([all_data, new_data])
@@ -368,27 +408,72 @@ class BMU:
             with open(metadata_file, 'r') as file:
                 metadata_dict = json.load(file)
 
-            processed_dates = [date for date in metadata_dict['processed'] if metadata_dict['processed'][date]]
+            processed_dates = metadata_dict['processed']
+            if not processed_dates:
+                NoDataError(f"No data for {self.bmu_id}")
+                return None
             all_data = self._read_and_concatenate_dataframes(processed_dates)
             all_data.to_parquet(gen_data_file)
 
             return all_data
         except Exception as e:
-            raise f"get_all_gen_data() failed for {self.bmu_id}: {e}"
+            raise Exception(f"get_all_gen_data() failed for {self.bmu_id}: {e}")
+
+    def plot_data_coverage(self):
+        os.makedirs(self.plot_folder_path, exist_ok=True)
+        index = pd.date_range('2017-01-01', pd.to_datetime('today').floor('D') - pd.Timedelta(days=1), freq='1D')
+        coverage_df = pd.DataFrame(index=index)
+        coverage_df['processed'] = False
+        coverage_df['attempted'] = False
+
+        for date in self.metadata_dict['processed']:
+            coverage_df.loc[date, 'processed'] = True
+        for date in self.metadata_dict['attempted']:
+            coverage_df.loc[date, 'attempted'] = True
+
+        coverage_df['processed'] = coverage_df['processed'].astype(int)
+        coverage_df['attempted'] = coverage_df['attempted'].astype(int)
+        # filt where processed = 1
+        filt = coverage_df['processed'] == 1
+        coverage_df.loc[filt, 'attempted'] = 0.
+
+
+
+        fig = plt.figure(figsize=(8, 4))
+        ax = fig.add_subplot(111)
+        ax.set_title(f"{self.bmu_id} Data Coverage")
+        ax.set_xlabel("Date")
+        ax.set_ylabel("Data Coverage")
+        # get rid of the ticks and tick labels
+        ax.set_yticklabels([])
+        ax.set_yticks([])
+        # vlines
+        ax.fill_between(coverage_df.index, coverage_df['processed'], color='green', label='Processed', alpha=0.5, linewidth=0)
+        ax.fill_between(coverage_df.index, coverage_df['attempted'], color='orange', label='Attempted', alpha=0.5, linewidth=0)
+        ax.legend()
+        for spine in ax.spines.values():
+            spine.set_visible(False)
+        fig.savefig(os.path.join(self.plot_folder_path, f"{self.bmu_id}_data_coverage.png"))
+
+        plt.close(fig)
+        
 
             
 
 
 
 if __name__ == "__main__":
-    # get a ;ist opf all the BMUs
-    # bmu_list = helpers.get_list_of_bmu_ids_from_custom_windfarm_csv()
-    # for bmu_id in bmu_list:
-    #     try:
-    #         bmu_obj = BMU(bmu_id)
-    #         bmu_obj.get_all_gen_data()
-    #     except Exception as e:
-    #         print(f"Error processing {bmu_id}: {e}")
 
-    bmrs_obj = BMRS()
-    bm_data = bmrs_obj.get_all_accepted_volumes_data('BAV', update=True)
+    bmus = helpers.get_list_of_bmu_ids_from_custom_windfarm_csv()
+    for bmu in bmus:
+        try:
+            bmu_obj = BMU(bmu, update=True)
+            bmu_obj.get_all_gen_data()
+        except Exception as e:
+            print(f"Error processing {bmu}: {e}")
+        finally:
+            bmu_obj.plot_data_coverage()
+
+
+#     # bmrs_obj = BMRS()
+#     # bm_data = bmrs_obj.get_all_accepted_volumes_data('BAV', update=True)
