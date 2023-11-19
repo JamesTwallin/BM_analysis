@@ -169,6 +169,7 @@ class PCEY:
 			self.p50_energy_yield = p50_energy_yield
 			self.p50_energy_yield_net = energy_yield_df['net_yield_GWh'].sum()
 			self.losses_due_to_curtailment = energy_yield_df['curtailment_losses_GWh'].sum()
+			self.losses_as_percentage = f'{self.losses_due_to_curtailment / self.p50_energy_yield * 100:.2f}%'
 			
 			# len of month_df[self.daily_ideal_yield_col]
 			self.n_data_points = len(_energy_yield_df[self.COL_DAILY_IDEAL_YIELD].dropna())
@@ -335,7 +336,7 @@ class PCEY:
 			# r2 text
 
 			fig.suptitle(f'{self.bmu}, Capacity {self.capacity:.0f}MW Annual P50 Energy Yield: {self.p50_energy_yield:.0f} GWh, number of months: {self.n_data_points}\nModel $r^2$: {self.prediction_r2:.2f}')
-			self.losses_as_percentage = f'{self.losses_due_to_curtailment / self.p50_energy_yield * 100:.2f}%'
+
 			losses_text = f'Annual observed losses due to curtailment: {self.losses_due_to_curtailment:.0f} GWh {self.losses_as_percentage}'
 			ax.set_title(losses_text)
 
