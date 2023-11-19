@@ -1,7 +1,7 @@
 # BM Analysis
 
 
-Use mininconda and the environment.yml file to create a conda environment with all the dependencies:
+Use miniconda and the environment.yml file to create a conda environment with all the dependencies:
 
 ```conda env create -f environment.yml```
 
