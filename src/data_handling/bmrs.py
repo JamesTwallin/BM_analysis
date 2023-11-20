@@ -284,6 +284,14 @@ class BMU:
         if os.path.exists(metadata_file):
             with open(metadata_file, 'r') as f:
                 metadata_dict = json.load(f)
+            for key in metadata_dict.keys():
+                values = metadata_dict[key]
+                # remove duplicates
+                values = list(set(values))
+                # sort
+                values.sort()
+                metadata_dict[key] = values
+                
             self.metadata_dict = metadata_dict
                 # unique and sort
         else:
