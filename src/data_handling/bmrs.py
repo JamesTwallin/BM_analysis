@@ -291,7 +291,7 @@ class BMU:
                 # sort
                 values.sort()
                 metadata_dict[key] = values
-                
+
             self.metadata_dict = metadata_dict
                 # unique and sort
         else:
@@ -317,7 +317,7 @@ class BMU:
                 try:
                     attempted_dates = self.metadata_dict['attempted']
                     # remove from the attempted dates which are recent (1 week), becuase we want to re-attempt them in case they failed due to availability of data
-                    attempted_dates = [date for date in attempted_dates if pd.to_datetime(date) < pd.to_datetime('today').floor('D') - pd.Timedelta(days=3)]
+                    attempted_dates = [date for date in attempted_dates if pd.to_datetime(date) < pd.to_datetime('today').floor('D') - pd.Timedelta(days=14)]
                     # remove dates that have already been attempted from the date_list
                     new_dates = [date for date in date_list if date.strftime('%Y-%m-%d') not in attempted_dates]
                 # Filter dates that are not processed or are within the last 14 days
