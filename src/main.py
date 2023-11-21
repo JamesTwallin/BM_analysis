@@ -126,6 +126,7 @@ if __name__ == "__main__":
 				data_obj['bav_df'] = bav_df
 
 				wf_pcey = PCEY(data_obj, bmu, lat, lon, cap, name, gen_type)
+				wf_pcey.get_ml_prediction()
 				wf_pcey.get_prediction()
 				wf_pcey.get_p50_energy_yield()
 				wf_pcey.plot_generation()
@@ -151,8 +152,8 @@ if __name__ == "__main__":
 			except Exception as e:
 				print(e, sys.exc_info()[-1].tb_lineno)
 
-	df = pd.DataFrame(rows)
-	df.to_csv('pcey.csv', index=False)
+		df = pd.DataFrame(rows)
+		df.to_csv('pcey.csv', index=False)
 
 
 
