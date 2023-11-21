@@ -45,6 +45,7 @@ def get_era5_data(date, variable, locs):
         all_df = pd.concat([all_df, df])
 
     all_df.to_parquet(drive_filename)
+    open(local_file_path, 'w').close()
     os.remove(local_file_path)
     print('File downloaded:', drive_filename)
 
@@ -70,6 +71,9 @@ if __name__ == "__main__":
 
     windfarm_details = helpers.load_windfarms_geojson(get_type=False)
     windfarm_details.dropna(subset=['capacity'], inplace=True)
+    # round the lat and lon to .01
+    windfarm_details['lat'] = windfarm_details['lat'].round(2)
+    windfarm_details['lon'] = windfarm_details['lon'].round(2)
     windfarm_details = windfarm_details.loc[~windfarm_details[['lon','lat']].duplicated()]
     locs = windfarm_details[['lon','lat']].to_dict('records')
     for l in locs:
@@ -80,8 +84,8 @@ if __name__ == "__main__":
     variables = ['eastward_wind_at_100_metres','northward_wind_at_100_metres']
     arg_list = []
     today = dt.datetime.utcnow().strftime('%Y-%m-%d')
-    month_range = pd.date_range('2023-09-01',today,freq='1MS')
+    month_range = pd.date_range('1990-01-01',today,freq='1MS')
     var_month = [(v,m) for v in variables for m in month_range]
-    with concurrent.futures.ProcessPoolExecutor(max_workers=3) as executor:
+    with concurrent.futures.ProcessPoolExecutor(max_workers=4) as executor:
       for variable, month in var_month:
           executor.submit(get_era5_data, date=month, variable=variable,locs=locs)
