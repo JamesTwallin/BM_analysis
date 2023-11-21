@@ -2,6 +2,11 @@ import pandas as pd
 import numpy as np
 from scipy import stats
 
+# random forest regressor
+from sklearn.ensemble import RandomForestRegressor
+# test train split
+from sklearn.model_selection import train_test_split
+
 
 import os
 import plotly.graph_objects as go
@@ -30,14 +35,18 @@ class PCEY:
 		self.ws_df = data_obj['ws_df']
 		self.gen_df = data_obj['gen_df']
 		self.bav_df = data_obj['bav_df']
+		self.preprocessed_df = None
 		self.energy_yield_df = None
 		self.power_curve_df = None
 		self.r2 = None
 		self.p50_energy_yield = None
+		self.prediction_ok = False
 
 		self.COL_PREDICTED_MONTHLY = 'predicted_monthly_generation_GWh'
 		self.COL_IDEAL_YIELD = 'ideal_yield_GWh'
+		self.COL_PREDICTED_IDEAL_YIELD = 'predicted_ideal_yield_GWh'
 		self.COL_NET_YIELD = 'net_yield_GWh'
+		self.COL_CURTAILMENT_LOSSES = 'curtailment_losses_GWh'
 		self.COL_DAILY_PREDICTED = 'average_daily_predicted_yield_GWh'
 		self.COL_DAILY_IDEAL_YIELD = 'average_daily_ideal_yield_GWh'
 		self.COL_DAILY_NET_YIELD = 'average_daily_net_yield_GWh'
@@ -51,54 +60,98 @@ class PCEY:
 		self.preprocess_data()
 		self.gen_stats_df = self.load_gen_stats_df()
 
+	def get_ml_prediction(self):
+		try:
+			if self.preprocess_data is None:
+				self.preprocess_data()
+			# test train split
+			ml_df = self.preprocessed_df[['wind_speed', 'wind_direction_degrees', self.COL_IDEAL_YIELD]].dropna().copy()
+			# resample to the median for the day
+			X = ml_df[['wind_speed', 'wind_direction_degrees']]
+
+			y = ml_df[self.COL_IDEAL_YIELD]
+			X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+			# fit the model
+			model = RandomForestRegressor()
+			model.fit(X_train, y_train)
+			# get the predictions
+			y_pred = model.predict(X_test)
+			# get the r2 using scipy
+			slope, intercept, r_value, p_value, std_err = stats.linregress(y_test, y_pred)
+			print('r2: ', r_value**2)
+			self.preprocessed_df[self.COL_PREDICTED_IDEAL_YIELD] = np.nan
+			# where the feature cols are not null, predict the ideal yield
+			filt = self.preprocessed_df[['wind_speed', 'wind_direction_degrees']].notnull().all(axis=1)
+			self.preprocessed_df.loc[filt, self.COL_PREDICTED_IDEAL_YIELD] = model.predict(self.preprocessed_df.loc[filt, ['wind_speed', 'wind_direction_degrees']])# 
+			self.prediction_ok = True
+		except Exception as e:
+			print('get_ml_prediction(), error: ', e)
+			self.prediction_ok = False
+		
+
+	
+
 
 	def preprocess_data(self):
 		# merge bav, gen and weather data
-		merged_df = self.gen_df[['Quantity (MW)']].merge(self.bav_df.copy(), left_index=True, right_index=True, how='left')
-		merged_df = merged_df.merge(self.ws_df.copy(), left_index=True, right_index=True, how='left')
+		
+		merged_df= self.ws_df[['wind_speed']].resample('30T').last().copy()
+		merged_df['wind_direction_degrees'] = self.ws_df[['wind_direction_degrees']].resample('30T').last().copy()
+		merged_df['Quantity (MW)'] = self.gen_df[['Quantity (MW)']].resample('30T').last().copy().fillna(0)
+		merged_df['Total'] = self.bav_df[['Total']].resample('30T').last().copy().fillna(0)
+		# interpolate the ws_df
+		for col in ['wind_speed', 'wind_direction_degrees']:
+			merged_df[col].interpolate(method='linear', inplace=True, limit=2)
+		merged_df[self.COL_NET_YIELD] = merged_df['Quantity (MW)'] / 2000.
+		merged_df[self.COL_CURTAILMENT_LOSSES] = -merged_df['Total'] / 1000.
+		# drop the total column and the quantity column
+		merged_df.drop(columns=['Total', 'Quantity (MW)'], inplace=True)
+		# fill the na values with 0
+		# for col in [self.COL_NET_YIELD, self.COL_CURTAILMENT_LOSSES]:
+		# 	merged_df[col].fillna(0., inplace=True, limit_direction='forward')
+		merged_df[self.COL_IDEAL_YIELD] = merged_df[self.COL_NET_YIELD] + merged_df[self.COL_CURTAILMENT_LOSSES]
+		# remove the self.col_ideal_yield where 0
+		merged_df.loc[merged_df[self.COL_IDEAL_YIELD] == 0, self.COL_IDEAL_YIELD] = np.nan
+		self.preprocessed_df = merged_df.copy()
 
-		return None
+
+	
 
 	def load_gen_stats_df(self):
-		_bav_df = self.bav_df.copy()
-		_df = self.gen_df.copy()
-		# make _bav_df
-		_df.rename(columns={'Quantity (MW)': 'generation_GWh'}, inplace=True)
-		# divide by 1000 and divide by 2
-		_df[self.COL_NET_YIELD] = _df['generation_GWh'] / 2000
-		month_df = _df[[self.COL_NET_YIELD]].resample('1MS').sum()
-		month_df['curtailment_losses_GWh'] = -_bav_df['Total'].resample('1MS').sum()/1000.
-		month_df['curtailment_losses_GWh'] = month_df['curtailment_losses_GWh'].fillna(0)
-		month_df[self.COL_IDEAL_YIELD] = month_df[self.COL_NET_YIELD] + month_df['curtailment_losses_GWh']
+		if self.preprocessed_df is None:
+			self.preprocess_data()
+		if self.prediction_ok:
+			_df = self.preprocessed_df.copy()
 
-		# ge
-		# sort the _df by the net yield column
-		sorted_df = _df.sort_values(by=self.COL_NET_YIELD, ascending=False)
-		# a cut off point for the max generation
-		max_gen = sorted_df[self.COL_NET_YIELD].iloc[int(len(sorted_df)*0.10)]
+			# sort the _df by the net yield column
+			sorted_df = _df.sort_values(by=self.COL_NET_YIELD, ascending=False)
+			# a cut off point for the max generation
+			max_gen = sorted_df[self.COL_NET_YIELD].iloc[int(len(sorted_df)*0.10)]
+			# group by month
+			month_df = _df[[self.COL_NET_YIELD, self.COL_IDEAL_YIELD, self.COL_CURTAILMENT_LOSSES, self.COL_PREDICTED_IDEAL_YIELD]].resample('1MS').sum()
 
-		month_df['max_net_yield_GWh'] = _df[[self.COL_NET_YIELD]].resample('1MS').max()
-		# calculate the availability for each month
-		month_df['availability'] = _df[self.COL_NET_YIELD].resample('1MS').count()/(month_df.index.days_in_month * 48)
+			month_df['max_net_yield_GWh'] = _df[[self.COL_NET_YIELD]].resample('1MS').max()
+			# calculate the availability for each month
+			month_df['availability'] = _df[self.COL_NET_YIELD].resample('1MS').count()/(month_df.index.days_in_month * 48)
 
-		month_df[self.COL_NET_YIELD+'_ok'] = np.nan 
-		month_df[self.COL_IDEAL_YIELD+'_ok'] = np.nan
-		month_df[self.COL_NET_YIELD+'_fail'] = np.nan
-		month_df[self.COL_IDEAL_YIELD+'_fail'] = np.nan
+			month_df[self.COL_NET_YIELD+'_ok'] = np.nan 
+			month_df[self.COL_IDEAL_YIELD+'_ok'] = np.nan
+			month_df[self.COL_NET_YIELD+'_fail'] = np.nan
+			month_df[self.COL_IDEAL_YIELD+'_fail'] = np.nan
 
-		filt = (month_df['max_net_yield_GWh'] >= max_gen) & (month_df['availability'] >= 0.6)
-		# filt = (month_df['availability'] >= 0.6)
-		month_df.loc[filt, self.COL_NET_YIELD+'_ok'] = month_df.loc[filt, self.COL_NET_YIELD]
-		month_df.loc[filt, self.COL_IDEAL_YIELD+'_ok'] = month_df.loc[filt, self.COL_IDEAL_YIELD]
+			filt = (month_df['max_net_yield_GWh'] >= max_gen) & (month_df['availability'] >= 0.6)
+			# filt = (month_df['availability'] >= 0.6)
+			month_df.loc[filt, self.COL_NET_YIELD+'_ok'] = month_df.loc[filt, self.COL_NET_YIELD]
+			month_df.loc[filt, self.COL_IDEAL_YIELD+'_ok'] = month_df.loc[filt, self.COL_IDEAL_YIELD]
 
-		month_df.loc[~filt, self.COL_NET_YIELD+'_fail'] = month_df.loc[~filt, self.COL_NET_YIELD]
-		month_df.loc[~filt, self.COL_IDEAL_YIELD+'_fail'] = month_df.loc[~filt, self.COL_IDEAL_YIELD]
-		# divide by the number of days in the month
-		month_df[self.COL_DAILY_NET_YIELD] = month_df[self.COL_NET_YIELD+'_ok'] / month_df.index.days_in_month
-		month_df[self.COL_DAILY_IDEAL_YIELD] = month_df[self.COL_IDEAL_YIELD+'_ok'] / month_df.index.days_in_month
-		month_df[self.COL_DAILY_IDEAL_YIELD+'_fail'] = month_df[self.COL_IDEAL_YIELD+'_fail'] / month_df.index.days_in_month
-		month_df[self.COL_DAILY_NET_YIELD+'_fail'] = month_df[self.COL_NET_YIELD+'_fail'] / month_df.index.days_in_month
-		return month_df
+			month_df.loc[~filt, self.COL_NET_YIELD+'_fail'] = month_df.loc[~filt, self.COL_NET_YIELD]
+			month_df.loc[~filt, self.COL_IDEAL_YIELD+'_fail'] = month_df.loc[~filt, self.COL_IDEAL_YIELD]
+			# divide by the number of days in the month
+			month_df[self.COL_DAILY_NET_YIELD] = month_df[self.COL_NET_YIELD+'_ok'] / month_df.index.days_in_month
+			month_df[self.COL_DAILY_IDEAL_YIELD] = month_df[self.COL_IDEAL_YIELD+'_ok'] / month_df.index.days_in_month
+			month_df[self.COL_DAILY_IDEAL_YIELD+'_fail'] = month_df[self.COL_IDEAL_YIELD+'_fail'] / month_df.index.days_in_month
+			month_df[self.COL_DAILY_NET_YIELD+'_fail'] = month_df[self.COL_NET_YIELD+'_fail'] / month_df.index.days_in_month
+			return month_df
 
 
 	def get_prediction(self):
