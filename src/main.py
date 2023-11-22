@@ -127,7 +127,7 @@ if __name__ == "__main__":
 
 				wf_pcey = PCEY(data_obj, bmu, lat, lon, cap, name, gen_type)
 				wf_pcey.get_ml_prediction()
-				wf_pcey.get_prediction()
+				wf_pcey.calculate_energy_yield()
 				wf_pcey.get_p50_energy_yield()
 				wf_pcey.plot_generation()
 				wf_pcey.plot_scatter()
