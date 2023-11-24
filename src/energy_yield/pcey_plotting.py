@@ -1,4 +1,4 @@
-import os
+import os, sys
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import matplotlib.pyplot as plt
@@ -26,13 +26,13 @@ def plot_generation(pcey_obj):
 
         filename = f'2_{pcey_obj.bmu}_pcey'
         plot_path = os.path.join(plot_folder, filename)
-        plot_df = pcey_obj.weather_stats_df.copy()
+        plot_df = pcey_obj.month_df.copy()
 
 
         fig = go.Figure()
-        fig.add_trace(go.Scattergl(x=plot_df.index, y=plot_df[pcey_obj.COL_PREDICTED_MONTHLY], name='Predicted',mode='lines+markers'))
-        fig.add_trace(go.Scattergl(x=plot_df.index, y=plot_df[pcey_obj.COL_NET_YIELD], name='Generation', mode='lines+markers'))
-        fig.add_trace(go.Scattergl(x=plot_df.index, y=plot_df[pcey_obj.COL_IDEAL_YIELD], name='Generation - Curtailment', mode='lines+markers'))
+        fig.add_trace(go.Scattergl(x=plot_df.index, y=plot_df[pcey_obj.COL_PREDICTED_IDEAL_YIELD], name='Predicted',mode='lines+markers'))
+        fig.add_trace(go.Scattergl(x=plot_df.index, y=plot_df[pcey_obj.COL_NET_YIELD + '_ok'], name= 'Generation', mode='lines+markers'))
+        fig.add_trace(go.Scattergl(x=plot_df.index, y=plot_df[pcey_obj.COL_IDEAL_YIELD + '_ok'], name='Generation - Curtailment', mode='lines+markers'))
         title = f"<span style='font-size: 20px; font-weight: bold;'>{pcey_obj.name}</span><br><span style='font-size: 16px;'>{pcey_obj.bmu}</span>"
         fig.update_layout(title=title, xaxis_title='Month', yaxis_title='GWh')
         # whit theme
@@ -42,12 +42,14 @@ def plot_generation(pcey_obj):
 
         plt.close()
     except Exception as e:
-        print('plot_generation(), error: ', e)
+        # line number
+        line_number = sys.exc_info()[-1].tb_lineno
+        print(f"plot_generation(), error: {e}, line: {line_number}")
 
 @staticmethod
 def plot_scatter(pcey_obj):
     try:
-        plot_df = pcey_obj.weather_stats_df.copy()
+        plot_df = pcey_obj.month_df.copy()
         filt = plot_df[pcey_obj.COL_DAILY_IDEAL_YIELD + '_ok'] > 0
         filt2 = plot_df[pcey_obj.COL_DAILY_IDEAL_YIELD + '_fail'] > 0
         plot_df = plot_df[filt | filt2].copy()
@@ -68,19 +70,21 @@ def plot_scatter(pcey_obj):
         fig = go.Figure()
 
         #subplot 3
-        text = [f"Predicted: {pred:.2f} GWh<br>Actual: {actual:.2f} GWh<br>Month: {month}" for pred, actual, month in zip(plot_df[pcey_obj.COL_DAILY_PREDICTED], plot_df[pcey_obj.COL_DAILY_IDEAL_YIELD], plot_df.index.strftime('%b %Y'))]
-        fig.add_trace(go.Scatter(x=plot_df[pcey_obj.COL_DAILY_PREDICTED], y=plot_df[pcey_obj.COL_DAILY_IDEAL_YIELD + '_ok'], mode='markers',marker_color = colours[2],legendgroup='3',
+        text = [f"QC PASS <br>Predicted: {pred:.2f} GWh<br>Actual: {actual:.2f} GWh<br>Month: {month}" for pred, actual, month in zip(plot_df[pcey_obj.COL_DAILY_PREDICTED], plot_df[pcey_obj.COL_DAILY_IDEAL_YIELD + '_ok'], plot_df.index.strftime('%b %Y'))]
+        fig.add_trace(go.Scatter(x=plot_df[pcey_obj.COL_DAILY_PREDICTED], y=plot_df[pcey_obj.COL_DAILY_IDEAL_YIELD + '_ok'], mode='markers',marker_color = 'darkblue',
                                     hovertext=text,hoverinfo='text', showlegend=False))
-        fig.add_trace(go.Scatter(x=plot_df[pcey_obj.COL_DAILY_PREDICTED], y=plot_df[pcey_obj.COL_DAILY_IDEAL_YIELD + '_fail'], mode='markers',marker_color = colours[3],legendgroup='4',
+        text = [f"QC FAIL <br>Predicted: {pred:.2f} GWh<br>Actual: {actual:.2f} GWh<br>Month: {month}" for pred, actual, month in zip(plot_df[pcey_obj.COL_DAILY_PREDICTED], plot_df[pcey_obj.COL_DAILY_IDEAL_YIELD + '_fail'], plot_df.index.strftime('%b %Y'))]
+        fig.add_trace(go.Scatter(x=plot_df[pcey_obj.COL_DAILY_PREDICTED], y=plot_df[pcey_obj.COL_DAILY_IDEAL_YIELD + '_fail'], mode='markers',marker_color = 'orange',
                                     hovertext=text,hoverinfo='text', showlegend=False))
-        x_range = np.arange(0, plot_df[pcey_obj.COL_DAILY_PREDICTED].max()*1.1, 0.1)
-        r2_text = f'R^2 = {pcey_obj.prediction_r2:.2f}'
+        x_range = np.arange(0, plot_df[pcey_obj.COL_DAILY_PREDICTED].max()*1.5, 0.1)
 
-        fig.add_trace(go.Scatter(x=x_range, y=pcey_obj.fit_dict['slope'] * x_range + pcey_obj.fit_dict['intercept'], mode='lines', name=r2_text, line=dict(color='red', dash='dash')), row=3, col=1)
-        fig.update_xaxes(title_text='Predicted Daily Mean Generation (GWh)', row=3, col=1 ,titlefont=dict(size=12))
-        fig.update_yaxes(title_text='Actual Daily Mean Generation (GWh)', row=3, col=1,titlefont=dict(size=12))
-        fig.update_yaxes(range=[0,plot_df[pcey_obj.COL_DAILY_IDEAL_YIELD].max()*1.1], row=3, col=1)
-        fig.update_xaxes(range=[0,plot_df[pcey_obj.COL_DAILY_PREDICTED].max()*1.1], row=3, col=1)
+
+        fig.add_trace(go.Scatter(x=x_range, y=pcey_obj.fit_dict['slope'] * x_range + pcey_obj.fit_dict['intercept'], mode='lines',
+                                  line=dict(color='red', dash='dash'), showlegend=False))
+        fig.update_xaxes(title_text='Predicted Daily Mean Generation (GWh)',titlefont=dict(size=12))
+        fig.update_yaxes(title_text='Actual Daily Mean Generation (GWh)',titlefont=dict(size=12))
+        fig.update_yaxes(range=[0,plot_df[pcey_obj.COL_DAILY_IDEAL_YIELD].max()*1.1])
+        fig.update_xaxes(range=[0,plot_df[pcey_obj.COL_DAILY_PREDICTED].max()*1.1])
 
         
         # set the legend to be 'h'
@@ -95,7 +99,8 @@ def plot_scatter(pcey_obj):
 
         # plotl white themw
         fig.update_layout(template='plotly_white')
-        title = f"<span style='font-size: 16; font-weight: bold;'>{pcey_obj.name}, {pcey_obj.bmu}<br>Least squares model</span>"
+        title = f"""<span style='font-size: 16; font-weight: bold;'>{pcey_obj.name}, {pcey_obj.bmu}</span><br><span style='font-size: 14px;'>{pcey_obj.n_data_points} months, r-squared: {pcey_obj.prediction_r2:.2f}</span>
+        <br><span style='font-size: 12px;'>The auto-qc process has removed months with a data coverage of less than 75%.</span>"""
         # title = f'{self.name}, {self.bmu} scatter. Prediction v Actual'
         fig.update_layout(title_text=title, title_x=0.5, title_font_size=16)
         fig.update_layout(
@@ -110,7 +115,8 @@ def plot_scatter(pcey_obj):
 
 
     except Exception as e:
-        print('plot_scatter(), error: ', e)
+        line_number = sys.exc_info()[-1].tb_lineno
+        print(f"plot_scatter(), error: {e}, line: {line_number}")
 
 
 
@@ -126,8 +132,8 @@ def plot_p50(pcey_obj):
         plot_path = os.path.join(plot_folder, filename)
 
         fig = go.Figure()
-        fig.add_trace(go.Bar(x=pcey_obj.energy_yield_df.index-0.15,width=0.3, y = pcey_obj.energy_yield_df[pcey_obj.COL_QCd_YIELD], name='Expected (without curtailment losses)'))
-        fig.add_trace(go.Bar(x=pcey_obj.energy_yield_df.index+0.15,width=0.3,y= pcey_obj.energy_yield_df['net_yield_GWh'], name='Expected (with curtailment losses)'))
+        fig.add_trace(go.Bar(x=pcey_obj.energy_yield_df.index-0.15,width=0.3, y = pcey_obj.energy_yield_df['energy_without_curtailment'], name='Expected (without curtailment losses)'))
+        fig.add_trace(go.Bar(x=pcey_obj.energy_yield_df.index+0.15,width=0.3,y= pcey_obj.energy_yield_df['energy_with_curtailment'], name='Expected (with curtailment losses)'))
         # make the ticks 'Jan', 'Feb' as opposed to 1, 2
         labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
         # add the labels to the x axis
@@ -146,8 +152,8 @@ def plot_p50(pcey_obj):
         # plotl white themw
         fig.update_layout(template='plotly_white')
         # plotly latex r2
-        title=f"""<b style = 'font-size:16px'>BMU: {pcey_obj.bmu}<br>Annual Energy Yield: {pcey_obj.p50_energy_yield:.0f} GWh</b>
-        <br><span style='font-size:14px'>number of months: {pcey_obj.n_data_points}, model r-squared: {pcey_obj.prediction_r2:.2f}</span>"""
+        title=f"""<b style = 'font-size:16px'>{pcey_obj.name} Annual Energy Yield: {pcey_obj.p50_energy_yield:.0f} GWh</b>
+        <br><span style='font-size:14px'>BMU: {pcey_obj.bmu}, number of months: {pcey_obj.n_data_points}, model r-squared: {pcey_obj.prediction_r2:.2f}</span>"""
         fig.update_layout(title_text=title, title_x=0.5, title_font_size=16)
         fig.update_layout(
             dragmode=False)
@@ -156,6 +162,7 @@ def plot_p50(pcey_obj):
         fig.write_html(f"{plot_path}.html", full_html=False,config={'displayModeBar': False, 'displaylogo': False})
     
     except Exception as e:
-        print('plot_p50(), error: ', e)
+        line_number = sys.exc_info()[-1].tb_lineno
+        print(f"plot_p50(), error: {e}, line: {line_number}")
 
 

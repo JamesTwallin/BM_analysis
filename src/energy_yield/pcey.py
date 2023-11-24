@@ -1,17 +1,17 @@
 import pandas as pd
 import numpy as np
-from scipy import stats
+from statistics import linear_regression, correlation
 
 # random forest regressor
 from sklearn.ensemble import RandomForestRegressor
 # test train split
 from sklearn.model_selection import train_test_split
+import pickle
 
 
 import os
-import plotly.graph_objects as go
+
 import matplotlib.pyplot as plt
-from plotly.subplots import make_subplots
 from utils.helpers import get_nearest_lat_lon
 
 
@@ -27,6 +27,25 @@ COLOURS = ['#3F7D20', '#A0DDE6', '#542e71','#3F7CAC','#698F3F']
 
 global project_root_path
 project_root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+def load_model(bmu, X_train, y_train):
+	os.makedirs(os.path.join(project_root_path, 'models'), exist_ok=True)
+	try:
+		# make a folder for the plots
+		model_folder = os.path.join(project_root_path, 'models')
+		if not os.path.exists(model_folder):
+			os.mkdir(model_folder)
+		filename = f'{bmu}_model.pkl'
+		model_path = os.path.join(model_folder, filename)
+		with open(model_path, 'rb') as f:
+			model = pickle.load(f)
+		return model
+	except Exception as e:
+		model = RandomForestRegressor()
+		model.fit(X_train, y_train)
+		with open(model_path, 'wb') as f:
+			pickle.dump(model, f)
+		return model
 
 
 class PCEY:
@@ -69,21 +88,28 @@ class PCEY:
 				self._preprocess_data()
 			# test train split
 			ml_df = self.preprocessed_df[['wind_speed', 'wind_direction_degrees', self.COL_IDEAL_YIELD]].dropna().copy()
+			# round the wind direction to the nearest 5
+			ml_df['wind_direction_degrees'] = ml_df['wind_direction_degrees'].apply(lambda x: round(x/5)*5)
+			# round the wind speed to the nearest 0.5
+			ml_df['wind_speed'] = ml_df['wind_speed'].apply(lambda x: round(x*2)/2)
+			# drop any duplicates
+			filt = ml_df.duplicated(subset=['wind_speed', 'wind_direction_degrees', self.COL_IDEAL_YIELD], keep='first')
+			# count the number of duplicates
+			n_duplicates = filt.sum()
+			print('n_duplicates: ', n_duplicates)
+			# drop the duplicates
+			ml_df = ml_df[~filt]
 			# any values where the ideal yield is 0, drop them
 			ml_df = ml_df[ml_df[self.COL_IDEAL_YIELD] != 0]
 			# resample to the median for the day
 			X = ml_df[['wind_speed', 'wind_direction_degrees']]
 
 			y = ml_df[self.COL_IDEAL_YIELD]
-			X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+			X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
 			# fit the model
-			model = RandomForestRegressor()
-			model.fit(X_train, y_train)
+			model = load_model(self.bmu, X_train, y_train)
 			# get the predictions
 			y_pred = model.predict(X_test)
-			# get the r2 using scipy
-			slope, intercept, r_value, p_value, std_err = stats.linregress(y_test, y_pred)
-			print('r2: ', r_value**2)
 			self.preprocessed_df[self.COL_PREDICTED_IDEAL_YIELD] = np.nan
 			# where the feature cols are not null, predict the ideal yield
 			filt = self.preprocessed_df[['wind_speed', 'wind_direction_degrees']].notnull().all(axis=1)
@@ -138,7 +164,7 @@ class PCEY:
 			month_df[self.COL_NET_YIELD+'_fail'] = np.nan
 			month_df[self.COL_IDEAL_YIELD+'_fail'] = np.nan
 
-			filt = (month_df['data_coverage_%'] >= 70)
+			filt = (month_df['data_coverage_%'] >= 75)
 			# filt = (month_df['availability'] >= 0.6)
 			month_df.loc[filt, self.COL_NET_YIELD+'_ok'] = month_df.loc[filt, self.COL_NET_YIELD]
 			month_df.loc[filt, self.COL_IDEAL_YIELD+'_ok'] = month_df.loc[filt, self.COL_IDEAL_YIELD]
@@ -154,6 +180,8 @@ class PCEY:
 			month_df[self.COL_DAILY_IDEAL_YIELD] = month_df[self.COL_IDEAL_YIELD+'_ok'] / month_df.index.days_in_month
 			month_df[self.COL_DAILY_PREDICTED] = month_df[self.COL_PREDICTED_IDEAL_YIELD] / month_df.index.days_in_month
 			month_df[self.COL_DAILY_QCd_YIELD] = month_df[self.COL_QCd_YIELD] / month_df.index.days_in_month
+
+
 			
 			# make a combined column of the predicted and actual ideal yield_ok
 
@@ -164,6 +192,57 @@ class PCEY:
 			month_df[self.COL_DAILY_NET_YIELD+'_ok'] = month_df[self.COL_NET_YIELD+'_ok'] / month_df.index.days_in_month
 			self.month_df = month_df.copy()
 
+	def _load_fit_dict(self, df):
+		'''
+		uses stats.linregress to calculate the r2
+		compares the predicted ideal yield with the actual ideal yield
+		this is the _ok column
+		'''
+		# drop the na values
+		_lin_reg_df = df[[self.COL_DAILY_PREDICTED, self.COL_DAILY_IDEAL_YIELD+'_ok']].dropna()
+		# linear regression between predicted and actual
+		slope, intercept = linear_regression(_lin_reg_df[self.COL_DAILY_PREDICTED], _lin_reg_df[self.COL_DAILY_IDEAL_YIELD+'_ok'],proportional=True)
+		r_value = correlation(_lin_reg_df[self.COL_DAILY_PREDICTED], _lin_reg_df[self.COL_DAILY_IDEAL_YIELD+'_ok'])
+		self.fit_dict = {'slope': slope, 'intercept': intercept, 'r_value': r_value}
+		self.prediction_r2 = r_value**2
+
+
+	def _calculate_monthly_curtailment_losses(self,df):
+		'''
+		This takes in a dataframe with the following columns:
+		- ideal yield
+		- measured losses
+		for the total range, this function calculates the monthly curtailment losses
+		as a percentage of the ideal yield for each month
+		'''
+		# group by month
+		month_df = df[[self.COL_IDEAL_YIELD, self.COL_CURTAILMENT_LOSSES]].copy()
+		# group by month and get the median
+		# calculate the curtailment losses as a percentage of the ideal yield
+		month_df['curtailment_losses_%'] = month_df[self.COL_CURTAILMENT_LOSSES] / month_df[self.COL_IDEAL_YIELD] * 100.
+		# group by month number and get the median
+		month_df['month_number'] = month_df.index.month
+		month_df = month_df[['curtailment_losses_%', 'month_number']].groupby('month_number').median()
+		return month_df['curtailment_losses_%']
+	
+	def _calculate_monthly_energy_yield(self, df):
+		'''
+		This takes in a dataframe with the following columns:
+		- ideal yield
+		- measured losses
+		for the total range, this function calculates the monthly curtailment losses
+		as a percentage of the ideal yield for each month
+		'''
+		# group by month
+		month_df = df[[self.COL_QCd_YIELD]].copy()
+
+		# group by month number and get the median
+		month_df['month_number'] = month_df.index.month
+
+		month_df = month_df[[self.COL_QCd_YIELD, 'month_number']].groupby('month_number').median()
+
+		return month_df[self.COL_QCd_YIELD]
+
 
 	def calculate_energy_yield(self):
 		if self.month_df is None:
@@ -171,285 +250,32 @@ class PCEY:
 		try:
 		# merge the two dfs
 
-			self.weather_stats_df[self.COL_DAILY_IDEAL_YIELD] = self.month_df[[self.COL_DAILY_IDEAL_YIELD]]
-			self.weather_stats_df[self.COL_DAILY_NET_YIELD] = self.month_df[[self.COL_DAILY_NET_YIELD]]
-			self.weather_stats_df[self.COL_DAILY_IDEAL_YIELD+'_fail'] = self.month_df[[self.COL_DAILY_IDEAL_YIELD+'_fail']]
-			self.weather_stats_df[self.COL_DAILY_NET_YIELD+'_fail'] = self.month_df[[self.COL_DAILY_NET_YIELD+'_fail']]
-			self.weather_stats_df[self.COL_DAILY_IDEAL_YIELD+'_ok'] = self.month_df[[self.COL_DAILY_IDEAL_YIELD+'_ok']]
-			self.weather_stats_df[self.COL_DAILY_NET_YIELD+'_ok'] = self.month_df[[self.COL_DAILY_NET_YIELD+'_ok']]
-			self.weather_stats_df[self.COL_DAILY_QCd_YIELD] = self.month_df[[self.COL_DAILY_QCd_YIELD]]
 
 
-			self.weather_stats_df[self.COL_DAILY_PREDICTED] = self.month_df[[self.COL_DAILY_PREDICTED]]
-			self.weather_stats_df['curtailment_losses_GWh'] = self.month_df[['curtailment_losses_GWh']]
-			# linear regression scipy
-			lin_reg_df = self.weather_stats_df[['wind_speed', self.COL_DAILY_IDEAL_YIELD]].dropna()
-			net_req_df = self.weather_stats_df[['wind_speed', self.COL_DAILY_NET_YIELD]].dropna()
-			slope, intercept, r_value, p_value, ideal_std_err = stats.linregress(lin_reg_df['wind_speed'], lin_reg_df[self.COL_DAILY_IDEAL_YIELD])
-			self.r2 = r_value**2
-			self.slope = slope
-			self.intercept = intercept
-		
 
-			slope, intercept, r_value, p_value, std_err = stats.linregress(net_req_df['wind_speed'], net_req_df[self.COL_DAILY_NET_YIELD])
-			self.net_yield_r2 = r_value**2
-			self.net_yield_slope = slope
-			self.net_yield_intercept = intercept
-			# calculate the standard error
-			# convert the stndard error to a percentage
+			combined_df = pd.merge(self.weather_stats_df, self.month_df, left_index=True, right_index=True, how='outer')
 
-			self.weather_stats_df['top_error'] = self.weather_stats_df[self.COL_DAILY_PREDICTED] + ideal_std_err
-			self.weather_stats_df['bottom_error'] = self.weather_stats_df[self.COL_DAILY_PREDICTED] - ideal_std_err
-
-			# prediction v actual r2
-			_lin_reg_df = self.weather_stats_df[[self.COL_DAILY_IDEAL_YIELD, self.COL_DAILY_PREDICTED]].dropna()
-			slope, intercept, r_value, p_value, std_err = stats.linregress(_lin_reg_df[self.COL_DAILY_IDEAL_YIELD],_lin_reg_df[self.COL_DAILY_PREDICTED])
-			self.prediction_r2 = r_value**2
+			curtailment_losses = self._calculate_monthly_curtailment_losses(combined_df)
+			energy_yield = self._calculate_monthly_energy_yield(combined_df)
+			self._load_fit_dict(combined_df)
+			# now add the percentage curtailment losses
+			year_df = pd.DataFrame(index = [1,2,3,4,5,6,7,8,9,10,11,12])
+			year_df['curtailment_losses_%'] = curtailment_losses
+			year_df['energy_without_curtailment'] = energy_yield
+			year_df['energy_with_curtailment'] = (1- curtailment_losses/100.) * energy_yield
+			year_df['curtailment_losses'] = (curtailment_losses/100.) * energy_yield
 
 
-			
-			# add in any existing data
-			# filt = self.weather_stats_df[self.daily_ideal_yield_col].notnull()
-			# self.weather_stats_df.loc[filt, self.daily_predicted_col] = self.weather_stats_df.loc[filt, self.daily_ideal_yield_col]
-
-
-			self.weather_stats_df[self.COL_PREDICTED_MONTHLY] = self.weather_stats_df[self.COL_DAILY_PREDICTED] * self.weather_stats_df.index.days_in_month
-			self.weather_stats_df['top_error'] = self.weather_stats_df['top_error'] * self.weather_stats_df.index.days_in_month
-			self.weather_stats_df[self.COL_IDEAL_YIELD] = self.weather_stats_df[self.COL_DAILY_IDEAL_YIELD] * self.weather_stats_df.index.days_in_month
-			self.weather_stats_df[self.COL_NET_YIELD] = self.weather_stats_df[self.COL_DAILY_NET_YIELD] * self.weather_stats_df.index.days_in_month
-			self.weather_stats_df[self.COL_QCd_YIELD] = self.weather_stats_df[self.COL_DAILY_QCd_YIELD] * self.weather_stats_df.index.days_in_month
-		except Exception as e:
-			print('get_prediction(), error: ', e)
-
-
-	def get_p50_energy_yield(self):
-		try:
-			# get the p50 energy yield
-			_energy_yield_df = self.weather_stats_df.copy()
-			_last_two_years_df = _energy_yield_df[_energy_yield_df.index.year > _energy_yield_df.index.year.max() - 2].copy()
-			_last_two_years_df['month_number'] = _last_two_years_df.index.month
-			_energy_yield_df['month_number'] = _energy_yield_df.index.month
-			
-			# group by month and get the median
-			energy_yield_df = _energy_yield_df[[self.COL_QCd_YIELD, 'month_number']].groupby('month_number').median()
-			energy_yield_df['curtailment_losses_GWh'] = _last_two_years_df[['curtailment_losses_GWh', 'month_number']].groupby('month_number').mean()
-			energy_yield_df['net_yield_GWh'] = energy_yield_df[self.COL_QCd_YIELD] - energy_yield_df['curtailment_losses_GWh']
-			
-			self.energy_yield_df = energy_yield_df
-			p50_energy_yield = energy_yield_df[self.COL_QCd_YIELD].sum()
-			
-			self.p50_energy_yield = p50_energy_yield
-			self.p50_energy_yield_net = energy_yield_df['net_yield_GWh'].sum()
-			self.losses_due_to_curtailment = energy_yield_df['curtailment_losses_GWh'].sum()
-			self.losses_as_percentage = f'{self.losses_due_to_curtailment / self.p50_energy_yield * 100:.2f}%'
-			
-			# len of month_df[self.daily_ideal_yield_col]
-			self.n_data_points = len(_energy_yield_df[self.COL_DAILY_IDEAL_YIELD].dropna())
-		except Exception as e:
-			print('get_p50_energy_yield(), error: ', e)
-
-
-	def plot_generation(self):
-		try:
-			# make a folder for the plots
-			plot_folder = os.path.join(project_root_path, 'plots')
-			if not os.path.exists(plot_folder):
-				os.mkdir(plot_folder)
-
-			filename = f'2_{self.bmu}_pcey'
-			plot_path = os.path.join(plot_folder, filename)
-			plot_df = self.weather_stats_df.copy()
-
-
-			fig = go.Figure()
-			fig.add_trace(go.Scattergl(x=plot_df.index, y=plot_df[self.COL_PREDICTED_MONTHLY], name='Predicted',mode='lines+markers'))
-			fig.add_trace(go.Scattergl(x=plot_df.index, y=plot_df[self.COL_NET_YIELD], name='Generation', mode='lines+markers'))
-			fig.add_trace(go.Scattergl(x=plot_df.index, y=plot_df[self.COL_IDEAL_YIELD], name='Generation - Curtailment', mode='lines+markers'))
-			title = f"<span style='font-size: 20px; font-weight: bold;'>{self.name}</span><br><span style='font-size: 16px;'>{self.bmu}</span>"
-			fig.update_layout(title=title, xaxis_title='Month', yaxis_title='GWh')
-			# whit theme
-			fig.update_layout(template='plotly_white')
-			# save to html
-			fig.write_html(f'{plot_path}.html', full_html=False,config={'displayModeBar': False, 'displaylogo': False})
-
-			plt.close()
-		except Exception as e:
-			print('plot_generation(), error: ', e)
-
-
-	def plot_scatter(self):
-		try:
-			plot_df = self.weather_stats_df.copy()
-			filt = plot_df[self.COL_DAILY_IDEAL_YIELD + '_ok'] > 0
-			filt2 = plot_df[self.COL_DAILY_IDEAL_YIELD + '_fail'] > 0
-			plot_df = plot_df[filt | filt2].copy()
-
-			# make a folder for the plots
-			plot_folder = os.path.join(project_root_path, 'plots')
-			if not os.path.exists(plot_folder):
-				os.mkdir(plot_folder)
-			filename = f'1_{self.bmu}_scatter'
-			plot_path = os.path.join(plot_folder, filename)
-
-
-			# three column, 1 row subplots with Go
-
-			colours = COLOURS
-			
-			#subplot 1
-			fig = make_subplots(rows=3, cols=1, 
-								subplot_titles=(f"Step 1. Actual GWh v Weather Data (ERA5 Node: lat: {self.nearest_lat:.2f}, lon: {self.nearest_lon:.2f})", f"Step 2. (Actual GWh - Curtailed GWh) v Weather Data", f"Step 3. Predicted GWh v Actual GWh", ), 
-								vertical_spacing=0.1)           
-			fig.update_annotations(font_size=12)    
-			# the wind speed, production and the month in text
-			ok_text = [f"QC pass<br>Wind Speed: {ws:.2f} m/s<br>Production: {prod:.2f} GWh<br>Month: {month}" for ws, prod, month in zip(plot_df['wind_speed'], plot_df[self.COL_DAILY_NET_YIELD], plot_df.index.strftime('%b %Y'))]
-			fig.add_trace(go.Scatter(x=plot_df['wind_speed'], y=plot_df[self.COL_DAILY_NET_YIELD], mode='markers', name='Auto QC pass', marker_color=colours[2],legendgroup='1',
-									hovertext=ok_text,hoverinfo='text'), row=1, col=1)
-			fail_text = [f"QC fail<br>Wind Speed: {ws:.2f} m/s<br>Production: {prod:.2f} GWh<br>Month: {month}" for ws, prod, month in zip(plot_df['wind_speed'], plot_df[self.COL_DAILY_NET_YIELD + '_fail'], plot_df.index.strftime('%b %Y'))]
-			fig.add_trace(go.Scatter(x=plot_df['wind_speed'], y=plot_df[self.COL_DAILY_NET_YIELD + '_fail'], mode='markers', name='Auto QC fail', marker_color=colours[4], opacity=0.5, legendgroup='1',
-										hovertext=fail_text,hoverinfo='text'), row=1, col=1)
-			fig.update_xaxes(title_text='Daily Mean Wind Speed (m/s)', row=1, col=1,titlefont=dict(size=12))
-			fig.update_yaxes(title_text='Actual Daily Mean Generation (GWh)', row=1, col=1,titlefont=dict(size=12))
-			# make the r^2 text
-
-			fig.update_yaxes(range=[0,plot_df[self.COL_DAILY_IDEAL_YIELD].max()*1.1], row=1, col=1)
-			fig.update_xaxes(range=[0,plot_df['wind_speed'].max()*1.1], row=1, col=1)
-
-
-			
-			#subplot 2
-			ok_text = [f"QC pass<br>Wind Speed: {ws:.2f} m/s<br>Production: {prod:.2f} GWh<br>Month: {month}" for ws, prod, month in zip(plot_df['wind_speed'], plot_df[self.COL_DAILY_IDEAL_YIELD], plot_df.index.strftime('%b %Y'))]
-			fig.add_trace(go.Scatter(x=plot_df['wind_speed'], y=plot_df[self.COL_DAILY_IDEAL_YIELD], mode='markers', name='Auto QC pass', marker_color=colours[2],legendgroup='2'
-										,hovertext=ok_text,hoverinfo='text', showlegend=False), row=2, col=1)
-			fail_text = [f"QC fail<br>Wind Speed: {ws:.2f} m/s<br>Production: {prod:.2f} GWh<br>Month: {month}" for ws, prod, month in zip(plot_df['wind_speed'], plot_df[self.COL_DAILY_IDEAL_YIELD + '_fail'], plot_df.index.strftime('%b %Y'))]
-			fig.add_trace(go.Scatter(x=plot_df['wind_speed'], y=plot_df[self.COL_DAILY_IDEAL_YIELD + '_fail'], mode='markers', name='Auto QC fail', marker_color=colours[4], opacity=0.5, legendgroup='2',
-										hovertext=fail_text,hoverinfo='text', showlegend=False), row=2, col=1)
-
-			if self.intercept > 0:
-				text = f'y = {self.slope:.2f}x + {abs(self.intercept):.2f}'
-			else:
-				text = f'y = {self.slope:.2f}x - {abs(self.intercept):.2f}'
-			x_range = np.arange(0, plot_df['wind_speed'].max()*1.1, 0.1)
-			fig.add_trace(go.Scatter(x=x_range, y=self.slope * x_range + self.intercept, mode='lines', name=text, line=dict(color=colours[3], dash='dash')), row=2, col=1)
-			fig.update_xaxes(title_text='Daily Mean Wind Speed (m/s)', row=2, col=1,titlefont=dict(size=12))
-			fig.update_yaxes(title_text='Actual Daily Mean Generation (GWh) - Curtailed GWh', row=2, col=1,titlefont=dict(size=12))
-			fig.update_yaxes(range=[0,plot_df[self.COL_DAILY_IDEAL_YIELD].max()*1.1], row=2, col=1)
-			fig.update_xaxes(range=[0,plot_df['wind_speed'].max()*1.1], row=2, col=1)
-
-			#subplot 3
-			text = [f"Predicted: {pred:.2f} GWh<br>Actual: {actual:.2f} GWh<br>Month: {month}" for pred, actual, month in zip(plot_df[self.COL_DAILY_PREDICTED], plot_df[self.COL_DAILY_IDEAL_YIELD], plot_df.index.strftime('%b %Y'))]
-			fig.add_trace(go.Scatter(x=plot_df[self.COL_DAILY_PREDICTED], y=plot_df[self.COL_DAILY_IDEAL_YIELD], mode='markers',marker_color = colours[2],legendgroup='3',
-										hovertext=text,hoverinfo='text', showlegend=False), row=3, col=1)
-			_lin_reg_df = plot_df[[self.COL_DAILY_PREDICTED, self.COL_DAILY_IDEAL_YIELD]].dropna()
-			# linear regression between predicted and actual
-			slope, intercept, r_value, p_value, ideal_std_err = stats.linregress(_lin_reg_df[self.COL_DAILY_PREDICTED], _lin_reg_df[self.COL_DAILY_IDEAL_YIELD])
-			x_range = np.arange(0, plot_df[self.COL_DAILY_PREDICTED].max()*1.1, 0.1)
-			r2_text = f'R^2 = {r_value**2:.2f}'
-
-			fig.add_trace(go.Scatter(x=x_range, y=slope * x_range + intercept, mode='lines', name=r2_text, line=dict(color='red', dash='dash')), row=3, col=1)
-			fig.update_xaxes(title_text='Predicted Daily Mean Generation (GWh)', row=3, col=1 ,titlefont=dict(size=12))
-			fig.update_yaxes(title_text='Actual Daily Mean Generation (GWh)', row=3, col=1,titlefont=dict(size=12))
-			fig.update_yaxes(range=[0,plot_df[self.COL_DAILY_IDEAL_YIELD].max()*1.1], row=3, col=1)
-			fig.update_xaxes(range=[0,plot_df[self.COL_DAILY_PREDICTED].max()*1.1], row=3, col=1)
-
-			
-			# set the legend to be 'h'
-			fig.update_layout(legend_orientation="h")
-			# center the legend
-			fig.update_layout(legend=dict(x=0.5, y=-0.1, xanchor='center', yanchor='top'))
-			# set the height to be 800
-			fig.update_layout(height=1500)
-			# set the max width to be 1000
-			# remove padding from the plot
-			fig.update_layout(margin=dict(l=0, r=0))
-
-			# plotl white themw
-			fig.update_layout(template='plotly_white')
-			title = f"<span style='font-size: 16; font-weight: bold;'>{self.name}, {self.bmu}<br>Least squares model</span>"
-			# title = f'{self.name}, {self.bmu} scatter. Prediction v Actual'
-			fig.update_layout(title_text=title, title_x=0.5, title_font_size=16)
-			fig.update_layout(
-				dragmode=False)
-					# reduce space between subplots
-			# turn off 
-
-
-			# save the plot
-			fig.write_html(f"{plot_path}.html", full_html=False,config={'displayModeBar': False, 'displaylogo': False})
-
-
-			
-
+			year_df['month_number'] = year_df.index
+			# add the month name
+			year_df['month_name'] = year_df['month_number'].apply(lambda x: pd.to_datetime(str(x), format='%m').strftime('%B'))
+			# calculate the ideal yield
+			self.p50_energy_yield = year_df['energy_with_curtailment'].sum()
+			self.losses_due_to_curtailment = year_df['curtailment_losses'].sum()
+			self.losses_as_percentage = self.losses_due_to_curtailment / self.p50_energy_yield * 100.
+			self.n_data_points = self.month_df[self.COL_NET_YIELD+'_ok'].count()
+			self.energy_yield_df = year_df.copy()
 
 		except Exception as e:
-			print('plot_scatter(), error: ', e)
-
-
-
-
-	
-	def plot_p50(self):
-		try:
-			# make a folder for the plots
-			plot_folder = os.path.join(project_root_path, 'plots')
-			if not os.path.exists(plot_folder):
-				os.mkdir(plot_folder)
-			filename = f'3_{self.bmu}_p50'
-			plot_path = os.path.join(plot_folder, filename)
-			# fig = plt.figure(figsize=(10,5))
-			# ax = fig.add_subplot(111)
-			
-			# ax.bar(self.energy_yield_df.index-0.15,width=0.3, height = self.energy_yield_df[self.COL_QCd_YIELD], label='Expected (without curtailment losses)')
-
-			# ax.bar(self.energy_yield_df.index+0.15,width=0.3,height= self.energy_yield_df['net_yield_GWh'], label='Expected (with curtailment losses)')
-			# # make the ticks 'Jan', 'Feb' as opposed to 1, 2
-			# labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-			# ax.legend()
-			# ax.set_xticks(self.energy_yield_df.index)
-			# ax.set_xticklabels(labels)
-
-			# ax.set_xlabel('Month')
-			# ax.set_ylabel('P50 Energy Yield (GWh)')
-			# # r2 text
-
-			# fig.suptitle(f'{self.bmu}, Capacity {self.capacity:.0f}MW Annual P50 Energy Yield: {self.p50_energy_yield:.0f} GWh, number of months: {self.n_data_points}\nModel $r^2$: {self.prediction_r2:.2f}')
-
-			# losses_text = f'Annual observed losses due to curtailment: {self.losses_due_to_curtailment:.0f} GWh {self.losses_as_percentage}'
-			# ax.set_title(losses_text)
-
-			# fig.savefig(f"{plot_path}.png")
-			# plt.close()
-			fig = go.Figure()
-			fig.add_trace(go.Bar(x=self.energy_yield_df.index-0.15,width=0.3, y = self.energy_yield_df[self.COL_QCd_YIELD], name='Expected (without curtailment losses)'))
-			fig.add_trace(go.Bar(x=self.energy_yield_df.index+0.15,width=0.3,y= self.energy_yield_df['net_yield_GWh'], name='Expected (with curtailment losses)'))
-			# make the ticks 'Jan', 'Feb' as opposed to 1, 2
-			labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-			# add the labels to the x axis
-			fig.update_xaxes(ticktext=labels, tickvals=self.energy_yield_df.index)
-			fig.update_layout(legend_orientation="h")
-			# add y axis labels
-			fig.update_yaxes(title_text='Monthly Energy Yield (GWh)')
-			# center the legend
-			fig.update_layout(legend=dict(x=0.5, y=-0.1, xanchor='center', yanchor='top'))
-			# set the height to be 800
-			fig.update_layout(height=600)
-			# set the max width to be 1000
-			# remove padding from the plot
-			fig.update_layout(margin=dict(l=0, r=0))
-
-			# plotl white themw
-			fig.update_layout(template='plotly_white')
-			# plotly latex r2
-			title=f"""<b style = 'font-size:16px'>BMU: {self.bmu}<br>Annual Energy Yield: {self.p50_energy_yield:.0f} GWh</b>
-			<br><span style='font-size:14px'>number of months: {self.n_data_points}, model r-squared: {self.prediction_r2:.2f}</span>"""
-			fig.update_layout(title_text=title, title_x=0.5, title_font_size=16)
-			fig.update_layout(
-				dragmode=False)
-					# reduce space between subplots
-
-			fig.write_html(f"{plot_path}.html", full_html=False,config={'displayModeBar': False, 'displaylogo': False})
-		
-		except Exception as e:
-			print('plot_p50(), error: ', e)
-
+			print('calculate_energy_yield(), error: ', e)
 

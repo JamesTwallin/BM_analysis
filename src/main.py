@@ -11,6 +11,7 @@ import src.data_handling.weather as weather
 
 
 from src.data_handling.bmrs import BMU, BMRS
+from src.energy_yield import pcey_plotting
 
 # curvefit
 
@@ -128,10 +129,9 @@ if __name__ == "__main__":
 				wf_pcey = PCEY(data_obj, bmu, lat, lon, cap, name, gen_type)
 				wf_pcey.get_ml_prediction()
 				wf_pcey.calculate_energy_yield()
-				wf_pcey.get_p50_energy_yield()
-				wf_pcey.plot_generation()
-				wf_pcey.plot_scatter()
-				wf_pcey.plot_p50()
+				pcey_plotting.plot_generation(wf_pcey)
+				pcey_plotting.plot_scatter(wf_pcey)
+				pcey_plotting.plot_p50(wf_pcey)
 
 				pcey_dict = {}
 				pcey_dict['bmu'] = bmu
