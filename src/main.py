@@ -136,6 +136,7 @@ if __name__ == "__main__":
 				pcey_dict = {}
 				pcey_dict['bmu'] = bmu
 				pcey_dict['p50_energy_yield'] = wf_pcey.p50_energy_yield
+				pcey_dict['p50_ideal_yield'] = wf_pcey.p50_ideal_yield
 				pcey_dict['curtailment'] = wf_pcey.losses_due_to_curtailment
 				pcey_dict['GWh/MW'] = wf_pcey.p50_energy_yield / wf_pcey.capacity
 				pcey_dict['curtailment %'] = wf_pcey.losses_as_percentage

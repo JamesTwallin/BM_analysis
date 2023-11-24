@@ -271,6 +271,7 @@ class PCEY:
 			year_df['month_name'] = year_df['month_number'].apply(lambda x: pd.to_datetime(str(x), format='%m').strftime('%B'))
 			# calculate the ideal yield
 			self.p50_energy_yield = year_df['energy_with_curtailment'].sum()
+			self.p50_ideal_yield = year_df['energy_without_curtailment'].sum()
 			self.losses_due_to_curtailment = year_df['curtailment_losses'].sum()
 			self.losses_as_percentage = self.losses_due_to_curtailment / self.p50_energy_yield * 100.
 			self.n_data_points = self.month_df[self.COL_NET_YIELD+'_ok'].count()

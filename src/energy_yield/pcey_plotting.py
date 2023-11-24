@@ -132,8 +132,12 @@ def plot_p50(pcey_obj):
         plot_path = os.path.join(plot_folder, filename)
 
         fig = go.Figure()
-        fig.add_trace(go.Bar(x=pcey_obj.energy_yield_df.index-0.15,width=0.3, y = pcey_obj.energy_yield_df['energy_without_curtailment'], name='Expected (without curtailment losses)'))
-        fig.add_trace(go.Bar(x=pcey_obj.energy_yield_df.index+0.15,width=0.3,y= pcey_obj.energy_yield_df['energy_with_curtailment'], name='Expected (with curtailment losses)'))
+        text = [f"Expected: {expected:.2f} GWh<br>Actual: {actual:.2f} GWh<br>Month: {month}" for expected, actual, month in zip(pcey_obj.energy_yield_df['energy_without_curtailment'], pcey_obj.energy_yield_df['energy_with_curtailment'], pcey_obj.energy_yield_df.index.strftime('%b %Y'))]
+        fig.add_trace(go.Bar(x=pcey_obj.energy_yield_df.index-0.15,width=0.3, y = pcey_obj.energy_yield_df['energy_without_curtailment'], name='Expected (without curtailment losses)',
+                            hovertext=text,hoverinfo='text'))
+        text = [f"Expected: {expected:.2f} GWh<br>Actual: {actual:.2f} GWh<br>Month: {month}" for expected, actual, month in zip(pcey_obj.energy_yield_df['energy_with_curtailment'], pcey_obj.energy_yield_df['energy_with_curtailment'], pcey_obj.energy_yield_df.index.strftime('%b %Y'))]
+        fig.add_trace(go.Bar(x=pcey_obj.energy_yield_df.index+0.15,width=0.3,y= pcey_obj.energy_yield_df['energy_with_curtailment'], name='Expected (with curtailment losses)',
+                            hovertext=text,hoverinfo='text'))
         # make the ticks 'Jan', 'Feb' as opposed to 1, 2
         labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
         # add the labels to the x axis
@@ -152,7 +156,7 @@ def plot_p50(pcey_obj):
         # plotl white themw
         fig.update_layout(template='plotly_white')
         # plotly latex r2
-        title=f"""<b style = 'font-size:16px'>{pcey_obj.name} Annual Energy Yield: {pcey_obj.p50_energy_yield:.0f} GWh</b>
+        title=f"""<b style = 'font-size:16px'>{pcey_obj.name} Annual Energy Yield : {pcey_obj.p50_energy_yield:.0f} GWh, (without curtailment: {pcey_obj.p50_ideal_yield:.0f} GWh)</b><br>
         <br><span style='font-size:14px'>BMU: {pcey_obj.bmu}, number of months: {pcey_obj.n_data_points}, model r-squared: {pcey_obj.prediction_r2:.2f}</span>"""
         fig.update_layout(title_text=title, title_x=0.5, title_font_size=16)
         fig.update_layout(
