@@ -94,11 +94,14 @@ class PCEY:
 			ml_df['wind_speed'] = ml_df['wind_speed'].apply(lambda x: round(x*2)/2)
 			# drop any duplicates
 			filt = ml_df.duplicated(subset=['wind_speed', 'wind_direction_degrees', self.COL_IDEAL_YIELD], keep='first')
+
+			# ideal yield = 0
+			filt2 = ml_df[self.COL_IDEAL_YIELD] == 0
 			# count the number of duplicates
 			n_duplicates = filt.sum()
 			print('n_duplicates: ', n_duplicates)
-			# drop the duplicates
-			ml_df = ml_df[~filt]
+			# drop the duplicates and where the ideal yield is 0
+			ml_df = ml_df[~filt & ~filt2]
 			# any values where the ideal yield is 0, drop them
 			ml_df = ml_df[ml_df[self.COL_IDEAL_YIELD] != 0]
 			# resample to the median for the day
@@ -129,6 +132,13 @@ class PCEY:
 		merged_df= self.ws_df[['wind_speed']].resample('30T').last().copy()
 		merged_df['wind_direction_degrees'] = self.ws_df[['wind_direction_degrees']].resample('30T').last().copy()
 		merged_df['Quantity (MW)'] = self.gen_df[['Quantity (MW)']].resample('30T').last().copy()
+		day_gen_df = self.gen_df[['Quantity (MW)']].resample('1D').count()
+		# merge this and forward fill
+		merged_df['gen_count'] = day_gen_df.reindex(merged_df.index, method='ffill').copy()
+		merged_df['gen_count_bool'] = merged_df['gen_count'] >= 48.
+		
+		
+
 		merged_df['Total'] = self.bav_df[['Total']].resample('30T').last().fillna(0).copy()
 		# interpolate the ws_df
 		for col in ['wind_speed', 'wind_direction_degrees']:
@@ -156,15 +166,18 @@ class PCEY:
 
 			# group by month
 			month_df = _df[[self.COL_NET_YIELD, self.COL_IDEAL_YIELD, self.COL_CURTAILMENT_LOSSES, self.COL_PREDICTED_IDEAL_YIELD]].resample('1MS').sum()
-
+			# get the 90th percentile generation
+			running_well_val = _df[self.COL_NET_YIELD].quantile(0.85)
 			# calculate the availability for each month
 			month_df['data_coverage_%'] = _df[self.COL_NET_YIELD].resample('1MS').count()/(month_df.index.days_in_month * 48)*100.
+			month_df['peak_generation'] = _df[self.COL_NET_YIELD].resample('1MS').max()
+			month_df['running_well'] = month_df['peak_generation'] >= running_well_val
 			month_df[self.COL_NET_YIELD+'_ok'] = np.nan 
 			month_df[self.COL_IDEAL_YIELD+'_ok'] = np.nan
 			month_df[self.COL_NET_YIELD+'_fail'] = np.nan
 			month_df[self.COL_IDEAL_YIELD+'_fail'] = np.nan
 
-			filt = (month_df['data_coverage_%'] >= 75)
+			filt = (month_df['data_coverage_%'] >= 60) & (month_df['running_well'])
 			# filt = (month_df['availability'] >= 0.6)
 			month_df.loc[filt, self.COL_NET_YIELD+'_ok'] = month_df.loc[filt, self.COL_NET_YIELD]
 			month_df.loc[filt, self.COL_IDEAL_YIELD+'_ok'] = month_df.loc[filt, self.COL_IDEAL_YIELD]
