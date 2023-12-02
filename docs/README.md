@@ -12,7 +12,7 @@ This is a website built and owned by James Twallin.
 
 This work is open sourced under the Apache License, Version 2.0.
 
-This theme is jekyll-gitbook. Copyright 2019 Tao He.
+This theme is jekyll-gitbook. Copyright 2019 James Twallin.
 
 [1]: https://pages.github.com
 [2]: https://pages.github.com/themes

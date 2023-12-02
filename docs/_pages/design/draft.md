@@ -1,6 +1,6 @@
 ---
 title: Design Draft
-author: Tao He
+author: James Twallin
 date: 2022-02-06
 category: Jekyll
 layout: post

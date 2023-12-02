@@ -1,8 +1,8 @@
 ---
 title: About
-author: Tao He
-date: 2022-02-04
-category: Jekyll
+author: James Twallin
+date: 2023-12-01
+category: None
 layout: post
 ---
 

@@ -37,7 +37,7 @@
             }
         },
         "theme": "default",
-        "author": "Tao He",
+        "author": "James Twallin",
         "pdf": {
             "pageNumbers": true,
             "fontSize": 12,
