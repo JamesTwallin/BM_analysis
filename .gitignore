@@ -2,7 +2,6 @@
 *.pyc
 *.nc
 *.nc*
-*.png
 *.parquet
 plots/*
 *.jpg
