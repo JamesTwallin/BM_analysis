@@ -16,6 +16,7 @@ global project_root_path
 project_root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
+
 @staticmethod
 def plot_generation(pcey_obj):
     try:

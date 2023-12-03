@@ -3,7 +3,7 @@ title: A’Chruach Wind Farm
 author: James Twallin
 date: 2023-12-03
 category: Jekyll
-layout: post
+layout: windfarm
 ---
 ![]({{ site.baseurl }}/assets/1_ACHRW-1_scatter.png)
 ![]({{ site.baseurl }}/assets/2_ACHRW-1_pcey.png)

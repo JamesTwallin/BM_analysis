@@ -3,7 +3,7 @@ title: European Offshore Wind Deployment Centre
 author: James Twallin
 date: 2023-12-03
 category: Jekyll
-layout: post
+layout: windfarm
 ---
 ![]({{ site.baseurl }}/assets/1_ABRBO-1_scatter.png)
 ![]({{ site.baseurl }}/assets/2_ABRBO-1_pcey.png)
