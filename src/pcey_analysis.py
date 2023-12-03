@@ -59,14 +59,8 @@ def append_html_to_md(windfarm_df):
                         file_list = os.listdir(os.path.join(project_root_path, 'docs', 'assets',))
                         file_list = [file for file in file_list if bmu in file and 'png' in file]
                         assert len(file_list) > 0
-                        for file in file_list:
-
-
-
-                            
-                            text += ("""![]({{ site.baseurl }}""" + f"/assets/{file})\n")
-
-                            text += """<img src="{{ site.baseurl }}/assets/""" + f"{file}\" width=\"100%\" height=\"100%\">\n"                        
+                        for file in file_list:                            
+                            text += ("""![]({{ site.baseurl }}""" + f"/assets/{file})\n")    
                         text += "\n"
 
 
