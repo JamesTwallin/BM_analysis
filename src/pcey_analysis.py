@@ -65,7 +65,8 @@ def append_html_to_md(windfarm_df):
 
                             
                             text += ("""![]({{ site.baseurl }}""" + f"/assets/{file})\n")
-                        
+
+                            text += """<img src="{{ site.baseurl }}/assets/""" + f"{file}\" width=\"100%\" height=\"100%\">\n"                        
                         text += "\n"
 
 
