@@ -52,21 +52,13 @@ def append_html_to_md(windfarm_df):
                         # list dir with a wildcard
                         file_list = os.listdir(os.path.join(project_root_path, 'docs', 'assets',))
                         file_list = [file for file in file_list if bmu in file and 'png' in file]
+                        assert len(file_list) > 0
                         for file in file_list:
-                            file_path = os.path.join(project_root_path, 'plots', file)
-                            # check if the file exists
-    
 
-                            # tjis is the png file
-                            # add the png file to the markdown file
-                            # ![]({{ site.baseurl }}/assets/{}.png)
-                            # make sure it is double curly brackets
+
 
                             
                             text += ("""![]({{ site.baseurl }}""" + f"/assets/{file})\n")
-
-                            # put the png file in the assets folder
-                            # move the png file to the assets folder
 
 
                             

@@ -11,7 +11,7 @@ import src.data_handling.weather as weather
 
 
 from src.data_handling.bmrs import BMU, BMRS
-from src.energy_yield import pcey_plotting
+from src.energy_yield import matplotlib_plotting as pcey_plotting
 
 # curvefit
 
