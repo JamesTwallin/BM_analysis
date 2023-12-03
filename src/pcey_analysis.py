@@ -37,8 +37,8 @@ def append_html_to_md(windfarm_df):
                     title: {name}
                     author: James Twallin
                     date: {date_string}
-                    category: Jekyll
-                    layout: windfarm
+                    category: windfarm
+                    layout: post
                     ---
                     '''
 
