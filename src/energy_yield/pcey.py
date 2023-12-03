@@ -178,12 +178,13 @@ class PCEY:
 			month_df[self.COL_IDEAL_YIELD+'_fail'] = np.nan
 
 			filt = (month_df['data_coverage_%'] >= 60) & (month_df['running_well'])
+			actal_data_filt = month_df['peak_generation'].notnull()
 			# filt = (month_df['availability'] >= 0.6)
 			month_df.loc[filt, self.COL_NET_YIELD+'_ok'] = month_df.loc[filt, self.COL_NET_YIELD]
 			month_df.loc[filt, self.COL_IDEAL_YIELD+'_ok'] = month_df.loc[filt, self.COL_IDEAL_YIELD]
 
-			month_df.loc[~filt, self.COL_NET_YIELD+'_fail'] = month_df.loc[~filt, self.COL_NET_YIELD]
-			month_df.loc[~filt, self.COL_IDEAL_YIELD+'_fail'] = month_df.loc[~filt, self.COL_IDEAL_YIELD]
+			month_df.loc[~filt, self.COL_NET_YIELD+'_fail'] = month_df.loc[~filt & actal_data_filt, self.COL_NET_YIELD]
+			month_df.loc[~filt, self.COL_IDEAL_YIELD+'_fail'] = month_df.loc[~filt & actal_data_filt, self.COL_IDEAL_YIELD]
 
 
 			month_df[self.COL_QCd_YIELD] = month_df[self.COL_IDEAL_YIELD+'_ok']
@@ -194,11 +195,8 @@ class PCEY:
 			month_df[self.COL_DAILY_PREDICTED] = month_df[self.COL_PREDICTED_IDEAL_YIELD] / month_df.index.days_in_month
 			month_df[self.COL_DAILY_QCd_YIELD] = month_df[self.COL_QCd_YIELD] / month_df.index.days_in_month
 
-
 			
 			# make a combined column of the predicted and actual ideal yield_ok
-
-
 			month_df[self.COL_DAILY_IDEAL_YIELD+'_fail'] = month_df[self.COL_IDEAL_YIELD+'_fail'] / month_df.index.days_in_month
 			month_df[self.COL_DAILY_NET_YIELD+'_fail'] = month_df[self.COL_NET_YIELD+'_fail'] / month_df.index.days_in_month
 			month_df[self.COL_DAILY_IDEAL_YIELD+'_ok'] = month_df[self.COL_IDEAL_YIELD+'_ok'] / month_df.index.days_in_month

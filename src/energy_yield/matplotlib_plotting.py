@@ -1,16 +1,16 @@
 import os, sys
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
+
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy import stats
+
+# mdates
+import matplotlib.dates as mdates
 
 
 # change the matplotlib font to use open sans
 plt.rcParams['font.family'] = 'sans-serif'
 plt.rcParams['font.sans-serif'] = 'Open Sans'
 
-COLOURS = ['#3F7D20', '#A0DDE6', '#542e71','#3F7CAC','#698F3F']
 
 global project_root_path
 project_root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -25,14 +25,23 @@ def _get_ax(ax, plot_df, pcey_obj, start, end):
     df_slice = plot_df[start:end]
 
     # Plot the data on the provided axis
-    ax.plot(df_slice.index, df_slice[pcey_obj.COL_PREDICTED_IDEAL_YIELD], label='Predicted', marker='x')
-    ax.plot(df_slice.index, df_slice[pcey_obj.COL_NET_YIELD + '_ok'], label='Generation', marker='x')
-    ax.plot(df_slice.index, df_slice[pcey_obj.COL_IDEAL_YIELD + '_ok'], label='Generation - Curtailment', marker='x')
+    ax.plot(df_slice.index, df_slice[pcey_obj.COL_PREDICTED_IDEAL_YIELD], label='Predicted', color = '#0C120C')
 
+    ax.plot(df_slice.index, df_slice[pcey_obj.COL_NET_YIELD + '_ok'], label='Generation QC PASS', color = '#53599A', linewidth=2)
+
+    ax.plot(df_slice.index, df_slice[pcey_obj.COL_IDEAL_YIELD + '_ok'], label='Generation - Curtailment QC PASS',   color = '#17BEBB', linewidth=2)
+
+    ax.plot(df_slice.index, df_slice[pcey_obj.COL_NET_YIELD + '_fail'], label='Generation QC FAIL', marker='x', color = '#F26430', linewidth=1)
+
+    ax.plot(df_slice.index, df_slice[pcey_obj.COL_IDEAL_YIELD + '_fail'], label='Generation - Curtailment QC FAIL', marker='x',  color ='#C20114', linewidth=1)
     # Set the title, labels, and legend
 
+    # set the x axis to be the date %y %b
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%y %b'))
+    
 
-    ax.set_xlabel('Month')
+
+    ax.set_xlabel('Date')
     ax.set_ylabel('GWh')
     ax.legend()
 
@@ -60,7 +69,7 @@ def plot_generation(pcey_obj):
 
 
 
-        fig = plt.figure(figsize=(10, 15))
+        fig = plt.figure(figsize=(15, 15))
         ax1 = fig.add_subplot(411)
         ax2 = fig.add_subplot(412)
         ax3 = fig.add_subplot(413)
