@@ -52,7 +52,9 @@ def append_html_to_md(windfarm_df):
 
                     
                     for bmu in bmus:
-                        text += f"## {bmu}\n"
+                        # Ingredients
+
+                        text += f"{bmu}\n-------------\n"
                         # list dir with a wildcard
                         file_list = os.listdir(os.path.join(project_root_path, 'docs', 'assets',))
                         file_list = [file for file in file_list if bmu in file and 'png' in file]
