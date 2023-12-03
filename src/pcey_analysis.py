@@ -26,6 +26,7 @@ def append_html_to_md(windfarm_df):
             name = row['name']
             md_file_path = os.path.join(project_root_path, 'docs', '_posts', f"{date_string}-{name.lower().replace(' ', '_')}.md")
             with open(md_file_path, 'w', encoding='utf-8') as md_file:
+                # destroy the file if it exists
                 try:
                     name = row['name']
                     # Add BMU name as a header with a proper utf-8 encoding
@@ -62,7 +63,7 @@ def append_html_to_md(windfarm_df):
 
 
                             
-                        md_file.write(text)
+                    md_file.write(text)
                 # got to the plots folder and get the html files with contain any of the BMU names
                 
                 # bmu_contents = bmu_file.read()
