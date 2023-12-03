@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 import os
 import pandas as pd
 
-def _get_ax(ax, plot_df, pcey_obj, start, end):
+def _get_ax(ax, plot_df, pcey_obj, start, end, y_lims=None):
     # Slice the DataFrame
     df_slice = plot_df[start:end]
 
@@ -37,7 +37,11 @@ def _get_ax(ax, plot_df, pcey_obj, start, end):
     # Set the title, labels, and legend
 
     # set the x axis to be the date %y %b
-    ax.xaxis.set_major_formatter(mdates.DateFormatter('%y %b'))
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%b %Y'))
+
+    # y axis limits
+    if y_lims is not None:
+        ax.set_ylim(y_lims)
     
 
 
@@ -69,23 +73,29 @@ def plot_generation(pcey_obj):
 
 
 
-        fig = plt.figure(figsize=(15, 15))
-        ax1 = fig.add_subplot(411)
-        ax2 = fig.add_subplot(412)
-        ax3 = fig.add_subplot(413)
-        ax4 = fig.add_subplot(414)
+        fig = plt.figure(figsize=(10, 15))
+        ax1 = fig.add_subplot(511)
+        ax2 = fig.add_subplot(512)
+        ax3 = fig.add_subplot(513)
+        ax4 = fig.add_subplot(514)
+        ax5 = fig.add_subplot(515)
 
-        # break the data into 4 parts
+
+        # break the data into 5 parts
         n = len(plot_df)
-        n1 = int(n / 4)
-        n2 = int(n / 2)
-        n3 = int(n * 3 / 4)
+        n1 = int(n * 0.2)
+        n2 = int(n * 0.4)
+        n3 = int(n * 0.6)
+        n4 = int(n * 0.8)
 
-        # Plot the data
-        ax1 = _get_ax(ax1, plot_df, pcey_obj, 0, n1)
-        ax2 = _get_ax(ax2, plot_df, pcey_obj, n1, n2)
-        ax3 = _get_ax(ax3, plot_df, pcey_obj, n2, n3)
-        ax4 = _get_ax(ax4, plot_df, pcey_obj, n3, n)
+        y_lims = [0, plot_df[pcey_obj.COL_PREDICTED_IDEAL_YIELD].max() * 1.1]
+
+        ax1 = _get_ax(ax1, plot_df, pcey_obj, 0, n1, y_lims)
+        ax2 = _get_ax(ax2, plot_df, pcey_obj, n1, n2, y_lims)
+        ax3 = _get_ax(ax3, plot_df, pcey_obj, n2, n3, y_lims)
+        ax4 = _get_ax(ax4, plot_df, pcey_obj, n3, n4, y_lims)
+        ax5 = _get_ax(ax5, plot_df, pcey_obj, n4, n, y_lims)
+        
 
         fig.suptitle(f'{pcey_obj.bmu} - {pcey_obj.name}', fontsize=16)
 

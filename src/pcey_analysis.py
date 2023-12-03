@@ -21,12 +21,12 @@ def append_html_to_md(windfarm_df):
 
     # your code to write data
 
-        for index, row in windfarm_df.head(50).iterrows():
+        for index, row in windfarm_df.iterrows():
             date_string = dt.datetime.now().strftime("%Y-%m-%d")
             name = row['name']
             md_file_path = os.path.join(project_root_path, 'docs', '_posts', f"{date_string}-{name.lower().replace(' ', '_')}.md")
+            
             with open(md_file_path, 'w', encoding='utf-8') as md_file:
-                # destroy the file if it exists
                 try:
                     name = row['name']
                     # Add BMU name as a header with a proper utf-8 encoding
@@ -48,8 +48,11 @@ def append_html_to_md(windfarm_df):
                     text = text.split('\n', 1)[1]
 
                     bmus = enforce_list(row['bmrs_id'])
+                    assert len(bmus) > 0
+
                     
                     for bmu in bmus:
+                        text += f"## {bmu}\n"
                         # list dir with a wildcard
                         file_list = os.listdir(os.path.join(project_root_path, 'docs', 'assets',))
                         file_list = [file for file in file_list if bmu in file and 'png' in file]
@@ -78,6 +81,10 @@ def append_html_to_md(windfarm_df):
 
                 except Exception as e:
                     print(f"An error occurred while processing BMU {name}: {e}")
+                    print(f"BMU {name} has no plots")
+                    # close the file
+                    md_file.close()
+                    os.remove(md_file_path)
 
 # List of BMUs
 
