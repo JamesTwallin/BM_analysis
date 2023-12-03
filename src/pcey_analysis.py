@@ -68,6 +68,13 @@ def append_html_to_md(windfarm_df):
                 # bmu_contents = bmu_file.read()
                 # # Append the HTML content
                 # md_file.write(f"{bmu_contents}\n")
+                except AssertionError:
+                    print(f"BMU {name} has no plots")
+                    # close the file
+                    md_file.close()
+                    os.remove(md_file_path)
+
+
                 except Exception as e:
                     print(f"An error occurred while processing BMU {name}: {e}")
 
