@@ -5,6 +5,8 @@ date: 2023-12-04
 category: windfarm
 layout: post
 ---
+# An Suidhe Wind Farm P50 Energy Yield: 46.893832330045605 MWh
+
 ANSUW-1
 -------------
 ![]({{ site.baseurl }}/assets/1_ANSUW-1_scatter.png)

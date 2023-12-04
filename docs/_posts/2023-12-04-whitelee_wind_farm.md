@@ -5,6 +5,8 @@ date: 2023-12-04
 category: windfarm
 layout: post
 ---
+# Whitelee Wind Farm P50 Energy Yield: 933.8720840915105 MWh
+
 WHILW-1
 -------------
 ![]({{ site.baseurl }}/assets/1_WHILW-1_scatter.png)

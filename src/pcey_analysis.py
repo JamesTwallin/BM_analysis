@@ -3,6 +3,7 @@ import os
 from src.utils import helpers
 import datetime as dt
 import textwrap
+import pandas as pd
 
 global project_root_path
 project_root_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -30,6 +31,10 @@ def append_html_to_md(windfarm_df):
                 try:
                     name = row['name']
                     # Add BMU name as a header with a proper utf-8 encoding
+                    # get the name from the PCYE csv
+                    filt = pcey_df['name'] == name
+                    pcey_rows = pcey_df[filt]
+                    energy_yield = pcey_rows['p50_energy_yield'].sum()
 
                     # add this:
 
@@ -46,12 +51,11 @@ def append_html_to_md(windfarm_df):
                     text = textwrap.dedent(text)
                     # remove the first line
                     text = text.split('\n', 1)[1]
-
+                    text += f"""# {name} P50 Energy Yield: {energy_yield} MWh\n\n"""
                     bmus = enforce_list(row['bmrs_id'])
                     assert len(bmus) > 0
                     bmus.sort()
 
-                    
                     for bmu in bmus:
                         # Ingredients
 
@@ -96,6 +100,10 @@ def append_html_to_md(windfarm_df):
 
 if __name__ == "__main__":
     windfarm_df = helpers.read_custom_windfarm_csv()
+
+    # read the pcey.csv
+    global pcey_df
+    pcey_df = pd.read_csv(os.path.join(project_root_path, 'pcey.csv'))
 
     # Path to your markdown file
     append_html_to_md(windfarm_df)

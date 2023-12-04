@@ -5,6 +5,8 @@ date: 2023-12-04
 category: windfarm
 layout: post
 ---
+# Beatrice Wind Farm P50 Energy Yield: 2259.708661891828 MWh
+
 BEATO-1
 -------------
 ![]({{ site.baseurl }}/assets/1_BEATO-1_scatter.png)

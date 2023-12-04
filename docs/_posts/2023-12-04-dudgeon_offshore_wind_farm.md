@@ -5,6 +5,8 @@ date: 2023-12-04
 category: windfarm
 layout: post
 ---
+# Dudgeon Offshore Wind Farm P50 Energy Yield: 1636.26004289052 MWh
+
 DDGNO-1
 -------------
 ![]({{ site.baseurl }}/assets/1_DDGNO-1_scatter.png)

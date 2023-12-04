@@ -5,6 +5,8 @@ date: 2023-12-04
 category: windfarm
 layout: post
 ---
+# Hadyard Hill Wind Farm P50 Energy Yield: 207.7087321689681 MWh
+
 HADHW-1
 -------------
 ![]({{ site.baseurl }}/assets/1_HADHW-1_scatter.png)

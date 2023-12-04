@@ -5,6 +5,8 @@ date: 2023-12-04
 category: windfarm
 layout: post
 ---
+# Sheringham Shoal Offshore Wind Farm P50 Energy Yield: 1077.9740064969515 MWh
+
 SHRSO-1
 -------------
 ![]({{ site.baseurl }}/assets/1_SHRSO-1_scatter.png)

@@ -5,6 +5,8 @@ date: 2023-12-04
 category: windfarm
 layout: post
 ---
+# Stronelairg Wind Farm P50 Energy Yield: 699.8082113619154 MWh
+
 STLGW-1
 -------------
 ![]({{ site.baseurl }}/assets/1_STLGW-1_scatter.png)

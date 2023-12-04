@@ -5,6 +5,8 @@ date: 2023-12-04
 category: windfarm
 layout: post
 ---
+# Farr Wind Farm P50 Energy Yield: 214.2172231189088 MWh
+
 FAARW-1
 -------------
 ![]({{ site.baseurl }}/assets/1_FAARW-1_scatter.png)

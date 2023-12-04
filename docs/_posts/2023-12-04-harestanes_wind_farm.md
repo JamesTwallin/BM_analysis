@@ -5,6 +5,8 @@ date: 2023-12-04
 category: windfarm
 layout: post
 ---
+# Harestanes Wind Farm P50 Energy Yield: 229.53397185559007 MWh
+
 HRSTW-1
 -------------
 ![]({{ site.baseurl }}/assets/1_HRSTW-1_scatter.png)

@@ -5,6 +5,8 @@ date: 2023-12-04
 category: windfarm
 layout: post
 ---
+# Blackcraig Wind Farm P50 Energy Yield: 168.23154033969072 MWh
+
 BLKWW-1
 -------------
 ![]({{ site.baseurl }}/assets/1_BLKWW-1_scatter.png)

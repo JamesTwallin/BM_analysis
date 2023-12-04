@@ -5,6 +5,8 @@ date: 2023-12-04
 category: windfarm
 layout: post
 ---
+# East Anglia ONE P50 Energy Yield: 2669.479696180184 MWh
+
 EAAO-1
 -------------
 ![]({{ site.baseurl }}/assets/1_EAAO-1_scatter.png)

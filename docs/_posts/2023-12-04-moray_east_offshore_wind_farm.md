@@ -5,6 +5,8 @@ date: 2023-12-04
 category: windfarm
 layout: post
 ---
+# Moray East Offshore Wind Farm P50 Energy Yield: 2669.997611748447 MWh
+
 MOWEO-1
 -------------
 ![]({{ site.baseurl }}/assets/1_MOWEO-1_scatter.png)

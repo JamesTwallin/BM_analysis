@@ -5,6 +5,8 @@ date: 2023-12-04
 category: windfarm
 layout: post
 ---
+# Gwynt y Môr Wind Farm P50 Energy Yield: 1895.034196647015 MWh
+
 GYMRO-15
 -------------
 ![]({{ site.baseurl }}/assets/1_GYMRO-15_scatter.png)

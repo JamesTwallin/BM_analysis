@@ -5,6 +5,8 @@ date: 2023-12-04
 category: windfarm
 layout: post
 ---
+# Millennium Wind Farm P50 Energy Yield: 172.25434952963573 MWh
+
 MILWW-1
 -------------
 ![]({{ site.baseurl }}/assets/1_MILWW-1_scatter.png)

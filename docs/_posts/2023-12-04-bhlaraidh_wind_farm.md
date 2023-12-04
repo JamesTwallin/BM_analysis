@@ -5,6 +5,8 @@ date: 2023-12-04
 category: windfarm
 layout: post
 ---
+# Bhlaraidh Wind Farm P50 Energy Yield: 216.8247920313929 MWh
+
 BHLAW-1
 -------------
 ![]({{ site.baseurl }}/assets/1_BHLAW-1_scatter.png)

@@ -5,6 +5,8 @@ date: 2023-12-04
 category: windfarm
 layout: post
 ---
+# Auchrobert Wind Farm P50 Energy Yield: 83.91440254699124 MWh
+
 ABRTW-1
 -------------
 ![]({{ site.baseurl }}/assets/1_ABRTW-1_scatter.png)

@@ -5,6 +5,8 @@ date: 2023-12-04
 category: windfarm
 layout: post
 ---
+# Clyde Wind Farm P50 Energy Yield: 1333.1982984434976 MWh
+
 CLDCW-1
 -------------
 ![]({{ site.baseurl }}/assets/1_CLDCW-1_scatter.png)

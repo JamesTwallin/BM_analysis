@@ -5,6 +5,8 @@ date: 2023-12-04
 category: windfarm
 layout: post
 ---
+# Dunmaglass Wind Farm P50 Energy Yield: 256.88262541894227 MWh
+
 DUNGW-1
 -------------
 ![]({{ site.baseurl }}/assets/1_DUNGW-1_scatter.png)

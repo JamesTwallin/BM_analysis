@@ -5,6 +5,8 @@ date: 2023-12-04
 category: windfarm
 layout: post
 ---
+# Seagreen Wind Farm P50 Energy Yield: 1711.8464816991445 MWh
+
 SGRWO-1
 -------------
 ![]({{ site.baseurl }}/assets/2_SGRWO-1_pcey.png)

@@ -5,6 +5,8 @@ date: 2023-12-04
 category: windfarm
 layout: post
 ---
+# Andershaw Wind Farm P50 Energy Yield: 92.72542632892193 MWh
+
 ASHWW-1
 -------------
 ![]({{ site.baseurl }}/assets/1_ASHWW-1_scatter.png)

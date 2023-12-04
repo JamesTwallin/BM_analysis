@@ -5,6 +5,8 @@ date: 2023-12-04
 category: windfarm
 layout: post
 ---
+# Barrow Offshore Wind Farm P50 Energy Yield: 273.84068961866024 MWh
+
 BOWLW-1
 -------------
 ![]({{ site.baseurl }}/assets/1_BOWLW-1_scatter.png)

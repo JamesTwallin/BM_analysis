@@ -5,6 +5,8 @@ date: 2023-12-04
 category: windfarm
 layout: post
 ---
+# Mid Hill Wind Farm P50 Energy Yield: 196.71953458067836 MWh
+
 MDHLW-1
 -------------
 ![]({{ site.baseurl }}/assets/1_MDHLW-1_scatter.png)

@@ -5,6 +5,8 @@ date: 2023-12-04
 category: windfarm
 layout: post
 ---
+# Cour Wind Farm P50 Energy Yield: 70.88736051293864 MWh
+
 COUWW-1
 -------------
 ![]({{ site.baseurl }}/assets/1_COUWW-1_scatter.png)
