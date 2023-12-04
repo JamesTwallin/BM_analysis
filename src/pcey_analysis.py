@@ -49,6 +49,7 @@ def append_html_to_md(windfarm_df):
 
                     bmus = enforce_list(row['bmrs_id'])
                     assert len(bmus) > 0
+                    bmus.sort()
 
                     
                     for bmu in bmus:

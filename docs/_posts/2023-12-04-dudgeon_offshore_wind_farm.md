@@ -11,6 +11,12 @@ DDGNO-1
 ![]({{ site.baseurl }}/assets/2_DDGNO-1_pcey.png)
 ![]({{ site.baseurl }}/assets/3_DDGNO-1_p50.png)
 
+DDGNO-2
+-------------
+![]({{ site.baseurl }}/assets/1_DDGNO-2_scatter.png)
+![]({{ site.baseurl }}/assets/2_DDGNO-2_pcey.png)
+![]({{ site.baseurl }}/assets/3_DDGNO-2_p50.png)
+
 DDGNO-3
 -------------
 ![]({{ site.baseurl }}/assets/1_DDGNO-3_scatter.png)
@@ -22,10 +28,4 @@ DDGNO-4
 ![]({{ site.baseurl }}/assets/1_DDGNO-4_scatter.png)
 ![]({{ site.baseurl }}/assets/2_DDGNO-4_pcey.png)
 ![]({{ site.baseurl }}/assets/3_DDGNO-4_p50.png)
-
-DDGNO-2
--------------
-![]({{ site.baseurl }}/assets/1_DDGNO-2_scatter.png)
-![]({{ site.baseurl }}/assets/2_DDGNO-2_pcey.png)
-![]({{ site.baseurl }}/assets/3_DDGNO-2_p50.png)
 
