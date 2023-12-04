@@ -76,7 +76,11 @@ def append_html_to_md(windfarm_df):
                     print(f"BMU {name} has no plots")
                     # close the file
                     md_file.close()
-                    os.remove(md_file_path)
+                    if os.path.exists(md_file_path):
+                        os.remove(md_file_path)
+                # filenotfounderror
+                except FileNotFoundError:
+                    pass
 
 
                 except Exception as e:
@@ -85,6 +89,8 @@ def append_html_to_md(windfarm_df):
                     # close the file
                     md_file.close()
                     os.remove(md_file_path)
+
+                
 
 # List of BMUs
 
