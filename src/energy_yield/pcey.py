@@ -156,52 +156,70 @@ class PCEY:
 		self.preprocessed_df = merged_df.copy()
 
 
-	
+	def auto_qc(self, month_df):
+    # Initialize columns
+		for col in [self.COL_NET_YIELD, self.COL_IDEAL_YIELD]:
+			month_df[col+'_ok'] = np.nan
+			month_df[col+'_fail'] = np.nan
 
-	def auto_qc(self):
-		if self.preprocessed_df is None:
-			self._preprocess_data()
-		if self.prediction_ok:
-			_df = self.preprocessed_df.copy()
+		# Apply filters
+		filt = (month_df['data_coverage_%'] >= 60) & (month_df['running_well'])
+		actual_data_filt = month_df['peak_generation'].notnull()
 
-			# group by month
-			month_df = _df[[self.COL_NET_YIELD, self.COL_IDEAL_YIELD, self.COL_CURTAILMENT_LOSSES, self.COL_PREDICTED_IDEAL_YIELD]].resample('1MS').sum()
-			# get the 90th percentile generation
-			running_well_val = _df[self.COL_NET_YIELD].quantile(0.85)
-			# calculate the availability for each month
-			month_df['data_coverage_%'] = _df[self.COL_NET_YIELD].resample('1MS').count()/(month_df.index.days_in_month * 48)*100.
-			month_df['peak_generation'] = _df[self.COL_NET_YIELD].resample('1MS').max()
-			month_df['running_well'] = month_df['peak_generation'] >= running_well_val
-			month_df[self.COL_NET_YIELD+'_ok'] = np.nan 
-			month_df[self.COL_IDEAL_YIELD+'_ok'] = np.nan
-			month_df[self.COL_NET_YIELD+'_fail'] = np.nan
-			month_df[self.COL_IDEAL_YIELD+'_fail'] = np.nan
+		month_df.loc[filt, self.COL_NET_YIELD+'_ok'] = month_df.loc[filt, self.COL_NET_YIELD]
+		month_df.loc[filt, self.COL_IDEAL_YIELD+'_ok'] = month_df.loc[filt, self.COL_IDEAL_YIELD]
+		month_df.loc[~filt, self.COL_NET_YIELD+'_fail'] = month_df.loc[~filt & actual_data_filt, self.COL_NET_YIELD]
+		month_df.loc[~filt, self.COL_IDEAL_YIELD+'_fail'] = month_df.loc[~filt & actual_data_filt, self.COL_IDEAL_YIELD]
 
-			filt = (month_df['data_coverage_%'] >= 60) & (month_df['running_well'])
-			actal_data_filt = month_df['peak_generation'].notnull()
-			# filt = (month_df['availability'] >= 0.6)
-			month_df.loc[filt, self.COL_NET_YIELD+'_ok'] = month_df.loc[filt, self.COL_NET_YIELD]
-			month_df.loc[filt, self.COL_IDEAL_YIELD+'_ok'] = month_df.loc[filt, self.COL_IDEAL_YIELD]
+		# More QC calculations
+		month_df[self.COL_QCd_YIELD] = month_df[self.COL_IDEAL_YIELD+'_ok']
+		month_df.loc[month_df[self.COL_IDEAL_YIELD+'_ok'].isnull(), self.COL_QCd_YIELD] = month_df.loc[month_df[self.COL_IDEAL_YIELD+'_ok'].isnull(), self.COL_PREDICTED_IDEAL_YIELD]
 
-			month_df.loc[~filt, self.COL_NET_YIELD+'_fail'] = month_df.loc[~filt & actal_data_filt, self.COL_NET_YIELD]
-			month_df.loc[~filt, self.COL_IDEAL_YIELD+'_fail'] = month_df.loc[~filt & actal_data_filt, self.COL_IDEAL_YIELD]
+		# Divide by the number of days in the month for daily calculations
+		month_df[self.COL_DAILY_NET_YIELD] = month_df[self.COL_NET_YIELD+'_ok'] / month_df.index.days_in_month
+		month_df[self.COL_DAILY_IDEAL_YIELD] = month_df[self.COL_IDEAL_YIELD+'_ok'] / month_df.index.days_in_month
+		month_df[self.COL_DAILY_PREDICTED] = month_df[self.COL_PREDICTED_IDEAL_YIELD] / month_df.index.days_in_month
+		month_df[self.COL_DAILY_QCd_YIELD] = month_df[self.COL_QCd_YIELD] / month_df.index.days_in_month
+		
+		# make a combined column of the predicted and actual ideal yield_ok
+		month_df[self.COL_DAILY_IDEAL_YIELD+'_fail'] = month_df[self.COL_IDEAL_YIELD+'_fail'] / month_df.index.days_in_month
+		month_df[self.COL_DAILY_NET_YIELD+'_fail'] = month_df[self.COL_NET_YIELD+'_fail'] / month_df.index.days_in_month
+		month_df[self.COL_DAILY_IDEAL_YIELD+'_ok'] = month_df[self.COL_IDEAL_YIELD+'_ok'] / month_df.index.days_in_month
+		month_df[self.COL_DAILY_NET_YIELD+'_ok'] = month_df[self.COL_NET_YIELD+'_ok'] / month_df.index.days_in_month
+		self.month_df = month_df.copy()
+
+	def calculate_monthly_df(self):
+		if ~self.prediction_ok:
+			self.get_ml_prediction()
+		_df = self.preprocessed_df.copy()
+		# Group by month
+		month_df = _df[[self.COL_NET_YIELD, self.COL_IDEAL_YIELD, self.COL_CURTAILMENT_LOSSES, self.COL_PREDICTED_IDEAL_YIELD]].resample('1MS').sum()
+
+		# Calculate the availability for each month
+		month_df['data_coverage_%'] = _df[self.COL_NET_YIELD].resample('1MS').count() / (month_df.index.days_in_month * 48) * 100.
+		month_df['peak_generation'] = _df[self.COL_NET_YIELD].resample('1MS').max()
+
+		# Get the 90th percentile generation
+		running_well_val = _df[self.COL_NET_YIELD].quantile(0.85)
+		month_df['running_well'] = month_df['peak_generation'] >= running_well_val
+
+		return month_df
 
 
-			month_df[self.COL_QCd_YIELD] = month_df[self.COL_IDEAL_YIELD+'_ok']
-			month_df.loc[month_df[self.COL_IDEAL_YIELD+'_ok'].isnull(), self.COL_QCd_YIELD] = month_df.loc[month_df[self.COL_IDEAL_YIELD+'_ok'].isnull(), self.COL_PREDICTED_IDEAL_YIELD]
-			# divide by the number of days in the month
-			month_df[self.COL_DAILY_NET_YIELD] = month_df[self.COL_NET_YIELD+'_ok'] / month_df.index.days_in_month
-			month_df[self.COL_DAILY_IDEAL_YIELD] = month_df[self.COL_IDEAL_YIELD+'_ok'] / month_df.index.days_in_month
-			month_df[self.COL_DAILY_PREDICTED] = month_df[self.COL_PREDICTED_IDEAL_YIELD] / month_df.index.days_in_month
-			month_df[self.COL_DAILY_QCd_YIELD] = month_df[self.COL_QCd_YIELD] / month_df.index.days_in_month
 
-			
-			# make a combined column of the predicted and actual ideal yield_ok
-			month_df[self.COL_DAILY_IDEAL_YIELD+'_fail'] = month_df[self.COL_IDEAL_YIELD+'_fail'] / month_df.index.days_in_month
-			month_df[self.COL_DAILY_NET_YIELD+'_fail'] = month_df[self.COL_NET_YIELD+'_fail'] / month_df.index.days_in_month
-			month_df[self.COL_DAILY_IDEAL_YIELD+'_ok'] = month_df[self.COL_IDEAL_YIELD+'_ok'] / month_df.index.days_in_month
-			month_df[self.COL_DAILY_NET_YIELD+'_ok'] = month_df[self.COL_NET_YIELD+'_ok'] / month_df.index.days_in_month
-			self.month_df = month_df.copy()
+	def load_month_df(self):
+		file_path = os.path.join(project_root_path, 'data', 'pcey_data', f'{self.bmu}_monthly.parquet')
+		os.makedirs(os.path.dirname(file_path), exist_ok=True)
+		if os.path.exists(file_path):
+			self.month_df = pd.read_parquet(file_path)
+		else:
+       	 	# Step 1: Calculate the monthly data frame
+			monthly_df = self.calculate_monthly_df()
+        	# Step 2: Apply auto quality control
+			self.auto_qc(monthly_df)
+			# save the file
+			self.month_df.to_parquet(file_path)
+
 
 	def _load_fit_dict(self, df):
 		'''
@@ -257,7 +275,7 @@ class PCEY:
 
 	def calculate_energy_yield(self):
 		if self.month_df is None:
-			self.auto_qc()
+			self.load_month_df()
 		try:
 		# merge the two dfs
 

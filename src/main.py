@@ -127,7 +127,7 @@ if __name__ == "__main__":
 				data_obj['bav_df'] = bav_df
 
 				wf_pcey = PCEY(data_obj, bmu, lat, lon, cap, name, gen_type)
-				wf_pcey.get_ml_prediction()
+				wf_pcey.load_month_df()
 				wf_pcey.calculate_energy_yield()
 				pcey_plotting.plot_generation(wf_pcey)
 				pcey_plotting.plot_scatter(wf_pcey)
