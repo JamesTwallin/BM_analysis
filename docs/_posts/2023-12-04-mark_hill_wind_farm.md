@@ -5,7 +5,7 @@ date: 2023-12-04
 category: windfarm
 layout: post
 ---
-# Mark Hill Wind Farm P50 Energy Yield: 101.29927992994746 MWh
+Mark Hill Wind Farm P50 Energy Yield: 101.30 MWh
 
 MKHLW-1
 -------------

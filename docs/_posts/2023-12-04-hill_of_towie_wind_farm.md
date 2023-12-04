@@ -5,7 +5,7 @@ date: 2023-12-04
 category: windfarm
 layout: post
 ---
-# Hill of Towie Wind Farm P50 Energy Yield: 108.75233079164462 MWh
+Hill of Towie Wind Farm P50 Energy Yield: 108.75 MWh
 
 HLTWW-1
 -------------

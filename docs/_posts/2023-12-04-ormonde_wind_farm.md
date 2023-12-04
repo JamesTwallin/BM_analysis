@@ -5,7 +5,7 @@ date: 2023-12-04
 category: windfarm
 layout: post
 ---
-# Ormonde Wind Farm P50 Energy Yield: 454.5080059797397 MWh
+Ormonde Wind Farm P50 Energy Yield: 454.51 MWh
 
 OMNDO-1
 -------------

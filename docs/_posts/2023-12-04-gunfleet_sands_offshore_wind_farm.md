@@ -5,7 +5,7 @@ date: 2023-12-04
 category: windfarm
 layout: post
 ---
-# Gunfleet Sands Offshore Wind Farm P50 Energy Yield: 537.8503897276887 MWh
+Gunfleet Sands Offshore Wind Farm P50 Energy Yield: 537.85 MWh
 
 GNFSW-1
 -------------

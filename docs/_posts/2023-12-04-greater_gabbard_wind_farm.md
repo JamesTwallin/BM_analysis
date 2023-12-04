@@ -5,7 +5,7 @@ date: 2023-12-04
 category: windfarm
 layout: post
 ---
-# Greater Gabbard wind farm P50 Energy Yield: 1732.5507399557107 MWh
+Greater Gabbard wind farm P50 Energy Yield: 1732.55 MWh
 
 GRGBW-1
 -------------

@@ -5,7 +5,7 @@ date: 2023-12-04
 category: windfarm
 layout: post
 ---
-# European Offshore Wind Deployment Centre P50 Energy Yield: 328.240965338059 MWh
+European Offshore Wind Deployment Centre P50 Energy Yield: 328.24 MWh
 
 ABRBO-1
 -------------

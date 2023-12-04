@@ -5,7 +5,7 @@ date: 2023-12-04
 category: windfarm
 layout: post
 ---
-# Galloper Offshore Wind Farm P50 Energy Yield: 1481.199374042563 MWh
+Galloper Offshore Wind Farm P50 Energy Yield: 1481.20 MWh
 
 GAOFO-1
 -------------

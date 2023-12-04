@@ -5,7 +5,7 @@ date: 2023-12-04
 category: windfarm
 layout: post
 ---
-# Kilgallioch Wind Farm P50 Energy Yield: 588.7820157602214 MWh
+Kilgallioch Wind Farm P50 Energy Yield: 588.78 MWh
 
 KLGLW-1
 -------------

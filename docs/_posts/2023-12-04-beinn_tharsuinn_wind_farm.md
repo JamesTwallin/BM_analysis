@@ -5,7 +5,7 @@ date: 2023-12-04
 category: windfarm
 layout: post
 ---
-# Beinn Tharsuinn Wind Farm P50 Energy Yield: 57.58741063949703 MWh
+Beinn Tharsuinn Wind Farm P50 Energy Yield: 57.59 MWh
 
 BETHW-1
 -------------

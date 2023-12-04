@@ -5,7 +5,7 @@ date: 2023-12-04
 category: windfarm
 layout: post
 ---
-# Dalswinton Wind Farm P50 Energy Yield: 57.777723684223616 MWh
+Dalswinton Wind Farm P50 Energy Yield: 57.78 MWh
 
 DALSW-1
 -------------

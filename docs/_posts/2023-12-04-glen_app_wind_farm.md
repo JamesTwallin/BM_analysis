@@ -5,7 +5,7 @@ date: 2023-12-04
 category: windfarm
 layout: post
 ---
-# Glen App Wind Farm P50 Energy Yield: 51.503017317810766 MWh
+Glen App Wind Farm P50 Energy Yield: 51.50 MWh
 
 GNAPW-1
 -------------

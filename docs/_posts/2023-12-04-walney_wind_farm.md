@@ -5,7 +5,7 @@ date: 2023-12-04
 category: windfarm
 layout: post
 ---
-# Walney Wind Farm P50 Energy Yield: 4043.858663875377 MWh
+Walney Wind Farm P50 Energy Yield: 4043.86 MWh
 
 WLNYO-2
 -------------

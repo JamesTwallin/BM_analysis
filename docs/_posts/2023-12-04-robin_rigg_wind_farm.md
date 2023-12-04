@@ -5,7 +5,7 @@ date: 2023-12-04
 category: windfarm
 layout: post
 ---
-# Robin Rigg Wind Farm P50 Energy Yield: 541.8155275221188 MWh
+Robin Rigg Wind Farm P50 Energy Yield: 541.82 MWh
 
 RREW-1
 -------------

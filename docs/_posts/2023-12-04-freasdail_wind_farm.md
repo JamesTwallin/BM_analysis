@@ -5,7 +5,7 @@ date: 2023-12-04
 category: windfarm
 layout: post
 ---
-# Freasdail Wind Farm P50 Energy Yield: 69.4814602781523 MWh
+Freasdail Wind Farm P50 Energy Yield: 69.48 MWh
 
 FSDLW-1
 -------------

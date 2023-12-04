@@ -5,7 +5,7 @@ date: 2023-12-04
 category: windfarm
 layout: post
 ---
-# Lincs Wind Farm P50 Energy Yield: 1007.3007867170854 MWh
+Lincs Wind Farm P50 Energy Yield: 1007.30 MWh
 
 LNCSO-1
 -------------

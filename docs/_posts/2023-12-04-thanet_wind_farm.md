@@ -5,7 +5,7 @@ date: 2023-12-04
 category: windfarm
 layout: post
 ---
-# Thanet Wind Farm P50 Energy Yield: 0.0 MWh
+Thanet Wind Farm P50 Energy Yield: 0.00 MWh
 
 THNTO-1
 -------------

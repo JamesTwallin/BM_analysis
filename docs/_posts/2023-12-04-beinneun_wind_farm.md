@@ -5,7 +5,7 @@ date: 2023-12-04
 category: windfarm
 layout: post
 ---
-# Beinneun Wind Farm P50 Energy Yield: 249.02177261275335 MWh
+Beinneun Wind Farm P50 Energy Yield: 249.02 MWh
 
 BEINW-1
 -------------

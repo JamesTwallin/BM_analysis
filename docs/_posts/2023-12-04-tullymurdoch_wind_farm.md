@@ -5,7 +5,7 @@ date: 2023-12-04
 category: windfarm
 layout: post
 ---
-# Tullymurdoch Wind Farm P50 Energy Yield: 27.855960569320654 MWh
+Tullymurdoch Wind Farm P50 Energy Yield: 27.86 MWh
 
 TLYMW-1
 -------------

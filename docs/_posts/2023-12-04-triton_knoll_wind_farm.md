@@ -5,7 +5,7 @@ date: 2023-12-04
 category: windfarm
 layout: post
 ---
-# Triton Knoll Wind Farm P50 Energy Yield: 1262.8133221902517 MWh
+Triton Knoll Wind Farm P50 Energy Yield: 1262.81 MWh
 
 TKNEW-1
 -------------

@@ -5,7 +5,7 @@ date: 2023-12-04
 category: windfarm
 layout: post
 ---
-# Griffin Wind Farm P50 Energy Yield: 319.44962128326495 MWh
+Griffin Wind Farm P50 Energy Yield: 319.45 MWh
 
 GRIFW-1
 -------------

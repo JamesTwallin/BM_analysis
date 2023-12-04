@@ -5,7 +5,7 @@ date: 2023-12-04
 category: windfarm
 layout: post
 ---
-# Toddleburn Wind Farm P50 Energy Yield: 70.18168257123638 MWh
+Toddleburn Wind Farm P50 Energy Yield: 70.18 MWh
 
 TDBNW-1
 -------------

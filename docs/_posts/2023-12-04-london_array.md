@@ -5,7 +5,7 @@ date: 2023-12-04
 category: windfarm
 layout: post
 ---
-# London Array P50 Energy Yield: 2277.28063911996 MWh
+London Array P50 Energy Yield: 2277.28 MWh
 
 LARYO-1
 -------------

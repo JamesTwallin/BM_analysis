@@ -5,7 +5,7 @@ date: 2023-12-04
 category: windfarm
 layout: post
 ---
-# Arecleoch Wind Farm P50 Energy Yield: 219.1812738614472 MWh
+Arecleoch Wind Farm P50 Energy Yield: 219.18 MWh
 
 ARCHW-1
 -------------

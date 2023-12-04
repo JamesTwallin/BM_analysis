@@ -5,7 +5,7 @@ date: 2023-12-04
 category: windfarm
 layout: post
 ---
-# Race Bank Wind Farm P50 Energy Yield: 2219.6553912742 MWh
+Race Bank Wind Farm P50 Energy Yield: 2219.66 MWh
 
 RCBKO-1
 -------------
