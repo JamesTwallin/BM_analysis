@@ -1,4 +1,3 @@
-
 ---
 title: Energy Yields
 author: James Twallin

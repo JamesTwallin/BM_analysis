@@ -166,7 +166,7 @@ def make_md_file():
     ---
     '''
     text = textwrap.dedent(text)
-
+    text = text.split('\n', 1)[1]
     for file in ['largest_farms.png', 'curtailment.png']:                            
         text += ("""![]({{ site.baseurl }}""" + f"/assets/{file})\n")    
     text += "\n"
