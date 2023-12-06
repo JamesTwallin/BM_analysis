@@ -230,7 +230,7 @@ class PCEY:
 		# drop the na values
 		_lin_reg_df = df[[self.COL_DAILY_PREDICTED, self.COL_DAILY_IDEAL_YIELD+'_ok']].dropna()
 		# linear regression between predicted and actual
-		slope, intercept = linear_regression(_lin_reg_df[self.COL_DAILY_PREDICTED], _lin_reg_df[self.COL_DAILY_IDEAL_YIELD+'_ok'],proportional=True)
+		slope, intercept = linear_regression(_lin_reg_df[self.COL_DAILY_PREDICTED], _lin_reg_df[self.COL_DAILY_IDEAL_YIELD+'_ok'])
 		r_value = correlation(_lin_reg_df[self.COL_DAILY_PREDICTED], _lin_reg_df[self.COL_DAILY_IDEAL_YIELD+'_ok'])
 		self.fit_dict = {'slope': slope, 'intercept': intercept, 'r_value': r_value}
 		self.prediction_r2 = r_value**2

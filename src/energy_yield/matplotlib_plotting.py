@@ -6,6 +6,10 @@ import numpy as np
 # mdates
 import matplotlib.dates as mdates
 
+# deep copy
+import copy
+
+
 
 # change the matplotlib font to use open sans
 plt.rcParams['font.family'] = 'sans-serif'
@@ -22,10 +26,12 @@ import pandas as pd
 
 def _get_ax(ax, plot_df, pcey_obj, start, end, y_lims=None):
     # Slice the DataFrame
+
     df_slice = plot_df[start:end]
 
     # Plot the data on the provided axis
-    ax.plot(df_slice.index, df_slice[pcey_obj.COL_PREDICTED_IDEAL_YIELD], label='Predicted', color = '#0C120C')
+    ax.plot(df_slice.index, df_slice[pcey_obj.COL_PREDICTED_IDEAL_YIELD], label='Predicted', color = '#0C120C',# dashed
+            linestyle='--', linewidth=1)
 
     ax.plot(df_slice.index, df_slice[pcey_obj.COL_NET_YIELD + '_ok'], label='Generation QC PASS', color = '#53599A', linewidth=2)
 
@@ -47,7 +53,7 @@ def _get_ax(ax, plot_df, pcey_obj, start, end, y_lims=None):
 
     ax.set_xlabel('Date')
     ax.set_ylabel('GWh')
-    ax.legend()
+
 
     for spine in ['top', 'right','bottom']:
         ax.spines[spine].set_visible(False)
@@ -73,29 +79,35 @@ def plot_generation(pcey_obj):
 
 
 
-        fig = plt.figure(figsize=(10, 15))
-        ax1 = fig.add_subplot(511)
-        ax2 = fig.add_subplot(512)
-        ax3 = fig.add_subplot(513)
-        ax4 = fig.add_subplot(514)
-        ax5 = fig.add_subplot(515)
+        fig = plt.figure(figsize=(8, 15))
+        ax1 = fig.add_subplot(611)
+        ax2 = fig.add_subplot(612)
+        ax3 = fig.add_subplot(613)
+        ax4 = fig.add_subplot(614)
+        ax5 = fig.add_subplot(615)
+        ax6 = fig.add_subplot(616)
 
 
-        # break the data into 5 parts
+        # break the data into 6 parts
         n = len(plot_df)
-        n1 = int(n * 0.2)
-        n2 = int(n * 0.4)
-        n3 = int(n * 0.6)
-        n4 = int(n * 0.8)
+        n1 = int(n * 1 / 6)
+        n2 = int(n * 2 / 6)
+        n3 = int(n * 3 / 6)
+        n4 = int(n * 4 / 6)
+        n5 = int(n * 5 / 6)
 
         y_lims = [0, plot_df[pcey_obj.COL_PREDICTED_IDEAL_YIELD].max() * 1.1]
-
-        ax1 = _get_ax(ax1, plot_df, pcey_obj, 0, n1, y_lims)
-        ax2 = _get_ax(ax2, plot_df, pcey_obj, n1, n2, y_lims)
-        ax3 = _get_ax(ax3, plot_df, pcey_obj, n2, n3, y_lims)
-        ax4 = _get_ax(ax4, plot_df, pcey_obj, n3, n4, y_lims)
-        ax5 = _get_ax(ax5, plot_df, pcey_obj, n4, n, y_lims)
         
+        ax1 = _get_ax(ax1, plot_df, pcey_obj, n5, n, y_lims)
+        ax2 = _get_ax(ax2, plot_df, pcey_obj, n4, n5, y_lims)
+        ax3 = _get_ax(ax3, plot_df, pcey_obj, n3, n4, y_lims)
+        ax4 = _get_ax(ax4, plot_df, pcey_obj, n2, n3, y_lims)
+        ax5 = _get_ax(ax5, plot_df, pcey_obj, n1, n2, y_lims)
+        ax6 = _get_ax(ax6, plot_df, pcey_obj, 0, n1, y_lims)
+
+
+        
+        ax2.legend()
 
         fig.suptitle(f'{pcey_obj.bmu} - {pcey_obj.name}', fontsize=16)
 
@@ -128,11 +140,10 @@ def plot_scatter(pcey_obj):
         plot_df = plot_df[filt | filt2].copy()
 
         # Create the plot
-        fig = plt.figure(figsize=(10, 10))
+        fig = plt.figure(figsize=(8, 8))
         ax = fig.add_subplot(111)
-        ax.scatter(plot_df[pcey_obj.COL_DAILY_PREDICTED], plot_df[pcey_obj.COL_DAILY_IDEAL_YIELD + '_ok'], color='darkblue', label='QC PASS')
-        ax.scatter(plot_df[pcey_obj.COL_DAILY_PREDICTED], plot_df[pcey_obj.COL_DAILY_IDEAL_YIELD + '_fail'], color='orange', label='QC FAIL')
-
+        ax.scatter(plot_df[pcey_obj.COL_DAILY_PREDICTED], plot_df[pcey_obj.COL_DAILY_IDEAL_YIELD + '_ok'], color='#53599A', label='QC PASS',marker='^')
+        ax.scatter(plot_df[pcey_obj.COL_DAILY_PREDICTED], plot_df[pcey_obj.COL_DAILY_IDEAL_YIELD + '_fail'], color='#F26430', label='QC FAIL', marker='x')
         x_range = np.linspace(0, plot_df[pcey_obj.COL_DAILY_PREDICTED].max() * 1.1, 100)
         ax.plot(x_range, pcey_obj.fit_dict['slope'] * x_range + pcey_obj.fit_dict['intercept'], color='red', linestyle='--')
 
@@ -144,8 +155,18 @@ def plot_scatter(pcey_obj):
         for spine in ['top', 'right']:
             ax.spines[spine].set_visible(False)
 
+
+        # grid
+        ax.grid(axis='both', linestyle='--', alpha=0.5)
+        
+        title = (
+         f"number of months: {pcey_obj.n_data_points}, "
+         f"model $r^2$: {pcey_obj.prediction_r2:.2f}")
+
+        ax.set_title(title)
         fig.suptitle(f'{pcey_obj.bmu} - {pcey_obj.name}', fontsize=16)
         # save the plot
+        plt.tight_layout()
         fig.savefig(f'{plot_path}.png')
         plt.close()
 
@@ -168,11 +189,11 @@ def plot_p50(pcey_obj):
         plot_path = os.path.join(plot_folder, filename)
         
         # Creating the plot
-        fig = plt.figure(figsize=(10, 6))
+        fig = plt.figure(figsize=(8, 5))
         ax = fig.add_subplot(111)
 
-        ax.bar(pcey_obj.energy_yield_df.index - 0.15, pcey_obj.energy_yield_df['energy_without_curtailment'], width=0.3, label='Expected (without curtailment losses)')
-        ax.bar(pcey_obj.energy_yield_df.index + 0.15, pcey_obj.energy_yield_df['energy_with_curtailment'], width=0.3, label='Expected (with curtailment losses)')
+        ax.bar(pcey_obj.energy_yield_df.index - 0.15, pcey_obj.energy_yield_df['energy_without_curtailment'], width=0.3, label='Expected (without curtailment losses)', color='#17BEBB')
+        ax.bar(pcey_obj.energy_yield_df.index + 0.15, pcey_obj.energy_yield_df['energy_with_curtailment'], width=0.3, label='Expected (with curtailment losses)', color='#53599A')
         
         ax.set_xticks(pcey_obj.energy_yield_df.index, ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov','Dec'])
         ax.set_xlabel('Month')
@@ -185,14 +206,12 @@ def plot_p50(pcey_obj):
         # y grid lines
         ax.grid(axis='y', linestyle='--', alpha=0.5)
 
-        title = (f"{pcey_obj.name} Annual Energy Yield\n"
-         f"without curtailment: {pcey_obj.p50_ideal_yield:.0f} GWh, "
+        title = (f"without curtailment: {pcey_obj.p50_ideal_yield:.0f} GWh, "
          f"with curtailment: {pcey_obj.p50_energy_yield:.0f} GWh\n"
-         f"BMU: {pcey_obj.bmu}, number of months: {pcey_obj.n_data_points}, "
-         f"model r-squared: {pcey_obj.prediction_r2:.2f}, "
          f"losses due to curtailment: {pcey_obj.losses_as_percentage:.2f}%")
-
-        fig.suptitle(title)
+        ax.set_title(title)
+        suptitle = (f"{pcey_obj.name} Annual Energy Yield")
+        fig.suptitle(suptitle, fontsize=16)
         fig.tight_layout()
 
 
