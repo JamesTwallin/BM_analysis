@@ -5,7 +5,7 @@ date: 2023-12-06
 category: windfarm
 layout: post
 ---
-Dersalloch Wind Farm P50 Energy Yield: 146.44 MWh
+Dersalloch Wind Farm P50 Energy Yield: 146.44 GWh
 
 DRSLW-1
 -------------

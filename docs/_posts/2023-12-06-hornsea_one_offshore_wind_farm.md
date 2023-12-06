@@ -5,7 +5,7 @@ date: 2023-12-06
 category: windfarm
 layout: post
 ---
-Hornsea One Offshore Wind Farm P50 Energy Yield: 4958.18 MWh
+Hornsea One Offshore Wind Farm P50 Energy Yield: 4958.18 GWh
 
 HOWAO-1
 -------------

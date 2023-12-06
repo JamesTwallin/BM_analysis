@@ -5,7 +5,7 @@ date: 2023-12-06
 category: windfarm
 layout: post
 ---
-Corriemoillie Wind Farm P50 Energy Yield: 89.47 MWh
+Corriemoillie Wind Farm P50 Energy Yield: 89.47 GWh
 
 CRMLW-1
 -------------

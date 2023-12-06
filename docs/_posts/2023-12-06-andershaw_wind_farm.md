@@ -5,7 +5,7 @@ date: 2023-12-06
 category: windfarm
 layout: post
 ---
-Andershaw Wind Farm P50 Energy Yield: 92.73 MWh
+Andershaw Wind Farm P50 Energy Yield: 92.73 GWh
 
 ASHWW-1
 -------------

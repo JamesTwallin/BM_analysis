@@ -5,7 +5,7 @@ date: 2023-12-06
 category: windfarm
 layout: post
 ---
-Black Law Wind Farm P50 Energy Yield: 300.84 MWh
+Black Law Wind Farm P50 Energy Yield: 300.84 GWh
 
 BLLA-1
 -------------

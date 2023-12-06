@@ -5,7 +5,7 @@ date: 2023-12-06
 category: windfarm
 layout: post
 ---
-Rampion Wind Farm P50 Energy Yield: 1462.73 MWh
+Rampion Wind Farm P50 Energy Yield: 1462.73 GWh
 
 RMPNO-1
 -------------

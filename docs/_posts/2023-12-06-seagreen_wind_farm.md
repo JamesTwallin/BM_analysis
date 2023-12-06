@@ -5,7 +5,7 @@ date: 2023-12-06
 category: windfarm
 layout: post
 ---
-Seagreen Wind Farm P50 Energy Yield: 1711.85 MWh
+Seagreen Wind Farm P50 Energy Yield: 1711.85 GWh
 
 SGRWO-1
 -------------

@@ -5,7 +5,7 @@ date: 2023-12-06
 category: windfarm
 layout: post
 ---
-Cour Wind Farm P50 Energy Yield: 70.89 MWh
+Cour Wind Farm P50 Energy Yield: 70.89 GWh
 
 COUWW-1
 -------------

@@ -5,7 +5,7 @@ date: 2023-12-06
 category: windfarm
 layout: post
 ---
-Burn of Whilk Wind Farm P50 Energy Yield: 56.80 MWh
+Burn of Whilk Wind Farm P50 Energy Yield: 56.80 GWh
 
 BNWKW-1
 -------------

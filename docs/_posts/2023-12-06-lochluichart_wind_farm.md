@@ -5,7 +5,7 @@ date: 2023-12-06
 category: windfarm
 layout: post
 ---
-Lochluichart Wind Farm P50 Energy Yield: 149.30 MWh
+Lochluichart Wind Farm P50 Energy Yield: 149.30 GWh
 
 LCLTW-1
 -------------

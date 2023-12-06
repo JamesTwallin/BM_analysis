@@ -5,7 +5,7 @@ date: 2023-12-06
 category: windfarm
 layout: post
 ---
-Millennium Wind Farm P50 Energy Yield: 172.25 MWh
+Millennium Wind Farm P50 Energy Yield: 172.25 GWh
 
 MILWW-1
 -------------

@@ -5,7 +5,7 @@ date: 2023-12-06
 category: windfarm
 layout: post
 ---
-Berry Burn Wind Farm P50 Energy Yield: 160.68 MWh
+Berry Burn Wind Farm P50 Energy Yield: 160.68 GWh
 
 BRYBW-1
 -------------

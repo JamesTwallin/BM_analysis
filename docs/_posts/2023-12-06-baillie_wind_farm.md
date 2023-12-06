@@ -5,7 +5,7 @@ date: 2023-12-06
 category: windfarm
 layout: post
 ---
-Baillie Wind Farm P50 Energy Yield: 128.20 MWh
+Baillie Wind Farm P50 Energy Yield: 128.20 GWh
 
 BABAW-1
 -------------

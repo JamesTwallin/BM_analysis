@@ -5,7 +5,7 @@ date: 2023-12-06
 category: windfarm
 layout: post
 ---
-Westermost Rough Wind Farm P50 Energy Yield: 889.39 MWh
+Westermost Rough Wind Farm P50 Energy Yield: 889.39 GWh
 
 WTMSO-1
 -------------

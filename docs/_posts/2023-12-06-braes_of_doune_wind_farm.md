@@ -5,7 +5,7 @@ date: 2023-12-06
 category: windfarm
 layout: post
 ---
-Braes of Doune Wind Farm P50 Energy Yield: 155.51 MWh
+Braes of Doune Wind Farm P50 Energy Yield: 155.51 GWh
 
 BRDUW-1
 -------------

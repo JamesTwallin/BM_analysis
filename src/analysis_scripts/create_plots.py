@@ -51,7 +51,7 @@ def append_html_to_md(windfarm_df):
                     text = textwrap.dedent(text)
                     # remove the first line
                     text = text.split('\n', 1)[1]
-                    text += f"""{name} P50 Energy Yield: {energy_yield:.2f} MWh\n\n"""
+                    text += f"""{name} P50 Energy Yield: {energy_yield:.2f} GWh\n\n"""
                     bmus = enforce_list(row['bmrs_id'])
                     assert len(bmus) > 0
                     bmus.sort()

@@ -5,7 +5,7 @@ date: 2023-12-06
 category: windfarm
 layout: post
 ---
-Edinbane Wind Farm P50 Energy Yield: 95.44 MWh
+Edinbane Wind Farm P50 Energy Yield: 95.44 GWh
 
 EDINW-1
 -------------

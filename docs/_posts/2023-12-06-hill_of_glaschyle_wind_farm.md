@@ -5,7 +5,7 @@ date: 2023-12-06
 category: windfarm
 layout: post
 ---
-Hill of Glaschyle Wind Farm P50 Energy Yield: 48.68 MWh
+Hill of Glaschyle Wind Farm P50 Energy Yield: 48.68 GWh
 
 HLGLW-1
 -------------

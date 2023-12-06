@@ -5,7 +5,7 @@ date: 2023-12-06
 category: windfarm
 layout: post
 ---
-Hadyard Hill Wind Farm P50 Energy Yield: 207.71 MWh
+Hadyard Hill Wind Farm P50 Energy Yield: 207.71 GWh
 
 HADHW-1
 -------------

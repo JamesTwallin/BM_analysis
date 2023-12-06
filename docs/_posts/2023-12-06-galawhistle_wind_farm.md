@@ -5,7 +5,7 @@ date: 2023-12-06
 category: windfarm
 layout: post
 ---
-Galawhistle Wind Farm P50 Energy Yield: 137.98 MWh
+Galawhistle Wind Farm P50 Energy Yield: 137.98 GWh
 
 GLWSW-1
 -------------

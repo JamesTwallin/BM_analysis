@@ -5,7 +5,7 @@ date: 2023-12-06
 category: windfarm
 layout: post
 ---
-Clachan Flats Wind Farm P50 Energy Yield: 18.01 MWh
+Clachan Flats Wind Farm P50 Energy Yield: 18.01 GWh
 
 CLFLW-1
 -------------

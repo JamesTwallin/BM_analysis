@@ -5,7 +5,7 @@ date: 2023-12-06
 category: windfarm
 layout: post
 ---
-Harburnhead Wind Farm P50 Energy Yield: 125.56 MWh
+Harburnhead Wind Farm P50 Energy Yield: 125.56 GWh
 
 HBHDW-1
 -------------

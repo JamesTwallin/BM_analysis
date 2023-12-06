@@ -5,7 +5,7 @@ date: 2023-12-06
 category: windfarm
 layout: post
 ---
-Fallago Rig Wind Farm P50 Energy Yield: 370.54 MWh
+Fallago Rig Wind Farm P50 Energy Yield: 370.54 GWh
 
 FALGW-1
 -------------

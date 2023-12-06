@@ -5,7 +5,7 @@ date: 2023-12-06
 category: windfarm
 layout: post
 ---
-Farr Wind Farm P50 Energy Yield: 214.22 MWh
+Farr Wind Farm P50 Energy Yield: 214.22 GWh
 
 FAARW-1
 -------------

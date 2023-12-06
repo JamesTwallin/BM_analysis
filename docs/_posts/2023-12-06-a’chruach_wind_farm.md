@@ -5,7 +5,7 @@ date: 2023-12-06
 category: windfarm
 layout: post
 ---
-A’Chruach Wind Farm P50 Energy Yield: 105.68 MWh
+A’Chruach Wind Farm P50 Energy Yield: 105.68 GWh
 
 ACHRW-1
 -------------

@@ -5,7 +5,7 @@ date: 2023-12-06
 category: windfarm
 layout: post
 ---
-Burbo Bank Offshore Wind Farm P50 Energy Yield: 1201.95 MWh
+Burbo Bank Offshore Wind Farm P50 Energy Yield: 1201.95 GWh
 
 BRBEO-1
 -------------

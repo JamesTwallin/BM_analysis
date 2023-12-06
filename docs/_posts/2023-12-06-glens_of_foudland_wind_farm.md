@@ -5,7 +5,7 @@ date: 2023-12-06
 category: windfarm
 layout: post
 ---
-Glens of Foudland Wind Farm P50 Energy Yield: 55.12 MWh
+Glens of Foudland Wind Farm P50 Energy Yield: 55.12 GWh
 
 GLOFW-1
 -------------

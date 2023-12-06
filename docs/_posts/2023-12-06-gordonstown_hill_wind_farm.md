@@ -5,7 +5,7 @@ date: 2023-12-06
 category: windfarm
 layout: post
 ---
-Gordonstown Hill Wind Farm P50 Energy Yield: 26.93 MWh
+Gordonstown Hill Wind Farm P50 Energy Yield: 26.93 GWh
 
 GDSTW-1
 -------------

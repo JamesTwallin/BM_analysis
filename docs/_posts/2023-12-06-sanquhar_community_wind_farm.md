@@ -5,7 +5,7 @@ date: 2023-12-06
 category: windfarm
 layout: post
 ---
-Sanquhar Community Wind Farm P50 Energy Yield: 117.46 MWh
+Sanquhar Community Wind Farm P50 Energy Yield: 117.46 GWh
 
 SANQW-1
 -------------

@@ -5,7 +5,7 @@ date: 2023-12-06
 category: windfarm
 layout: post
 ---
-Corriegarth Wind Farm P50 Energy Yield: 149.25 MWh
+Corriegarth Wind Farm P50 Energy Yield: 149.25 GWh
 
 CGTHW-1
 -------------

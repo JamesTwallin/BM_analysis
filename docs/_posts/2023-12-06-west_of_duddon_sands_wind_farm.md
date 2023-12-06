@@ -5,7 +5,7 @@ date: 2023-12-06
 category: windfarm
 layout: post
 ---
-West of Duddon Sands Wind Farm P50 Energy Yield: 1571.33 MWh
+West of Duddon Sands Wind Farm P50 Energy Yield: 1571.33 GWh
 
 WDNSO-1
 -------------

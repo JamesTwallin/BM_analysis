@@ -5,7 +5,7 @@ date: 2023-12-06
 category: windfarm
 layout: post
 ---
-Whiteside Hill Wind Farm P50 Energy Yield: 104.44 MWh
+Whiteside Hill Wind Farm P50 Energy Yield: 104.44 GWh
 
 WHIHW-1
 -------------

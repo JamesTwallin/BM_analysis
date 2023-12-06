@@ -5,7 +5,7 @@ date: 2023-12-06
 category: windfarm
 layout: post
 ---
-Ewe Hill Wind Farm P50 Energy Yield: 85.07 MWh
+Ewe Hill Wind Farm P50 Energy Yield: 85.07 GWh
 
 EWHLW-1
 -------------
