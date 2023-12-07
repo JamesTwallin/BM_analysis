@@ -43,7 +43,7 @@ def plot_largest_farms():
     # Sort the DataFrame
     pcey_df.sort_values(by='p50_ideal_yield', ascending=True, inplace=True)
 
-    fig = plt.figure(figsize=(8, 30))
+    fig = plt.figure(figsize=(7, 30))
     ax = fig.add_subplot(111)
     # Custom legend handles
     legend_handles = []
@@ -104,7 +104,7 @@ def plot_curtailment():
     # Sort the DataFrame
     pcey_df.sort_values(by='curtailment_%', ascending=True, inplace=True)
 
-    fig = plt.figure(figsize=(8, 30))
+    fig = plt.figure(figsize=(7, 30))
     ax = fig.add_subplot(111)
 
     # Custom legend handles

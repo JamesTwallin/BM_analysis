@@ -1,7 +1,7 @@
 ---
 title: Energy Yields
 author: James Twallin
-date: 2023-12-06
+date: 2023-12-07
 category: windfarm
 layout: post
 ---
