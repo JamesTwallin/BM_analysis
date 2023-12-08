@@ -12,6 +12,9 @@ import textwrap
 # Sort the DataFrame
 import matplotlib.patches as mpatches
 
+# Basemap
+from mpl_toolkits.basemap import Basemap
+
 
 global project_root_path
 project_root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -152,6 +155,177 @@ def plot_curtailment():
     fig.savefig(f'{plot_path}.png')
     plt.close()
 
+def map_curtailment_perc_plot():
+    pcey_df = pd.read_csv(os.path.join(project_root_path, 'pcey.csv'))
+    data_points_filt = pcey_df['n_data_points'] > 5
+    pcey_df = pcey_df[data_points_filt]
+
+    lat_lon_df = pcey_df.groupby(['name', 'lat', 'lon']).last().reset_index()
+    lat_lon_dict = dict(zip(lat_lon_df['name'], zip(lat_lon_df['lat'], lat_lon_df['lon'])))
+    # grouby by name and sum
+    pcey_df = pcey_df.groupby(['name']).sum().reset_index()
+    pcey_df['curtailment_%'] = pcey_df['curtailment'] / pcey_df['p50_ideal_yield'] * 100
+    # lat lon
+    pcey_df['lat'] = pcey_df['name'].map(lambda x: lat_lon_dict.get(x)[0])
+    pcey_df['lon'] = pcey_df['name'].map(lambda x: lat_lon_dict.get(x)[1])
+
+    # Sort the DataFrame
+    pcey_df.sort_values(by='curtailment_%', ascending=True, inplace=True)
+
+    fig = plt.figure(figsize=(7, 10))
+    m = Basemap(projection='merc',llcrnrlat=49.5,urcrnrlat=59.5,\
+            llcrnrlon=-9.5,urcrnrlon=4.5,lat_ts=20,resolution='i')
+    m.drawcoastlines()
+    m.drawcountries()
+    m.fillcontinents(color='lightgrey')
+
+    for index, row in pcey_df.iterrows():
+        x, y = m(row['lon'], row['lat'])
+        m.plot(x, y, markersize=row['curtailment_%']*2, color = 'red', marker='o', alpha=0.5,
+               markeredgecolor='none')
+        m.plot(x, y, markersize=1, color = 'black', marker='x', alpha=0.5)
+
+        # plt.text(x, y, row['name'], fontsize=12)
+    # add the UK map using matplotlib basemap
+
+    # add a legend with relative size
+    sizes = [5,10,25]
+    _x, _y = 2, 59
+    for size in sizes:
+
+        x, y = m(_x, _y)
+        m.plot(x, y, markersize=size*2, color = 'red', marker='o', alpha=0.5, # no line color
+                markeredgecolor='none')
+        #annotate
+        plt.text(x, y, f'{size}%', fontsize=8, va='center', ha='center')
+        _y -= size/15
+
+
+
+    # save fig
+    filename = 'map_curtailment_perc_plot'   
+    fig.suptitle('Annual Curtailment %', fontsize=16)
+    plot_folder = os.path.join(project_root_path, 'plots')
+    plot_path = os.path.join(plot_folder, filename)
+    # remove the border
+    for spine in ['top', 'right', 'bottom', 'left']:
+        plt.gca().spines[spine].set_visible(False)
+    plt.tight_layout()
+    fig.savefig(f'{plot_path}.png')
+    plt.close()
+
+def map_curtailment_plot():
+    pcey_df = pd.read_csv(os.path.join(project_root_path, 'pcey.csv'))
+    data_points_filt = pcey_df['n_data_points'] > 5
+    pcey_df = pcey_df[data_points_filt]
+
+    lat_lon_df = pcey_df.groupby(['name', 'lat', 'lon']).last().reset_index()
+    lat_lon_dict = dict(zip(lat_lon_df['name'], zip(lat_lon_df['lat'], lat_lon_df['lon'])))
+    # grouby by name and sum
+    pcey_df = pcey_df.groupby(['name']).sum().reset_index()
+    pcey_df['curtailment_%'] = pcey_df['curtailment'] / pcey_df['p50_ideal_yield'] * 100
+    # lat lon
+    pcey_df['lat'] = pcey_df['name'].map(lambda x: lat_lon_dict.get(x)[0])
+    pcey_df['lon'] = pcey_df['name'].map(lambda x: lat_lon_dict.get(x)[1])
+
+    # Sort the DataFrame
+    pcey_df.sort_values(by='curtailment_%', ascending=True, inplace=True)
+
+    fig = plt.figure(figsize=(7, 10))
+    m = Basemap(projection='merc',llcrnrlat=49.5,urcrnrlat=59.5,\
+            llcrnrlon=-9.5,urcrnrlon=4.5,lat_ts=20,resolution='i')
+    m.drawcoastlines()
+    m.drawcountries()
+    m.fillcontinents(color='lightgrey')
+
+    for index, row in pcey_df.iterrows():
+        x, y = m(row['lon'], row['lat'])
+        m.plot(x, y, markersize=row['curtailment']/75, color = 'red', marker='o', alpha=0.5,
+               markeredgecolor='none')
+        m.plot(x, y, markersize=1, color = 'black', marker='x', alpha=0.5)
+
+        # plt.text(x, y, row['name'], fontsize=12)
+    # add the UK map using matplotlib basemap
+
+    # add a legend with relative size
+    # sizes = [5,10,25]
+    # _x, _y = 2, 59
+    # for size in sizes:
+
+    #     x, y = m(_x, _y)
+    #     m.plot(x, y, markersize=size*2, color = 'red', marker='o', alpha=0.5)
+    #     #annotate
+    #     plt.text(x, y, f'{size}%', fontsize=8, va='center', ha='center')
+    #     _y -= size/15
+
+
+
+    # save fig
+    filename = 'map_curtailment_plot'   
+    fig.suptitle('Annual Curtailment GWh', fontsize=16)
+    plot_folder = os.path.join(project_root_path, 'plots')
+    plot_path = os.path.join(plot_folder, filename)
+    # remove the border
+    for spine in ['top', 'right', 'bottom', 'left']:
+        plt.gca().spines[spine].set_visible(False)
+    plt.tight_layout()
+    fig.savefig(f'{plot_path}.png')
+    plt.close()
+
+def map_yield_plot():
+    pcey_df = pd.read_csv(os.path.join(project_root_path, 'pcey.csv'))
+    data_points_filt = pcey_df['n_data_points'] > 5
+    pcey_df = pcey_df[data_points_filt]
+
+    lat_lon_df = pcey_df.groupby(['name', 'lat', 'lon']).last().reset_index()
+    lat_lon_dict = dict(zip(lat_lon_df['name'], zip(lat_lon_df['lat'], lat_lon_df['lon'])))
+    # grouby by name and sum
+    pcey_df = pcey_df.groupby(['name']).sum().reset_index()
+    pcey_df['curtailment_%'] = pcey_df['curtailment'] / pcey_df['p50_ideal_yield'] * 100
+    # lat lon
+    pcey_df['lat'] = pcey_df['name'].map(lambda x: lat_lon_dict.get(x)[0])
+    pcey_df['lon'] = pcey_df['name'].map(lambda x: lat_lon_dict.get(x)[1])
+
+    # Sort the DataFrame
+
+
+    fig = plt.figure(figsize=(7, 10))
+    m = Basemap(projection='merc',llcrnrlat=49.5,urcrnrlat=59.5,\
+            llcrnrlon=-9.5,urcrnrlon=4.5,lat_ts=20,resolution='i')
+    m.drawcoastlines()
+    m.drawcountries()
+    m.fillcontinents(color='lightgrey')
+
+    for index, row in pcey_df.iterrows():
+        x, y = m(row['lon'], row['lat'])
+        m.plot(x, y, markersize=row['p50_ideal_yield']/75,color = 'blue', marker='o', alpha=0.5,
+               markeredgecolor='none')
+        m.plot(x, y, markersize=1, color = 'black', marker='x', alpha=0.5)
+
+
+    sizes = [1000, 2000, 5000]
+    _x, _y = 2, 59
+    for size in sizes:
+
+        x, y = m(_x, _y)
+        m.plot(x, y, markersize=size/75, color = 'blue', marker='o', alpha=0.5,
+               markeredgecolor='none')
+        #annotate
+        plt.text(x, y, f'{size} GWh', fontsize=8, va='center', ha='center')
+        _y -= size/2250
+
+
+    # save fig
+    filename = 'map_yield_plot'
+    fig.suptitle('Annual Energy Yield GWh', fontsize=16)
+    plot_folder = os.path.join(project_root_path, 'plots')
+    plot_path = os.path.join(plot_folder, filename)
+    # remove the border
+    for spine in ['top', 'right', 'bottom', 'left']:
+        plt.gca().spines[spine].set_visible(False)
+    plt.tight_layout()
+    fig.savefig(f'{plot_path}.png')
+    plt.close()
 
 def make_md_file():
     md_file_path = os.path.join(project_root_path, 'docs', '_pages', f"energy_yields.md")
@@ -167,7 +341,7 @@ def make_md_file():
     '''
     text = textwrap.dedent(text)
     text = text.split('\n', 1)[1]
-    for file in ['largest_farms.png', 'curtailment.png']:                            
+    for file in ['map_curtailment_perc_plot.png', 'map_curtailment_plot.png', 'map_yield_plot.png', 'curtailment.png', 'largest_farms.png']:
         text += ("""![]({{ site.baseurl }}""" + f"/assets/{file})\n")    
     text += "\n"
 
@@ -179,8 +353,11 @@ def make_md_file():
 # List of BMUs
 
 if __name__ == "__main__":
-    plot_largest_farms()
-    plot_curtailment()  
+    # plot_largest_farms()
+    # plot_curtailment()  
+    map_curtailment_perc_plot()
+    map_curtailment_plot()
+    map_yield_plot()
     make_md_file()
     
 
