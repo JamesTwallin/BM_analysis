@@ -191,6 +191,8 @@ def map_curtailment_perc_plot():
     # add a legend with relative size
     sizes = [5,10,25]
     _x, _y = 2, 59
+    x, y = m(_x, _y+0.25)
+    plt.text(x,y, 'Legend', fontsize=8, va='center', ha='center')
     for size in sizes:
 
         x, y = m(_x, _y)
@@ -198,7 +200,7 @@ def map_curtailment_perc_plot():
                 markeredgecolor='none')
         #annotate
         plt.text(x, y, f'{size}%', fontsize=8, va='center', ha='center')
-        _y -= size/15
+        _y -= max(size/15,.25)
 
 
 
@@ -246,17 +248,19 @@ def map_curtailment_plot():
 
         # plt.text(x, y, row['name'], fontsize=12)
     # add the UK map using matplotlib basemap
+    sizes = [100, 200, 500]
+    _x, _y = 2, 59
+    x, y = m(_x, _y+0.25)
+    plt.text(x,y, 'Legend', fontsize=8, va='center', ha='center')
+    for size in sizes:
 
-    # add a legend with relative size
-    # sizes = [5,10,25]
-    # _x, _y = 2, 59
-    # for size in sizes:
+        x, y = m(_x, _y)
+        m.plot(x, y, markersize=size/75, color = 'red', marker='o', alpha=0.5,
+               markeredgecolor='none')
+        #annotate
+        plt.text(x, y, f'{size} GWh', fontsize=8, va='center', ha='center')
+        _y -= max(size/2250, .25)
 
-    #     x, y = m(_x, _y)
-    #     m.plot(x, y, markersize=size*2, color = 'red', marker='o', alpha=0.5)
-    #     #annotate
-    #     plt.text(x, y, f'{size}%', fontsize=8, va='center', ha='center')
-    #     _y -= size/15
 
 
 
@@ -304,7 +308,11 @@ def map_yield_plot():
 
 
     sizes = [1000, 2000, 5000]
+
+    # add a legend with relative size (this needs a bounding box)
     _x, _y = 2, 59
+    x, y = m(_x, _y+0.25)
+    plt.text(x,y, 'Legend', fontsize=8, va='center', ha='center')
     for size in sizes:
 
         x, y = m(_x, _y)
@@ -312,8 +320,9 @@ def map_yield_plot():
                markeredgecolor='none')
         #annotate
         plt.text(x, y, f'{size} GWh', fontsize=8, va='center', ha='center')
-        _y -= size/2250
+        _y -= max(size/2250, .25)
 
+    
 
     # save fig
     filename = 'map_yield_plot'
