@@ -83,6 +83,17 @@ class PCEY:
 		self.nearest_lat, self.nearest_lon = get_nearest_lat_lon(self.lat, self.lon)
 
 	def get_ml_prediction(self):
+		prediction_file_path = os.path.join(project_root_path, 'data', 'predictions', f'{self.bmu}.parquet')
+		os.makedirs(os.path.dirname(prediction_file_path), exist_ok=True)
+		# unseen data
+		unseen_file_path = os.path.join(project_root_path, 'data', 'unseen_data', f'{self.bmu}.parquet')
+		os.makedirs(os.path.dirname(unseen_file_path), exist_ok=True)
+
+
+		if os.path.exists(prediction_file_path):
+			self.preprocessed_df = pd.read_parquet(prediction_file_path)
+			self.prediction_ok = True
+			return 
 		try:
 			if self.preprocessed_df is None:
 				self._preprocess_data()
@@ -118,6 +129,10 @@ class PCEY:
 			filt = self.preprocessed_df[['wind_speed', 'wind_direction_degrees']].notnull().all(axis=1)
 			self.preprocessed_df.loc[filt, self.COL_PREDICTED_IDEAL_YIELD] = model.predict(self.preprocessed_df.loc[filt, ['wind_speed', 'wind_direction_degrees']])# 
 			self.prediction_ok = True
+			# save the file to the data folder
+			self.preprocessed_df.to_parquet(prediction_file_path)
+
+
 		except Exception as e:
 			print('get_ml_prediction(), error: ', e)
 			self.prediction_ok = False

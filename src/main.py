@@ -57,19 +57,6 @@ def calculate_wind_speed_and_direction(df):
 
 
 
-# # sigmoid function for power curve
-def power_curve(x, a, b, c):
-	return a / (1 + np.exp(-b * (x - c)))
-
-def linear_curve(x, a, b):
-	return a * x + b
-
-# exponential function for power curve
-def power_curve_exp(x, a, b,c):
-	out = np.exp(a * x + b)
-	return np.clip(out, 0, c)
-	# smooth the curve as a function of distance from x = 0
-
 def get_weather_stats_df(weather_df):
 	weather_stats_df = weather_df[['wind_speed']].resample('1D').mean()
 	weather_stats_df = weather_stats_df[['wind_speed']].resample('1MS').mean()
