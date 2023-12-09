@@ -7,24 +7,15 @@ layout: post
 ---
 ## This map at first sight is shocking
 
-<a href="{{ site.baseurl }}/assets/map_curtailment_plot.png">
-  <img src="{{ site.baseurl }}/assets/map_curtailment_plot.png" alt="Curtailment Map">
-</a>
+[![Curtailment Map]({{ site.baseurl }}/assets/map_curtailment_plot.png)]({{ site.baseurl }}/assets/map_curtailment_plot.png)
 
 ## But when you look at the data it's not so bad
 
-<a href="{{ site.baseurl }}/assets/map_yield_plot.png">
-  <img src="{{ site.baseurl }}/assets/map_yield_plot.png" alt="Yield Map">
-</a>
 
-<a href="{{ site.baseurl }}/assets/map_curtailment_perc_plot.png">
-  <img src="{{ site.baseurl }}/assets/map_curtailment_perc_plot.png" alt="Curtailment Percentage Map">
-</a>
+[![Yield Map]({{ site.baseurl }}/assets/map_yield_plot.png)]({{ site.baseurl }}/assets/map_yield_plot.png)
 
-<a href="{{ site.baseurl }}/assets/curtailment.png">
-  <img src="{{ site.baseurl }}/assets/curtailment.png" alt="Curtailment Image">
-</a>
+[![Curtailment Percentage Map]({{ site.baseurl }}/assets/map_curtailment_perc_plot.png)]({{ site.baseurl }}/assets/map_curtailment_perc_plot.png)
 
-<a href="{{ site.baseurl }}/assets/largest_farms.png">
-  <img src="{{ site.baseurl }}/assets/largest_farms.png" alt="Largest Farms Image">
-</a>
+[![Curtailment Image]({{ site.baseurl }}/assets/curtailment.png)]({{ site.baseurl }}/assets/curtailment.png)
+
+[![Largest Farms Image]({{ site.baseurl }}/assets/largest_farms.png)]({{ site.baseurl }}/assets/largest_farms.png)
