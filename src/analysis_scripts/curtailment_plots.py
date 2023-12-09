@@ -336,27 +336,7 @@ def map_yield_plot():
     fig.savefig(f'{plot_path}.png')
     plt.close()
 
-def make_md_file():
-    md_file_path = os.path.join(project_root_path, 'docs', '_pages', f"energy_yields.md")
-    
-    text = f'''
-    ---
-    title: Energy Yields
-    author: James Twallin
-    date: {dt.datetime.now().strftime('%Y-%m-%d')}
-    category: windfarm
-    layout: post
-    ---
-    '''
-    text = textwrap.dedent(text)
-    text = text.split('\n', 1)[1]
-    for file in ['map_curtailment_perc_plot.png', 'map_curtailment_plot.png', 'map_yield_plot.png', 'curtailment.png', 'largest_farms.png']:
-        text += ("""![]({{ site.baseurl }}""" + f"/assets/{file})\n")    
-    text += "\n"
 
-    with open(md_file_path, 'w', encoding='utf-8') as md_file:
-        md_file.write(text)
-    
                 
 
 # List of BMUs
@@ -367,7 +347,7 @@ if __name__ == "__main__":
     map_curtailment_perc_plot()
     map_curtailment_plot()
     map_yield_plot()
-    make_md_file()
+
     
 
 	
