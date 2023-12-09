@@ -18,6 +18,8 @@ from mpl_toolkits.basemap import Basemap
 
 global project_root_path
 project_root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+global asset_path
+asset_path = os.path.join(project_root_path, 'docs', 'assets')
 print(project_root_path)
 
 global color_dict
@@ -65,10 +67,8 @@ def plot_largest_farms():
     # Create the legend with custom handles
     ax.legend(handles=legend_handles, ncol=3, loc='upper center', bbox_to_anchor=(0.15, 1.02))
     # save fig
-    plot_folder = os.path.join(project_root_path, 'plots')
 
-    if not os.path.exists(plot_folder):
-        os.mkdir(plot_folder)
+
 
     for spine in ['top', 'right','bottom']:
         ax.spines[spine].set_visible(False)
@@ -82,7 +82,7 @@ def plot_largest_farms():
 
     filename = 'largest_farms'
     fig.suptitle('Annual Energy Yield', fontsize=16)
-    plot_path = os.path.join(plot_folder, filename)
+    plot_path = os.path.join(asset_path, filename)
     # give the suptitle a little more room so it doesn't overlap the title
     plt.tight_layout(rect=[0, 0.03, 1, 0.98])
     # fig.subplots_adjust(top=0.95)
@@ -150,7 +150,7 @@ def plot_curtailment():
 
     filename = 'curtailment'
     fig.suptitle('Annual Curtailment', fontsize=16)
-    plot_path = os.path.join(plot_folder, filename)
+    plot_path = os.path.join(asset_path, filename)
     plt.tight_layout(rect=[0, 0.03, 1, 0.98])
     fig.savefig(f'{plot_path}.png')
     plt.close()
@@ -192,14 +192,14 @@ def map_curtailment_perc_plot():
     sizes = [5,10,25]
     _x, _y = 2, 59
     x, y = m(_x, _y+0.25)
-    plt.text(x,y, 'Legend', fontsize=8, va='center', ha='center')
+    plt.text(x,y, 'For comparison:', fontsize=12, va='center', ha='center')
     for size in sizes:
 
         x, y = m(_x, _y)
         m.plot(x, y, markersize=size*2, color = 'red', marker='o', alpha=0.5, # no line color
                 markeredgecolor='none')
-        #annotate
-        plt.text(x, y, f'{size}%', fontsize=8, va='center', ha='center')
+        x, y = m(_x, _y)
+        plt.text(x, y, f'{size} %', fontsize=12, va='center', ha='center')
         _y -= max(size/15,.25)
 
 
@@ -207,8 +207,7 @@ def map_curtailment_perc_plot():
     # save fig
     filename = 'map_curtailment_perc_plot'   
     fig.suptitle('Annual Curtailment %', fontsize=16)
-    plot_folder = os.path.join(project_root_path, 'plots')
-    plot_path = os.path.join(plot_folder, filename)
+    plot_path = os.path.join(asset_path, filename)
     # remove the border
     for spine in ['top', 'right', 'bottom', 'left']:
         plt.gca().spines[spine].set_visible(False)
@@ -251,14 +250,15 @@ def map_curtailment_plot():
     sizes = [100, 200, 500]
     _x, _y = 2, 59
     x, y = m(_x, _y+0.25)
-    plt.text(x,y, 'Legend', fontsize=8, va='center', ha='center')
+    plt.text(x,y, 'For comparison:', fontsize=12, va='center', ha='center')
     for size in sizes:
 
         x, y = m(_x, _y)
         m.plot(x, y, markersize=size/75, color = 'red', marker='o', alpha=0.5,
                markeredgecolor='none')
         #annotate
-        plt.text(x, y, f'{size} GWh', fontsize=8, va='center', ha='center')
+        x, y = m(_x-.5, _y)
+        plt.text(x, y, f'{size} GWh', fontsize=12, va='center', ha='right')
         _y -= max(size/2250, .25)
 
 
@@ -267,8 +267,8 @@ def map_curtailment_plot():
     # save fig
     filename = 'map_curtailment_plot'   
     fig.suptitle('Annual Curtailment GWh', fontsize=16)
-    plot_folder = os.path.join(project_root_path, 'plots')
-    plot_path = os.path.join(plot_folder, filename)
+
+    plot_path = os.path.join(asset_path, filename)
     # remove the border
     for spine in ['top', 'right', 'bottom', 'left']:
         plt.gca().spines[spine].set_visible(False)
@@ -312,14 +312,14 @@ def map_yield_plot():
     # add a legend with relative size (this needs a bounding box)
     _x, _y = 2, 59
     x, y = m(_x, _y+0.25)
-    plt.text(x,y, 'Legend', fontsize=8, va='center', ha='center')
+    plt.text(x,y, 'For comparison:', fontsize=12, va='center', ha='center')
     for size in sizes:
 
         x, y = m(_x, _y)
         m.plot(x, y, markersize=size/75, color = 'blue', marker='o', alpha=0.5,
                markeredgecolor='none')
         #annotate
-        plt.text(x, y, f'{size} GWh', fontsize=8, va='center', ha='center')
+        plt.text(x, y, f'{size} GWh', fontsize=12, va='center', ha='center')
         _y -= max(size/2250, .25)
 
     
@@ -327,8 +327,7 @@ def map_yield_plot():
     # save fig
     filename = 'map_yield_plot'
     fig.suptitle('Annual Energy Yield GWh', fontsize=16)
-    plot_folder = os.path.join(project_root_path, 'plots')
-    plot_path = os.path.join(plot_folder, filename)
+    plot_path = os.path.join(asset_path, filename)
     # remove the border
     for spine in ['top', 'right', 'bottom', 'left']:
         plt.gca().spines[spine].set_visible(False)
