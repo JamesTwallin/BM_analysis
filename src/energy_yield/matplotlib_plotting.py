@@ -223,3 +223,49 @@ def plot_p50(pcey_obj):
         # Error handling
         line_number = sys.exc_info()[-1].tb_lineno
         print(f"plot_p50(), error: {e}, line: {line_number}")
+
+def plot_unseen_df(pcey_obj):
+    try:
+        # Make a folder for the plots
+        plot_folder = os.path.join(project_root_path, 'plots')
+        if not os.path.exists(plot_folder):
+            os.mkdir(plot_folder)
+
+        filename = f'4_{pcey_obj.bmu}_unseen'
+        plot_path = os.path.join(plot_folder, filename)
+        plot_df = pcey_obj.unseen_df.copy()
+        # Create the plot
+        fig = plt.figure(figsize=(8, 5))
+        ax = fig.add_subplot(111)
+        # LINE PLOT
+        ax.plot(plot_df.index, plot_df[pcey_obj.COL_PREDICTED_IDEAL_YIELD], label='Predicted', color = '#0C120C',# dashed
+            linestyle='--', linewidth=1)
+        ax.fill_between(plot_df.index, plot_df[pcey_obj.COL_IDEAL_YIELD], color = '#17BEBB', alpha=0.2, label='Observed (without curtailment losses)')
+
+
+        ax.set_xlabel('Date')
+        ax.set_ylabel('Generation (GWh)')
+        ax.set_ylim([0, plot_df[pcey_obj.COL_PREDICTED_IDEAL_YIELD].max() * 1.1])
+        ax.legend()
+
+        for spine in ['top', 'right']:
+            ax.spines[spine].set_visible(False)
+
+
+        # grid
+        ax.grid(axis='y', linestyle='--', alpha=0.5)
+        
+        title = ("Data not seen by ML model\n")
+
+        ax.set_title(title)
+        fig.suptitle(f'{pcey_obj.bmu} - {pcey_obj.name}', fontsize=16)
+        # save the plot
+        plt.tight_layout()
+        fig.savefig(f'{plot_path}.png')
+        plt.close()
+
+    except Exception as e:
+        # Error handling
+        line_number = sys.exc_info()[-1].tb_lineno
+        print(f"plot_unseen_df(), error: {e}, line: {line_number}")
+

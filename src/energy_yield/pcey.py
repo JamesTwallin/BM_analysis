@@ -3,7 +3,10 @@ import numpy as np
 from statistics import linear_regression, correlation
 
 # random forest regressor
-from sklearn.ensemble import RandomForestRegressor
+# from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+
+# KNN regressor
+from sklearn.neighbors import KNeighborsRegressor
 # test train split
 from sklearn.model_selection import train_test_split
 import pickle
@@ -41,7 +44,7 @@ def load_model(bmu, X_train, y_train):
 			model = pickle.load(f)
 		return model
 	except Exception as e:
-		model = RandomForestRegressor()
+		model = KNeighborsRegressor()
 		model.fit(X_train, y_train)
 		with open(model_path, 'wb') as f:
 			pickle.dump(model, f)
@@ -92,6 +95,7 @@ class PCEY:
 
 		if os.path.exists(prediction_file_path):
 			self.preprocessed_df = pd.read_parquet(prediction_file_path)
+			self.unseen_df = pd.read_parquet(unseen_file_path)
 			self.prediction_ok = True
 			return 
 		try:
@@ -115,10 +119,12 @@ class PCEY:
 			ml_df = ml_df[~filt & ~filt2]
 			# any values where the ideal yield is 0, drop them
 			ml_df = ml_df[ml_df[self.COL_IDEAL_YIELD] != 0]
-			# resample to the median for the day
-			X = ml_df[['wind_speed', 'wind_direction_degrees']]
+			X = ml_df[['wind_speed', 'wind_direction_degrees']][:-336]
+			y = ml_df[self.COL_IDEAL_YIELD][:-336]
+			# validation data
+			unseen_df = ml_df[['wind_speed', 'wind_direction_degrees', self.COL_IDEAL_YIELD]][-336:].copy()
 
-			y = ml_df[self.COL_IDEAL_YIELD]
+			
 			X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
 			# fit the model
 			model = load_model(self.bmu, X_train, y_train)
@@ -131,6 +137,11 @@ class PCEY:
 			self.prediction_ok = True
 			# save the file to the data folder
 			self.preprocessed_df.to_parquet(prediction_file_path)
+
+			unseen_df[self.COL_PREDICTED_IDEAL_YIELD] = model.predict(unseen_df[['wind_speed', 'wind_direction_degrees']])
+			unseen_df = unseen_df.resample('30T').last()
+			unseen_df.to_parquet(unseen_file_path)
+			self.unseen_df = unseen_df.copy()
 
 
 		except Exception as e:
@@ -225,8 +236,10 @@ class PCEY:
 	def load_month_df(self):
 		file_path = os.path.join(project_root_path, 'data', 'pcey_data', f'{self.bmu}_monthly.parquet')
 		os.makedirs(os.path.dirname(file_path), exist_ok=True)
+		unseen_file_path = os.path.join(project_root_path, 'data', 'unseen_data', f'{self.bmu}.parquet')
 		if os.path.exists(file_path):
 			self.month_df = pd.read_parquet(file_path)
+			self.unseen_df = pd.read_parquet(unseen_file_path)
 		else:
        	 	# Step 1: Calculate the monthly data frame
 			monthly_df = self.calculate_monthly_df()
