@@ -32,6 +32,10 @@ By using known data (generation, curtailment and weather data), we can create a 
 
 Then this means that we can just use historic data to predict what the wind farm's output would be given a set of already known inputs.
 
+This results in something which looks like this:
+
+![]({{ site.baseurl }}/assets/4_BEATO-1_unseen.png)
+
 ### Method
 
 1. Get the weather data and wind farm data
