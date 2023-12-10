@@ -24,9 +24,9 @@ The 2 endpoints we are interested in are:
 B1610 (This is the Actual Generation Output Per Generation Unit) and the Derived Data (This is the data which show the actions taken by the National Grid to balance the system). If we combine the 2 datasets, we can see how much each wind farm generated (B1610) and if they were curtailed at all (Derived Data).
 
 
-### Energy Yield Calculations
+## Energy Yield Calculations
 
-By using known data (generation, curtailment and weather data), we can create a model which can estimate the expected generation at a wind farm given the wind speed and direction. In this work, the approach taken is to use instance based machine learning. The basis of instance based modelling is the premise that the model is the data. The most well known instance based model is the KNN Regressor, which is like a machine learning version of a VLOOKUP in excel. It's conceptually not too difficult to understand. If we make the assertion:
+By using known data (generation, curtailment and weather data), we can create a model which can estimate the expected generation at a wind farm given the wind speed and direction. In this work, the approach taken is to use instance based machine learning. The basis of instance based modelling is the premise that **the model is the data**. The most well known instance based model is the KNN Regressor, which is like a machine learning version of a VLOOKUP in excel. It's conceptually not too difficult to understand. If we make the assertion:
 
 `power_out = f(wind_speed, direction)`
 
@@ -40,9 +40,10 @@ This results in something which looks like this:
 
 1. Get the weather data and wind farm data
 2. Train an ML model to understand how weather data influences wind farm output
-3. Use the ML model to make predictions for generation going back many years (to 1990), by making predictions using ERA5 reanalysis datasets
+3. Use the ML model to make predictions for generation going back many years (to 1990), by making predictions using ERA5 reanalysis datasets*
 4. Use both the actual and predicted generation data to understand what a typical year's energy production is for each wind farm
 
+*in order to get a full picture, we need to consider that we're talking about a typical year (i.e. not only for the years we have data for). In order to do this, we use ERA5 reanalysis data to create a hindcast.
 
 [1]: https://github.com/JamesTwallin/BM_analysis
 [2]: https://registry.opendata.aws/ecmwf-era5/

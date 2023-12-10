@@ -235,21 +235,25 @@ def plot_unseen_df(pcey_obj):
         plot_path = os.path.join(plot_folder, filename)
         plot_df = pcey_obj.unseen_df.copy()
         # Create the plot
-        fig = plt.figure(figsize=(8, 5))
+        fig = plt.figure(figsize=(8, 4))
         ax = fig.add_subplot(111)
         # LINE PLOT
-        ax.plot(plot_df.index, plot_df[pcey_obj.COL_PREDICTED_IDEAL_YIELD], label='Predicted', color = '#0C120C',# dashed
+        ax.plot(plot_df.index, plot_df[pcey_obj.COL_PREDICTED_IDEAL_YIELD]*2000., label='Predicted', color = '#0C120C',# dashed
             linestyle='--', linewidth=1)
-        ax.fill_between(plot_df.index, plot_df[pcey_obj.COL_IDEAL_YIELD], color = '#17BEBB', alpha=0.2, label='Observed (without curtailment losses)')
+        ax.fill_between(plot_df.index, plot_df[pcey_obj.COL_IDEAL_YIELD]*2000., color = '#17BEBB', alpha=0.2, label='Observed (without curtailment losses)')
 
 
         ax.set_xlabel('Date')
-        ax.set_ylabel('Generation (GWh)')
-        ax.set_ylim([0, plot_df[pcey_obj.COL_PREDICTED_IDEAL_YIELD].max() * 1.1])
+        ax.set_ylabel('Power Output (MW)')
+        ax.set_ylim([0, plot_df[pcey_obj.COL_PREDICTED_IDEAL_YIELD].max()*2000. * 1.1])
         ax.legend()
 
         for spine in ['top', 'right']:
             ax.spines[spine].set_visible(False)
+
+
+        # rotate the x axis labels by 45 degrees
+        plt.xticks(rotation=45)
 
 
         # grid

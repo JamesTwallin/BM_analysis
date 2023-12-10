@@ -44,7 +44,7 @@ def load_model(bmu, X_train, y_train):
 			model = pickle.load(f)
 		return model
 	except Exception as e:
-		model = KNeighborsRegressor()
+		model = KNeighborsRegressor(weights='distance')
 		model.fit(X_train, y_train)
 		with open(model_path, 'wb') as f:
 			pickle.dump(model, f)
