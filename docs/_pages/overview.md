@@ -8,15 +8,14 @@ layout: post
 
 The code has been written by James Twallin can be found on [GitHub][1]. 
 
-Ingredients
--------------
+## Prerequisite: Data
 
-## Weather data
+### Weather data
 
 Data comes from ECMWF. The data has been made available via an AWS S3 bucket. The data is stored in a NetCDF format [here][2] thanks to the [AWS Open Data Program][2].
 
 
-## Wind farm data
+### Wind farm data
 
 In order to access data from the wind farms, we need to use the [BMRS API](https://www.elexon.co.uk/guidance-note/bmrs-api-data-push-user-guide/). This is a REST API that allows us to access data from the Balancing Mechanism Reporting System (BMRS). The BMRS is a reporting service for historic and near real-time data about the electricity transmission system in Great Britain.
 
