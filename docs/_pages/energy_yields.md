@@ -13,7 +13,7 @@ Before a wind farm is built, pre-construction yield assessments are performed to
 
 I figured out that there's a lot of data available from the Balancing Mechanism which provides insight in the wind farm generation. Combine this with weather data and we can start to understand the energy yield of wind farms in the UK. So I did that. And I also tried to figure out how much of the annual energy yield is being curtailed (i.e. wasted). I did that too. And I made a map. And some plots. And I wrote this blog post. If you find it interesting and useful please let me know.
 
-## Energy wasted: percentages.
+## Energy Wasted (%)
 
 At first glance, **it looks quite shocking** how much energy (as a proportion of annual production) is being wasted by some wind farms in Scotland:
 
@@ -23,7 +23,9 @@ Let's plot that as a bar chart as well:
 
 ![]({{ site.baseurl }}/assets/curtailment.png)
 
-**But if you look at the totals in the context of the actual yield,** the numbers are a large percentage of a small number and that's important. 
+**But if you look at the totals in the context of the actual yield,** the numbers are a large percentage of a small number and that's important (this is explained further down in this page).
+
+## Energy Generated: Totals (GWh)
 
 ![]({{ site.baseurl }}/assets/map_yield_plot.png)
 
@@ -31,7 +33,7 @@ The plot below shows what the typical year's production is for each wind farm th
 
 ![]({{ site.baseurl }}/assets/largest_farms.png)
 
-## Energy wasted: volumes.
+## Energy wasted: Totals (GWh)
 
 Let's now look at the actual volumes being curtailed. The scale of the circles is the same as the scale of the circles in the previous plot. What we see is that the vast majority of the curtailment is happening at the smaller onshore wind farms north of the Scottish Border.
 
