@@ -31,7 +31,7 @@ The plot below shows what the typical year's production is for each wind farm th
 
 ![]({{ site.baseurl }}/assets/largest_farms.png)
 
-## Map: Energy curtailed
+## Energy wasted: volumes.
 
 Let's now look at the actual volumes being curtailed. The scale of the circles is the same as the scale of the circles in the previous plot. What we see is that the vast majority of the curtailment is happening at the smaller onshore wind farms north of the Scottish Border.
 
