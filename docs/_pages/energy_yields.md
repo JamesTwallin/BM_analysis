@@ -13,7 +13,7 @@ Before a wind farm is built, pre-construction yield assessments are performed to
 
 I figured out that there's a lot of data available from the Balancing Mechanism which provides insight in the wind farm generation. Combine this with weather data and we can start to understand the energy yield of wind farms in the UK. So I did that. And I also tried to figure out how much of the annual energy yield is being curtailed (i.e. wasted). I did that too. And I made a map. And some plots. And I wrote this blog post. If you find it interesting and useful please let me know.
 
-## Percentage of energy curtailed
+## Energy wasted: percentages.
 
 At first glance, **it looks quite shocking** how much energy (as a proportion of annual production) is being wasted by some wind farms in Scotland:
 
