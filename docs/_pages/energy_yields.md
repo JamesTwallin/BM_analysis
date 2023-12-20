@@ -17,13 +17,17 @@ At first glance, it looks quite shocking how much energy (as a proportion of ann
 
 ![]({{ site.baseurl }}/assets/map_curtailment_perc_plot.png)
 
-But if you look at the totals in the context of the actual yield, the numbers are a large percentage of a small number. The plot below shows what the typical year's production is for each wind farm that I've been able to find data for. The wind farms are sorted by their annual energy yield, with the largest wind farms at the top. Can you see a theme?
+**But if you look at the totals in the context of the actual yield, the numbers are a large percentage of a small number.** 
 
 ![]({{ site.baseurl }}/assets/map_yield_plot.png)
 
-## Which means that the total energy lost is not that much
+The plot below shows what the typical year's production is for each wind farm that I've been able to find data for. The wind farms are sorted by their annual energy yield, with the largest wind farms at the top. Can you see a theme?
+
+![]({{ site.baseurl }}/assets/largest_farms.png)
+
+## Let's now convert the percentages to actual energy curtailed
 ![]({{ site.baseurl }}/assets/map_curtailment_plot.png)
 
 ![]({{ site.baseurl }}/assets/curtailment.png)
-![]({{ site.baseurl }}/assets/largest_farms.png)
+
 
