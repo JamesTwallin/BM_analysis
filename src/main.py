@@ -1,5 +1,4 @@
 import ast
-import numpy as np
 import pandas as pd
 import sys
 
@@ -10,7 +9,7 @@ import src.utils.helpers as helpers
 import src.data_handling.weather as weather
 
 
-from src.data_handling.bmrs import BMU, BMRS
+from src.data_handling.bmrs import BMRS, BMU
 from src.energy_yield import matplotlib_plotting as pcey_plotting
 
 # curvefit
@@ -67,7 +66,8 @@ def enforce_list(_string_list):
 	try:
 		assert isinstance(_string_list, list)
 		return _string_list
-	except:
+	except Exception as e:
+		print(e)
 		string_list = ast.literal_eval(_string_list)
 		return string_list
 

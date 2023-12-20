@@ -238,9 +238,8 @@ def plot_unseen_df(pcey_obj):
         fig = plt.figure(figsize=(8, 4))
         ax = fig.add_subplot(111)
         # LINE PLOT
-        ax.plot(plot_df.index, plot_df[pcey_obj.COL_PREDICTED_IDEAL_YIELD]*2000., label='Predicted', color = '#0C120C',# dashed
-            linestyle='--', linewidth=1)
-        ax.fill_between(plot_df.index, plot_df[pcey_obj.COL_IDEAL_YIELD]*2000., color = '#17BEBB', alpha=0.2, label='Observed (without curtailment losses)')
+        ax.plot(plot_df.index, plot_df[pcey_obj.COL_PREDICTED_IDEAL_YIELD]*2000., label='Predicted', color = '#0C120C', linewidth=1, alpha=0.7, linestyle='--')
+        ax.fill_between(plot_df.index, plot_df[pcey_obj.COL_IDEAL_YIELD]*2000., color = '#17BEBB', alpha=0.3, label='Observed (without curtailment losses)', linewidth=0)
 
 
         ax.set_xlabel('Date')
