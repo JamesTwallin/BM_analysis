@@ -28,12 +28,13 @@ color_dict = {'offshore wind farm': '#17BEBB', 'onshore wind farm': '#53599A', '
 
 
 def enforce_list(_string_list):
-	try:
-		assert isinstance(_string_list, list)
-		return _string_list
-	except:
-		string_list = ast.literal_eval(_string_list)
-		return string_list
+    try:
+        assert isinstance(_string_list, list)
+        return _string_list
+    except Exception:
+        string_list = ast.literal_eval(_string_list)
+        return string_list
+
     
 def plot_largest_farms():
     pcey_df = pd.read_csv(os.path.join(project_root_path, 'pcey.csv'))
@@ -65,7 +66,8 @@ def plot_largest_farms():
     ax.set_xlabel('GWh')
 
     # Create the legend with custom handles
-    ax.legend(handles=legend_handles, ncol=3, loc='upper center', bbox_to_anchor=(0.15, 1.02))
+    ax.legend(handles=legend_handles, ncol=3, loc='upper center', bbox_to_anchor=(0.15, 1.02),
+                frameon=False)
     # save fig
 
 
@@ -122,7 +124,8 @@ def plot_curtailment():
         ax.barh(row['name'], row['curtailment_%'], color=color)
         ax.annotate(f"{row['curtailment_%']:.0f} %", xy=(row['curtailment_%'], row['name']), va='center', ha='left')
 
-    ax.legend(handles=legend_handles, ncol=3, loc='upper center', bbox_to_anchor=(0.15, 1.02))
+    ax.legend(handles=legend_handles, ncol=3, loc='upper center', bbox_to_anchor=(0.15, 1.02), # remove the border
+                frameon=False)
     # save fig
     plot_folder = os.path.join(project_root_path, 'plots')
 
@@ -341,8 +344,8 @@ def map_yield_plot():
 # List of BMUs
 
 if __name__ == "__main__":
-    # plot_largest_farms()
-    # plot_curtailment()  
+    plot_largest_farms()
+    plot_curtailment()  
     map_curtailment_perc_plot()
     map_curtailment_plot()
     map_yield_plot()
