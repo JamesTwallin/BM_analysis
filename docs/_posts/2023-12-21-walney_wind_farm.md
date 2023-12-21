@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Walney Wind Farm_lat_lons.png)Walney Wind Farm P50 Energy Yield: 4056.56 GWh
+![]({{ site.baseurl }}/assets/Walney Wind Farm_lat_lons.png)
+Walney Wind Farm P50 Energy Yield: 4056.56 GWh
 
 WLNYO-2
 -------------

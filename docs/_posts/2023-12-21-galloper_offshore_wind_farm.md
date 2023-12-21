@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Galloper Offshore Wind Farm_lat_lons.png)Galloper Offshore Wind Farm P50 Energy Yield: 1477.63 GWh
+![]({{ site.baseurl }}/assets/Galloper Offshore Wind Farm_lat_lons.png)
+Galloper Offshore Wind Farm P50 Energy Yield: 1477.63 GWh
 
 GAOFO-1
 -------------

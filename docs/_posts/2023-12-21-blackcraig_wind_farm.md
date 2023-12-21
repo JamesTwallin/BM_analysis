@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Blackcraig Wind Farm_lat_lons.png)Blackcraig Wind Farm P50 Energy Yield: 167.83 GWh
+![]({{ site.baseurl }}/assets/Blackcraig Wind Farm_lat_lons.png)
+Blackcraig Wind Farm P50 Energy Yield: 167.83 GWh
 
 BLKWW-1
 -------------

@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Tullo Wind Farm_lat_lons.png)Tullo Wind Farm P50 Energy Yield: 89.20 GWh
+![]({{ site.baseurl }}/assets/Tullo Wind Farm_lat_lons.png)
+Tullo Wind Farm P50 Energy Yield: 89.20 GWh
 
 TULWW-1
 -------------

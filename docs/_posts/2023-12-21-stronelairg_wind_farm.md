@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Stronelairg Wind Farm_lat_lons.png)Stronelairg Wind Farm P50 Energy Yield: 701.80 GWh
+![]({{ site.baseurl }}/assets/Stronelairg Wind Farm_lat_lons.png)
+Stronelairg Wind Farm P50 Energy Yield: 701.80 GWh
 
 STLGW-1
 -------------

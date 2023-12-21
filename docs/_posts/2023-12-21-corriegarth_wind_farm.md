@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Corriegarth Wind Farm_lat_lons.png)Corriegarth Wind Farm P50 Energy Yield: 148.82 GWh
+![]({{ site.baseurl }}/assets/Corriegarth Wind Farm_lat_lons.png)
+Corriegarth Wind Farm P50 Energy Yield: 148.82 GWh
 
 CGTHW-1
 -------------

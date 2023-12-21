@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Edinbane Wind Farm_lat_lons.png)Edinbane Wind Farm P50 Energy Yield: 95.30 GWh
+![]({{ site.baseurl }}/assets/Edinbane Wind Farm_lat_lons.png)
+Edinbane Wind Farm P50 Energy Yield: 95.30 GWh
 
 EDINW-1
 -------------

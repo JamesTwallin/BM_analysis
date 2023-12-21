@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Lochluichart Wind Farm_lat_lons.png)Lochluichart Wind Farm P50 Energy Yield: 149.45 GWh
+![]({{ site.baseurl }}/assets/Lochluichart Wind Farm_lat_lons.png)
+Lochluichart Wind Farm P50 Energy Yield: 149.45 GWh
 
 LCLTW-1
 -------------

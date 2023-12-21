@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/London Array_lat_lons.png)London Array P50 Energy Yield: 2275.99 GWh
+![]({{ site.baseurl }}/assets/London Array_lat_lons.png)
+London Array P50 Energy Yield: 2275.99 GWh
 
 LARYO-1
 -------------

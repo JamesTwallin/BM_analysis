@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Kilgallioch Wind Farm_lat_lons.png)Kilgallioch Wind Farm P50 Energy Yield: 586.11 GWh
+![]({{ site.baseurl }}/assets/Kilgallioch Wind Farm_lat_lons.png)
+Kilgallioch Wind Farm P50 Energy Yield: 586.11 GWh
 
 KLGLW-1
 -------------

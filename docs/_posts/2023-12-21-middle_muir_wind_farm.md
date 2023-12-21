@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Middle Muir Wind Farm_lat_lons.png)Middle Muir Wind Farm P50 Energy Yield: 105.63 GWh
+![]({{ site.baseurl }}/assets/Middle Muir Wind Farm_lat_lons.png)
+Middle Muir Wind Farm P50 Energy Yield: 105.63 GWh
 
 MIDMW-1
 -------------

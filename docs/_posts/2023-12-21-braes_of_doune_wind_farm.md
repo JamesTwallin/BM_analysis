@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Braes of Doune Wind Farm_lat_lons.png)Braes of Doune Wind Farm P50 Energy Yield: 155.97 GWh
+![]({{ site.baseurl }}/assets/Braes of Doune Wind Farm_lat_lons.png)
+Braes of Doune Wind Farm P50 Energy Yield: 155.97 GWh
 
 BRDUW-1
 -------------

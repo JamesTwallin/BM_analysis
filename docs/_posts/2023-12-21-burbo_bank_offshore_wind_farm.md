@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Burbo Bank Offshore Wind Farm_lat_lons.png)Burbo Bank Offshore Wind Farm P50 Energy Yield: 1201.85 GWh
+![]({{ site.baseurl }}/assets/Burbo Bank Offshore Wind Farm_lat_lons.png)
+Burbo Bank Offshore Wind Farm P50 Energy Yield: 1201.85 GWh
 
 BRBEO-1
 -------------

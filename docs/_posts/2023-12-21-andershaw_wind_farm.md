@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Andershaw Wind Farm_lat_lons.png)Andershaw Wind Farm P50 Energy Yield: 92.78 GWh
+![]({{ site.baseurl }}/assets/Andershaw Wind Farm_lat_lons.png)
+Andershaw Wind Farm P50 Energy Yield: 92.78 GWh
 
 ASHWW-1
 -------------

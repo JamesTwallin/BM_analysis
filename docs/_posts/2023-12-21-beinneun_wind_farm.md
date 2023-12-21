@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Beinneun Wind Farm_lat_lons.png)Beinneun Wind Farm P50 Energy Yield: 248.35 GWh
+![]({{ site.baseurl }}/assets/Beinneun Wind Farm_lat_lons.png)
+Beinneun Wind Farm P50 Energy Yield: 248.35 GWh
 
 BEINW-1
 -------------

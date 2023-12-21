@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Cour Wind Farm_lat_lons.png)Cour Wind Farm P50 Energy Yield: 70.76 GWh
+![]({{ site.baseurl }}/assets/Cour Wind Farm_lat_lons.png)
+Cour Wind Farm P50 Energy Yield: 70.76 GWh
 
 COUWW-1
 -------------

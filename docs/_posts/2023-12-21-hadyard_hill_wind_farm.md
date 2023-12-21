@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Hadyard Hill Wind Farm_lat_lons.png)Hadyard Hill Wind Farm P50 Energy Yield: 208.79 GWh
+![]({{ site.baseurl }}/assets/Hadyard Hill Wind Farm_lat_lons.png)
+Hadyard Hill Wind Farm P50 Energy Yield: 208.79 GWh
 
 HADHW-1
 -------------

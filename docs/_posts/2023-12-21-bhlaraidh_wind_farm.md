@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Bhlaraidh Wind Farm_lat_lons.png)Bhlaraidh Wind Farm P50 Energy Yield: 215.43 GWh
+![]({{ site.baseurl }}/assets/Bhlaraidh Wind Farm_lat_lons.png)
+Bhlaraidh Wind Farm P50 Energy Yield: 215.43 GWh
 
 BHLAW-1
 -------------

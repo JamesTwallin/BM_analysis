@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Gunfleet Sands Offshore Wind Farm_lat_lons.png)Gunfleet Sands Offshore Wind Farm P50 Energy Yield: 538.19 GWh
+![]({{ site.baseurl }}/assets/Gunfleet Sands Offshore Wind Farm_lat_lons.png)
+Gunfleet Sands Offshore Wind Farm P50 Energy Yield: 538.19 GWh
 
 GNFSW-1
 -------------

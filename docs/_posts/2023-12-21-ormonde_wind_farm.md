@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Ormonde Wind Farm_lat_lons.png)Ormonde Wind Farm P50 Energy Yield: 453.80 GWh
+![]({{ site.baseurl }}/assets/Ormonde Wind Farm_lat_lons.png)
+Ormonde Wind Farm P50 Energy Yield: 453.80 GWh
 
 OMNDO-1
 -------------

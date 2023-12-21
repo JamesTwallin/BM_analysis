@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Robin Rigg Wind Farm_lat_lons.png)Robin Rigg Wind Farm P50 Energy Yield: 544.91 GWh
+![]({{ site.baseurl }}/assets/Robin Rigg Wind Farm_lat_lons.png)
+Robin Rigg Wind Farm P50 Energy Yield: 544.91 GWh
 
 RREW-1
 -------------

@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Gordonstown Hill Wind Farm_lat_lons.png)Gordonstown Hill Wind Farm P50 Energy Yield: 26.89 GWh
+![]({{ site.baseurl }}/assets/Gordonstown Hill Wind Farm_lat_lons.png)
+Gordonstown Hill Wind Farm P50 Energy Yield: 26.89 GWh
 
 GDSTW-1
 -------------

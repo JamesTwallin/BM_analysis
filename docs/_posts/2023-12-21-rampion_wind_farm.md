@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Rampion Wind Farm_lat_lons.png)Rampion Wind Farm P50 Energy Yield: 1463.66 GWh
+![]({{ site.baseurl }}/assets/Rampion Wind Farm_lat_lons.png)
+Rampion Wind Farm P50 Energy Yield: 1463.66 GWh
 
 RMPNO-1
 -------------

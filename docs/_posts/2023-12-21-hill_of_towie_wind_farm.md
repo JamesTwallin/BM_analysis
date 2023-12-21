@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Hill of Towie Wind Farm_lat_lons.png)Hill of Towie Wind Farm P50 Energy Yield: 107.61 GWh
+![]({{ site.baseurl }}/assets/Hill of Towie Wind Farm_lat_lons.png)
+Hill of Towie Wind Farm P50 Energy Yield: 107.61 GWh
 
 HLTWW-1
 -------------

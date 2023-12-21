@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Toddleburn Wind Farm_lat_lons.png)Toddleburn Wind Farm P50 Energy Yield: 70.51 GWh
+![]({{ site.baseurl }}/assets/Toddleburn Wind Farm_lat_lons.png)
+Toddleburn Wind Farm P50 Energy Yield: 70.51 GWh
 
 TDBNW-1
 -------------

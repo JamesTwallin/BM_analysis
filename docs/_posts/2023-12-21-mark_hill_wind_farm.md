@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Mark Hill Wind Farm_lat_lons.png)Mark Hill Wind Farm P50 Energy Yield: 100.71 GWh
+![]({{ site.baseurl }}/assets/Mark Hill Wind Farm_lat_lons.png)
+Mark Hill Wind Farm P50 Energy Yield: 100.71 GWh
 
 MKHLW-1
 -------------

@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/East Anglia ONE_lat_lons.png)East Anglia ONE P50 Energy Yield: 2666.70 GWh
+![]({{ site.baseurl }}/assets/East Anglia ONE_lat_lons.png)
+East Anglia ONE P50 Energy Yield: 2666.70 GWh
 
 EAAO-1
 -------------

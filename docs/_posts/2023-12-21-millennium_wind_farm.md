@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Millennium Wind Farm_lat_lons.png)Millennium Wind Farm P50 Energy Yield: 171.25 GWh
+![]({{ site.baseurl }}/assets/Millennium Wind Farm_lat_lons.png)
+Millennium Wind Farm P50 Energy Yield: 171.25 GWh
 
 MILWW-1
 -------------

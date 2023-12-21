@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Thanet Wind Farm_lat_lons.png)Thanet Wind Farm P50 Energy Yield: 0.00 GWh
+![]({{ site.baseurl }}/assets/Thanet Wind Farm_lat_lons.png)
+Thanet Wind Farm P50 Energy Yield: 0.00 GWh
 
 THNTO-1
 -------------

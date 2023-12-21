@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Baillie Wind Farm_lat_lons.png)Baillie Wind Farm P50 Energy Yield: 128.95 GWh
+![]({{ site.baseurl }}/assets/Baillie Wind Farm_lat_lons.png)
+Baillie Wind Farm P50 Energy Yield: 128.95 GWh
 
 BABAW-1
 -------------

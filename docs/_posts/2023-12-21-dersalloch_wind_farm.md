@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Dersalloch Wind Farm_lat_lons.png)Dersalloch Wind Farm P50 Energy Yield: 145.87 GWh
+![]({{ site.baseurl }}/assets/Dersalloch Wind Farm_lat_lons.png)
+Dersalloch Wind Farm P50 Energy Yield: 145.87 GWh
 
 DRSLW-1
 -------------

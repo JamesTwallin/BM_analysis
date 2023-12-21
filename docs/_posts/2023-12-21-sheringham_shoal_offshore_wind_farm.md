@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Sheringham Shoal Offshore Wind Farm_lat_lons.png)Sheringham Shoal Offshore Wind Farm P50 Energy Yield: 1079.78 GWh
+![]({{ site.baseurl }}/assets/Sheringham Shoal Offshore Wind Farm_lat_lons.png)
+Sheringham Shoal Offshore Wind Farm P50 Energy Yield: 1079.78 GWh
 
 SHRSO-1
 -------------

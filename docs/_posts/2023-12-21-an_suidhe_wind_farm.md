@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/An Suidhe Wind Farm_lat_lons.png)An Suidhe Wind Farm P50 Energy Yield: 47.26 GWh
+![]({{ site.baseurl }}/assets/An Suidhe Wind Farm_lat_lons.png)
+An Suidhe Wind Farm P50 Energy Yield: 47.26 GWh
 
 ANSUW-1
 -------------

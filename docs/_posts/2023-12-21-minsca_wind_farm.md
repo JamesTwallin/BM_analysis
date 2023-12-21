@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Minsca Wind Farm_lat_lons.png)Minsca Wind Farm P50 Energy Yield: 83.06 GWh
+![]({{ site.baseurl }}/assets/Minsca Wind Farm_lat_lons.png)
+Minsca Wind Farm P50 Energy Yield: 83.06 GWh
 
 MINSW-1
 -------------

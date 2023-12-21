@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Whitelee Wind Farm_lat_lons.png)Whitelee Wind Farm P50 Energy Yield: 936.11 GWh
+![]({{ site.baseurl }}/assets/Whitelee Wind Farm_lat_lons.png)
+Whitelee Wind Farm P50 Energy Yield: 936.11 GWh
 
 WHILW-1
 -------------

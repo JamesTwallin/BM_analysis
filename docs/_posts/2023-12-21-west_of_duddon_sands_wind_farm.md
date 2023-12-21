@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/West of Duddon Sands Wind Farm_lat_lons.png)West of Duddon Sands Wind Farm P50 Energy Yield: 1572.97 GWh
+![]({{ site.baseurl }}/assets/West of Duddon Sands Wind Farm_lat_lons.png)
+West of Duddon Sands Wind Farm P50 Energy Yield: 1572.97 GWh
 
 WDNSO-1
 -------------

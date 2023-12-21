@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/European Offshore Wind Deployment Centre_lat_lons.png)European Offshore Wind Deployment Centre P50 Energy Yield: 327.60 GWh
+![]({{ site.baseurl }}/assets/European Offshore Wind Deployment Centre_lat_lons.png)
+European Offshore Wind Deployment Centre P50 Energy Yield: 327.60 GWh
 
 ABRBO-1
 -------------

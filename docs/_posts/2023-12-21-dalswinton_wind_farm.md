@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Dalswinton Wind Farm_lat_lons.png)Dalswinton Wind Farm P50 Energy Yield: 57.48 GWh
+![]({{ site.baseurl }}/assets/Dalswinton Wind Farm_lat_lons.png)
+Dalswinton Wind Farm P50 Energy Yield: 57.48 GWh
 
 DALSW-1
 -------------

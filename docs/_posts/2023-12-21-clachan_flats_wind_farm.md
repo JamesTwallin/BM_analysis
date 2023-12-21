@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Clachan Flats Wind Farm_lat_lons.png)Clachan Flats Wind Farm P50 Energy Yield: 18.08 GWh
+![]({{ site.baseurl }}/assets/Clachan Flats Wind Farm_lat_lons.png)
+Clachan Flats Wind Farm P50 Energy Yield: 18.08 GWh
 
 CLFLW-1
 -------------

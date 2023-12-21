@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Mid Hill Wind Farm_lat_lons.png)Mid Hill Wind Farm P50 Energy Yield: 197.39 GWh
+![]({{ site.baseurl }}/assets/Mid Hill Wind Farm_lat_lons.png)
+Mid Hill Wind Farm P50 Energy Yield: 197.39 GWh
 
 MDHLW-1
 -------------

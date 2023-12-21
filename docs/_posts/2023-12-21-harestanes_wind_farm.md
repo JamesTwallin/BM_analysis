@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Harestanes Wind Farm_lat_lons.png)Harestanes Wind Farm P50 Energy Yield: 227.19 GWh
+![]({{ site.baseurl }}/assets/Harestanes Wind Farm_lat_lons.png)
+Harestanes Wind Farm P50 Energy Yield: 227.19 GWh
 
 HRSTW-1
 -------------

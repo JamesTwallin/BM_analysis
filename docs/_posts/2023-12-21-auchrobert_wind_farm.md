@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Auchrobert Wind Farm_lat_lons.png)Auchrobert Wind Farm P50 Energy Yield: 83.58 GWh
+![]({{ site.baseurl }}/assets/Auchrobert Wind Farm_lat_lons.png)
+Auchrobert Wind Farm P50 Energy Yield: 83.58 GWh
 
 ABRTW-1
 -------------

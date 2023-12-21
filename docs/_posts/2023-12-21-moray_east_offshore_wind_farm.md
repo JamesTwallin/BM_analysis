@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Moray East Offshore Wind Farm_lat_lons.png)Moray East Offshore Wind Farm P50 Energy Yield: 2683.21 GWh
+![]({{ site.baseurl }}/assets/Moray East Offshore Wind Farm_lat_lons.png)
+Moray East Offshore Wind Farm P50 Energy Yield: 2683.21 GWh
 
 MOWEO-1
 -------------

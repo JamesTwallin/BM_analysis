@@ -84,7 +84,7 @@ def append_html_to_md(windfarm_df):
                     with open(os.path.join(project_root_path, 'src','analysis_scripts' ,'pcey_process.md'), 'r') as pcey_file:
                         overview_text = pcey_file.read()
 
-                    overview_text = overview_text.replace('<==location_plot==>', f"![]({{ site.baseurl }}/assets/{name}_lat_lons.png)")
+                    overview_text = overview_text.replace('<==location_plot==>',"""![]({{ site.baseurl }}""" + f"/assets/{name}_lat_lons.png)\n")
 
                     text += overview_text
                     # remove the first line

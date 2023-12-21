@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Beinn Tharsuinn Wind Farm_lat_lons.png)Beinn Tharsuinn Wind Farm P50 Energy Yield: 57.93 GWh
+![]({{ site.baseurl }}/assets/Beinn Tharsuinn Wind Farm_lat_lons.png)
+Beinn Tharsuinn Wind Farm P50 Energy Yield: 57.93 GWh
 
 BETHW-1
 -------------

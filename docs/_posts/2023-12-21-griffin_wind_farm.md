@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Griffin Wind Farm_lat_lons.png)Griffin Wind Farm P50 Energy Yield: 317.84 GWh
+![]({{ site.baseurl }}/assets/Griffin Wind Farm_lat_lons.png)
+Griffin Wind Farm P50 Energy Yield: 317.84 GWh
 
 GRIFW-1
 -------------

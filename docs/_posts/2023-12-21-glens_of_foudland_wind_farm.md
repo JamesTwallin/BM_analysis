@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Glens of Foudland Wind Farm_lat_lons.png)Glens of Foudland Wind Farm P50 Energy Yield: 54.97 GWh
+![]({{ site.baseurl }}/assets/Glens of Foudland Wind Farm_lat_lons.png)
+Glens of Foudland Wind Farm P50 Energy Yield: 54.97 GWh
 
 GLOFW-1
 -------------

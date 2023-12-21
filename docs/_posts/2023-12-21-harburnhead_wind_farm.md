@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Harburnhead Wind Farm_lat_lons.png)Harburnhead Wind Farm P50 Energy Yield: 125.63 GWh
+![]({{ site.baseurl }}/assets/Harburnhead Wind Farm_lat_lons.png)
+Harburnhead Wind Farm P50 Energy Yield: 125.63 GWh
 
 HBHDW-1
 -------------

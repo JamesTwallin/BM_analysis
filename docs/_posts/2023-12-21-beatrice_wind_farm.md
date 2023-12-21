@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Beatrice Wind Farm_lat_lons.png)Beatrice Wind Farm P50 Energy Yield: 2258.74 GWh
+![]({{ site.baseurl }}/assets/Beatrice Wind Farm_lat_lons.png)
+Beatrice Wind Farm P50 Energy Yield: 2258.74 GWh
 
 BEATO-1
 -------------

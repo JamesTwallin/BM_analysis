@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Barrow Offshore Wind Farm_lat_lons.png)Barrow Offshore Wind Farm P50 Energy Yield: 274.32 GWh
+![]({{ site.baseurl }}/assets/Barrow Offshore Wind Farm_lat_lons.png)
+Barrow Offshore Wind Farm P50 Energy Yield: 274.32 GWh
 
 BOWLW-1
 -------------

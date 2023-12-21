@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/A’Chruach Wind Farm_lat_lons.png)A’Chruach Wind Farm P50 Energy Yield: 105.45 GWh
+![]({{ site.baseurl }}/assets/A’Chruach Wind Farm_lat_lons.png)
+A’Chruach Wind Farm P50 Energy Yield: 105.45 GWh
 
 ACHRW-1
 -------------

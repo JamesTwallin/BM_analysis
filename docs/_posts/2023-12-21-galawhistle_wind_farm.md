@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Galawhistle Wind Farm_lat_lons.png)Galawhistle Wind Farm P50 Energy Yield: 137.40 GWh
+![]({{ site.baseurl }}/assets/Galawhistle Wind Farm_lat_lons.png)
+Galawhistle Wind Farm P50 Energy Yield: 137.40 GWh
 
 GLWSW-1
 -------------

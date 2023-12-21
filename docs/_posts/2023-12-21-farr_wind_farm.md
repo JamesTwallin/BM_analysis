@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Farr Wind Farm_lat_lons.png)Farr Wind Farm P50 Energy Yield: 216.08 GWh
+![]({{ site.baseurl }}/assets/Farr Wind Farm_lat_lons.png)
+Farr Wind Farm P50 Energy Yield: 216.08 GWh
 
 FAARW-1
 -------------

@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Ewe Hill Wind Farm_lat_lons.png)Ewe Hill Wind Farm P50 Energy Yield: 85.38 GWh
+![]({{ site.baseurl }}/assets/Ewe Hill Wind Farm_lat_lons.png)
+Ewe Hill Wind Farm P50 Energy Yield: 85.38 GWh
 
 EWHLW-1
 -------------

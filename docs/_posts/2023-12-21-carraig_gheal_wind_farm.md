@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Carraig Gheal Wind Farm_lat_lons.png)Carraig Gheal Wind Farm P50 Energy Yield: 129.18 GWh
+![]({{ site.baseurl }}/assets/Carraig Gheal Wind Farm_lat_lons.png)
+Carraig Gheal Wind Farm P50 Energy Yield: 129.18 GWh
 
 CRGHW-1
 -------------

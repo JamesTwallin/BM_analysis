@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Triton Knoll Wind Farm_lat_lons.png)Triton Knoll Wind Farm P50 Energy Yield: 1243.68 GWh
+![]({{ site.baseurl }}/assets/Triton Knoll Wind Farm_lat_lons.png)
+Triton Knoll Wind Farm P50 Energy Yield: 1243.68 GWh
 
 TKNEW-1
 -------------

@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Tullymurdoch Wind Farm_lat_lons.png)Tullymurdoch Wind Farm P50 Energy Yield: 27.80 GWh
+![]({{ site.baseurl }}/assets/Tullymurdoch Wind Farm_lat_lons.png)
+Tullymurdoch Wind Farm P50 Energy Yield: 27.80 GWh
 
 TLYMW-1
 -------------

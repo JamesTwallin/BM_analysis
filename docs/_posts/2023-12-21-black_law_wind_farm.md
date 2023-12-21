@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Black Law Wind Farm_lat_lons.png)Black Law Wind Farm P50 Energy Yield: 302.32 GWh
+![]({{ site.baseurl }}/assets/Black Law Wind Farm_lat_lons.png)
+Black Law Wind Farm P50 Energy Yield: 302.32 GWh
 
 BLLA-1
 -------------

@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Hill of Glaschyle Wind Farm_lat_lons.png)Hill of Glaschyle Wind Farm P50 Energy Yield: 48.58 GWh
+![]({{ site.baseurl }}/assets/Hill of Glaschyle Wind Farm_lat_lons.png)
+Hill of Glaschyle Wind Farm P50 Energy Yield: 48.58 GWh
 
 HLGLW-1
 -------------

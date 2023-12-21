@@ -9,7 +9,8 @@ layout: post
 
 ### Data
 
-![]({ site.baseurl }/assets/Lincs Wind Farm_lat_lons.png)Lincs Wind Farm P50 Energy Yield: 1007.19 GWh
+![]({{ site.baseurl }}/assets/Lincs Wind Farm_lat_lons.png)
+Lincs Wind Farm P50 Energy Yield: 1007.19 GWh
 
 LNCSO-1
 -------------
