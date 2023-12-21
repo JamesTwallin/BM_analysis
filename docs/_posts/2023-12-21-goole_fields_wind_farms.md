@@ -5,11 +5,7 @@ date: 2023-12-21
 category: windfarm
 layout: post
 ---
-# Overview
-
-### Data
-
-![]({{ site.baseurl }}/assets/goole_fields_wind_farms_lat_lons.png)
+![]({{ site.baseurl }}/assets/goole_fields_wind_farms_lat_lons)
 Goole Fields Wind Farms P50 Energy Yield: 78.94 GWh
 
 GFLDW-1

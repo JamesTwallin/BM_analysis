@@ -5,11 +5,7 @@ date: 2023-12-21
 category: windfarm
 layout: post
 ---
-# Overview
-
-### Data
-
-![]({{ site.baseurl }}/assets/barrow_offshore_wind_farm_lat_lons.png)
+![]({{ site.baseurl }}/assets/barrow_offshore_wind_farm_lat_lons)
 Barrow Offshore Wind Farm P50 Energy Yield: 274.32 GWh
 
 BOWLW-1

@@ -5,11 +5,7 @@ date: 2023-12-21
 category: windfarm
 layout: post
 ---
-# Overview
-
-### Data
-
-![]({{ site.baseurl }}/assets/berry_burn_wind_farm_lat_lons.png)
+![]({{ site.baseurl }}/assets/berry_burn_wind_farm_lat_lons)
 Berry Burn Wind Farm P50 Energy Yield: 160.70 GWh
 
 BRYBW-1

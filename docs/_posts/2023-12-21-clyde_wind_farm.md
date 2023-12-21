@@ -5,11 +5,7 @@ date: 2023-12-21
 category: windfarm
 layout: post
 ---
-# Overview
-
-### Data
-
-![]({{ site.baseurl }}/assets/clyde_wind_farm_lat_lons.png)
+![]({{ site.baseurl }}/assets/clyde_wind_farm_lat_lons)
 Clyde Wind Farm P50 Energy Yield: 1335.25 GWh
 
 CLDCW-1
