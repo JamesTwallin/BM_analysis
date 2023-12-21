@@ -5,6 +5,11 @@ date: 2023-12-21
 category: windfarm
 layout: post
 ---
+# Overview
+
+### Data
+
+![]({{ site.baseurl }}/assets/galawhistle_wind_farm_lat_lons.png)
 Galawhistle Wind Farm P50 Energy Yield: 137.40 GWh
 
 GLWSW-1

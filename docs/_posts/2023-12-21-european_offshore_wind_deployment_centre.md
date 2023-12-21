@@ -5,6 +5,11 @@ date: 2023-12-21
 category: windfarm
 layout: post
 ---
+# Overview
+
+### Data
+
+![]({{ site.baseurl }}/assets/european_offshore_wind_deployment_centre_lat_lons.png)
 European Offshore Wind Deployment Centre P50 Energy Yield: 327.60 GWh
 
 ABRBO-1

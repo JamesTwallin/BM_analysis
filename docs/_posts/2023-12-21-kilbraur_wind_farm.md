@@ -5,6 +5,11 @@ date: 2023-12-21
 category: windfarm
 layout: post
 ---
+# Overview
+
+### Data
+
+![]({{ site.baseurl }}/assets/kilbraur_wind_farm_lat_lons.png)
 Kilbraur Wind Farm P50 Energy Yield: 180.74 GWh
 
 KILBW-1

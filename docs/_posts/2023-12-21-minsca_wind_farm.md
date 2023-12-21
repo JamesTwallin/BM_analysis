@@ -5,6 +5,11 @@ date: 2023-12-21
 category: windfarm
 layout: post
 ---
+# Overview
+
+### Data
+
+![]({{ site.baseurl }}/assets/minsca_wind_farm_lat_lons.png)
 Minsca Wind Farm P50 Energy Yield: 83.06 GWh
 
 MINSW-1

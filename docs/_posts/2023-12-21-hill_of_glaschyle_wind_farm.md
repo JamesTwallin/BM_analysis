@@ -5,6 +5,11 @@ date: 2023-12-21
 category: windfarm
 layout: post
 ---
+# Overview
+
+### Data
+
+![]({{ site.baseurl }}/assets/hill_of_glaschyle_wind_farm_lat_lons.png)
 Hill of Glaschyle Wind Farm P50 Energy Yield: 48.58 GWh
 
 HLGLW-1

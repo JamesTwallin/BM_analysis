@@ -280,7 +280,7 @@ def plot_lat_lons(name,wf_locations, weather_nodes):
         if not os.path.exists(plot_folder):
             os.mkdir(plot_folder)
 
-        filename = f'{name}_lat_lons'
+        filename = f'{name.lower()}_lat_lons'.replace(' ', '_')
         plot_path = os.path.join(plot_folder, filename)
         # Create the plot
         fig = plt.figure(figsize=(7, 5))
