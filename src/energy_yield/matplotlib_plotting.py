@@ -68,7 +68,7 @@ def _get_ax(ax, plot_df, pcey_obj, start, end, y_lims=None):
 def plot_generation(pcey_obj):
     try:
         # Make a folder for the plots
-        plot_folder = os.path.join(project_root_path, 'plots')
+        plot_folder = os.path.join(project_root_path, 'docs', 'assets')
         if not os.path.exists(plot_folder):
             os.mkdir(plot_folder)
 
@@ -128,7 +128,7 @@ def plot_generation(pcey_obj):
 def plot_scatter(pcey_obj):
     try:
         # Make a folder for the plots
-        plot_folder = os.path.join(project_root_path, 'plots')
+        plot_folder = os.path.join(project_root_path, 'docs', 'assets')
         if not os.path.exists(plot_folder):
             os.mkdir(plot_folder)
 
@@ -181,7 +181,7 @@ def plot_p50(pcey_obj):
     
     try:
         # Make a folder for the plots
-        plot_folder = os.path.join(project_root_path, 'plots')
+        plot_folder = os.path.join(project_root_path, 'docs', 'assets')
         if not os.path.exists(plot_folder):
             os.mkdir(plot_folder)
         
@@ -227,7 +227,7 @@ def plot_p50(pcey_obj):
 def plot_unseen_df(pcey_obj):
     try:
         # Make a folder for the plots
-        plot_folder = os.path.join(project_root_path, 'plots')
+        plot_folder = os.path.join(project_root_path, 'docs', 'assets')
         if not os.path.exists(plot_folder):
             os.mkdir(plot_folder)
 
@@ -276,7 +276,7 @@ def plot_unseen_df(pcey_obj):
 def plot_lat_lons(name,wf_locations, weather_nodes):
     try:
         # Make a folder for the plots
-        plot_folder = os.path.join(project_root_path, 'plots')
+        plot_folder = os.path.join(project_root_path, 'docs', 'assets')
         if not os.path.exists(plot_folder):
             os.mkdir(plot_folder)
 
@@ -318,7 +318,7 @@ def plot_lat_lons(name,wf_locations, weather_nodes):
             plt.annotate(f"Wind Farm: {lat:.2f}, {lon:.2f}", 
                         xy=(x, y), 
                         xytext=(x + wf_text_offset_x, y), 
-                        fontsize=8, 
+                        fontsize=10, 
                         color='black')
 
         for weather_node in weather_nodes:
@@ -329,7 +329,7 @@ def plot_lat_lons(name,wf_locations, weather_nodes):
             plt.annotate(f"ERA5: {lat:.2f}, {lon:.2f}", 
                         xy=(x, y), 
                         xytext=(x - era5_text_offset_x, y), 
-                        fontsize=8, 
+                        fontsize=10, 
                         color='blue')
 
         
@@ -348,4 +348,7 @@ def plot_lat_lons(name,wf_locations, weather_nodes):
         # Error handling
         line_number = sys.exc_info()[-1].tb_lineno
         print(f"plot_lat_lons(), error: {e}, line: {line_number}")
+
+    finally:
+        plt.close(fig)
         

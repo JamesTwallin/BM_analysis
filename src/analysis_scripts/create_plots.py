@@ -62,7 +62,7 @@ def append_html_to_md(windfarm_df):
                     energy_yield = pcey_rows['p50_energy_yield'].sum()
                     wf_tuple = get_lat_lons(pcey_rows)
                     era5_tuple = get_era5_lat_lons(pcey_rows)
-                    # matplotlib_plotting.plot_lat_lons(name, wf_tuple, era5_tuple)
+                    matplotlib_plotting.plot_lat_lons(name, wf_tuple, era5_tuple)
                     # print(f"BMU {name} has {len(lats)} lat/lon pairs")
 
 
