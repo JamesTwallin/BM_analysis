@@ -135,6 +135,8 @@ if __name__ == "__main__":
 				pcey_dict['capacity'] = wf_pcey.capacity
 				pcey_dict['name'] = wf_pcey.name
 				pcey_dict['gen_type'] = wf_pcey.gen_type
+				pcey_dict['era5_lat'] = nearest_lat
+				pcey_dict['era5_lon'] = nearest_lon
 
 				rows.append(pcey_dict)
 

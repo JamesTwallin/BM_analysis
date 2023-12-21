@@ -6,8 +6,8 @@ import numpy as np
 # mdates
 import matplotlib.dates as mdates
 
-# deep copy
-import copy
+# Basemap
+from mpl_toolkits.basemap import Basemap
 
 
 
@@ -132,7 +132,7 @@ def plot_scatter(pcey_obj):
         if not os.path.exists(plot_folder):
             os.mkdir(plot_folder)
 
-        filename = f'1_{pcey_obj.bmu}_scatter'
+        filename = f'3_{pcey_obj.bmu}_scatter'
         plot_path = os.path.join(plot_folder, filename)
         plot_df = pcey_obj.month_df.copy()
         filt = plot_df[pcey_obj.COL_DAILY_IDEAL_YIELD + '_ok'] > 0
@@ -185,7 +185,7 @@ def plot_p50(pcey_obj):
         if not os.path.exists(plot_folder):
             os.mkdir(plot_folder)
         
-        filename = f'3_{pcey_obj.bmu}_p50'
+        filename = f'4_{pcey_obj.bmu}_p50'
         plot_path = os.path.join(plot_folder, filename)
         
         # Creating the plot
@@ -231,7 +231,7 @@ def plot_unseen_df(pcey_obj):
         if not os.path.exists(plot_folder):
             os.mkdir(plot_folder)
 
-        filename = f'4_{pcey_obj.bmu}_unseen'
+        filename = f'1_{pcey_obj.bmu}_unseen'
         plot_path = os.path.join(plot_folder, filename)
         plot_df = pcey_obj.unseen_df.copy()
         # Create the plot
@@ -272,3 +272,80 @@ def plot_unseen_df(pcey_obj):
         line_number = sys.exc_info()[-1].tb_lineno
         print(f"plot_unseen_df(), error: {e}, line: {line_number}")
 
+
+def plot_lat_lons(name,wf_locations, weather_nodes):
+    try:
+        # Make a folder for the plots
+        plot_folder = os.path.join(project_root_path, 'plots')
+        if not os.path.exists(plot_folder):
+            os.mkdir(plot_folder)
+
+        filename = f'{name}_lat_lons'
+        plot_path = os.path.join(plot_folder, filename)
+        # Create the plot
+        fig = plt.figure(figsize=(7, 5))
+        ax = fig.add_subplot(111)
+        # get the average lat and lon
+        centre_lat, centre_lon = np.mean(wf_locations, axis=0)
+        m = Basemap(projection='lcc', lat_0=centre_lat, lon_0=centre_lon,
+                    resolution='i', llcrnrlat=centre_lat - .5, urcrnrlat=centre_lat + .5,
+                    llcrnrlon=centre_lon - 1.5, urcrnrlon=centre_lon + 1.5, ax=ax)
+        
+                    
+        m.drawcoastlines()
+        m.drawcountries()
+        m.fillcontinents(color='lightgrey')
+        # needs a scale
+        scale_lat = centre_lat - 0.4  # Adjust as needed
+        scale_lon = centre_lon - .95 # Adjust as needed
+        scale_length = 50             # Length of the scale bar in kilometers
+
+        # Draw the scale bar
+        m.drawmapscale(scale_lon, scale_lat, scale_lon, scale_lat, scale_length, barstyle='fancy')
+
+
+
+        # Offset values in data coordinates
+        era5_text_offset_x = 30000
+        wf_text_offset_x = 5000
+          # Adjust these values as needed
+
+        for wf_location in wf_locations:
+            lat, lon = wf_location
+            x, y = m(lon, lat)
+            m.plot(x, y, marker= 'x', markersize=10, color='black')
+            # annotate the point with offset
+            plt.annotate(f"Wind Farm: {lat:.2f}, {lon:.2f}", 
+                        xy=(x, y), 
+                        xytext=(x + wf_text_offset_x, y), 
+                        fontsize=8, 
+                        color='black')
+
+        for weather_node in weather_nodes:
+            lat, lon = weather_node
+            x, y = m(lon, lat)
+            m.plot(x, y, 'x', markersize=10, color='blue')
+            # annotate the point with offset
+            plt.annotate(f"ERA5: {lat:.2f}, {lon:.2f}", 
+                        xy=(x, y), 
+                        xytext=(x - era5_text_offset_x, y), 
+                        fontsize=8, 
+                        color='blue')
+
+        
+
+
+        # add a legend
+        fig.suptitle(f'{name}', fontsize=16)
+        ax.set_title('Wind Farm Location and the ERA5 node used for modelling', fontsize=10)
+        plt.tight_layout()
+
+        # save the plot
+        fig.savefig(f'{plot_path}.png')
+        plt.close(fig)
+
+    except Exception as e:
+        # Error handling
+        line_number = sys.exc_info()[-1].tb_lineno
+        print(f"plot_lat_lons(), error: {e}, line: {line_number}")
+        
