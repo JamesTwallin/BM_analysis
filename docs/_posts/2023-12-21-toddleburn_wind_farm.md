@@ -5,7 +5,7 @@ date: 2023-12-21
 category: windfarm
 layout: post
 ---
-![]({{ site.baseurl }}/assets/toddleburn_wind_farm_lat_lons)
+![]({{ site.baseurl }}/assets/toddleburn_wind_farm_lat_lons.png)
 Toddleburn Wind Farm P50 Energy Yield: 70.51 GWh
 
 TDBNW-1

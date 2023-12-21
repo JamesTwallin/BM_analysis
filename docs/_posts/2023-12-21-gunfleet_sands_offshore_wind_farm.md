@@ -5,7 +5,7 @@ date: 2023-12-21
 category: windfarm
 layout: post
 ---
-![]({{ site.baseurl }}/assets/gunfleet_sands_offshore_wind_farm_lat_lons)
+![]({{ site.baseurl }}/assets/gunfleet_sands_offshore_wind_farm_lat_lons.png)
 Gunfleet Sands Offshore Wind Farm P50 Energy Yield: 538.19 GWh
 
 GNFSW-1

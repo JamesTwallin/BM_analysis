@@ -82,7 +82,7 @@ def append_html_to_md(windfarm_df):
 
 
                     filename = f'{name.lower()}_lat_lons'.replace(' ', '_')
-                    text += ("""![]({{ site.baseurl }}""" + f"/assets/{filename})\n")    
+                    text += ("""![]({{ site.baseurl }}""" + f"/assets/{filename}.png)\n")    
 
     
                     # remove the first line

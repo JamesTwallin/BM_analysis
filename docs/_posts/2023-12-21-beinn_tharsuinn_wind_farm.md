@@ -5,7 +5,7 @@ date: 2023-12-21
 category: windfarm
 layout: post
 ---
-![]({{ site.baseurl }}/assets/beinn_tharsuinn_wind_farm_lat_lons)
+![]({{ site.baseurl }}/assets/beinn_tharsuinn_wind_farm_lat_lons.png)
 Beinn Tharsuinn Wind Farm P50 Energy Yield: 57.93 GWh
 
 BETHW-1

@@ -5,7 +5,7 @@ date: 2023-12-21
 category: windfarm
 layout: post
 ---
-![]({{ site.baseurl }}/assets/carraig_gheal_wind_farm_lat_lons)
+![]({{ site.baseurl }}/assets/carraig_gheal_wind_farm_lat_lons.png)
 Carraig Gheal Wind Farm P50 Energy Yield: 129.18 GWh
 
 CRGHW-1

@@ -5,7 +5,7 @@ date: 2023-12-21
 category: windfarm
 layout: post
 ---
-![]({{ site.baseurl }}/assets/greater_gabbard_wind_farm_lat_lons)
+![]({{ site.baseurl }}/assets/greater_gabbard_wind_farm_lat_lons.png)
 Greater Gabbard wind farm P50 Energy Yield: 1733.28 GWh
 
 GRGBW-1
