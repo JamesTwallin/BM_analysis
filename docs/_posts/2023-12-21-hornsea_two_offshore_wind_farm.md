@@ -5,11 +5,6 @@ date: 2023-12-21
 category: windfarm
 layout: post
 ---
-# Overview
-
-### Data
-
-![]({{ site.baseurl }}/assets/Hornsea Two Offshore Wind Farm_lat_lons.png)
 Hornsea Two Offshore Wind Farm P50 Energy Yield: 4933.83 GWh
 
 HOWBO-1

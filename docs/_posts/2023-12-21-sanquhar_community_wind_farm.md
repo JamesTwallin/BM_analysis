@@ -5,11 +5,6 @@ date: 2023-12-21
 category: windfarm
 layout: post
 ---
-# Overview
-
-### Data
-
-![]({{ site.baseurl }}/assets/Sanquhar Community Wind Farm_lat_lons.png)
 Sanquhar Community Wind Farm P50 Energy Yield: 117.44 GWh
 
 SANQW-1

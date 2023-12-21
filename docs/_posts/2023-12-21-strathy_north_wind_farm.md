@@ -5,11 +5,6 @@ date: 2023-12-21
 category: windfarm
 layout: post
 ---
-# Overview
-
-### Data
-
-![]({{ site.baseurl }}/assets/Strathy North Wind Farm_lat_lons.png)
 Strathy North Wind Farm P50 Energy Yield: 122.61 GWh
 
 STRNW-1

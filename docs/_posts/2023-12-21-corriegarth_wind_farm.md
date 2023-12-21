@@ -5,11 +5,6 @@ date: 2023-12-21
 category: windfarm
 layout: post
 ---
-# Overview
-
-### Data
-
-![]({{ site.baseurl }}/assets/Corriegarth Wind Farm_lat_lons.png)
 Corriegarth Wind Farm P50 Energy Yield: 148.82 GWh
 
 CGTHW-1

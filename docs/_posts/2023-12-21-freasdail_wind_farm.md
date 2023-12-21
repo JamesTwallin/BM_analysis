@@ -5,11 +5,6 @@ date: 2023-12-21
 category: windfarm
 layout: post
 ---
-# Overview
-
-### Data
-
-![]({{ site.baseurl }}/assets/Freasdail Wind Farm_lat_lons.png)
 Freasdail Wind Farm P50 Energy Yield: 69.69 GWh
 
 FSDLW-1

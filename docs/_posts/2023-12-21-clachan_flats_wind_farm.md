@@ -5,11 +5,6 @@ date: 2023-12-21
 category: windfarm
 layout: post
 ---
-# Overview
-
-### Data
-
-![]({{ site.baseurl }}/assets/Clachan Flats Wind Farm_lat_lons.png)
 Clachan Flats Wind Farm P50 Energy Yield: 18.08 GWh
 
 CLFLW-1

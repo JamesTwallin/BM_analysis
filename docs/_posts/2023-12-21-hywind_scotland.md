@@ -5,11 +5,6 @@ date: 2023-12-21
 category: windfarm
 layout: post
 ---
-# Overview
-
-### Data
-
-![]({{ site.baseurl }}/assets/Hywind Scotland_lat_lons.png)
 Hywind Scotland P50 Energy Yield: 142.73 GWh
 
 HYWDW-1

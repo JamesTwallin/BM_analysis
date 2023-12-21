@@ -81,12 +81,12 @@ def append_html_to_md(windfarm_df):
                     text = textwrap.dedent(text)
 
                     # imclude the markdown in pcey_process.md
-                    with open(os.path.join(project_root_path, 'src','analysis_scripts' ,'pcey_process.md'), 'r') as pcey_file:
-                        overview_text = pcey_file.read()
+                    # with open(os.path.join(project_root_path, 'src','analysis_scripts' ,'pcey_process.md'), 'r') as pcey_file:
+                    #     overview_text = pcey_file.read()
 
-                    overview_text = overview_text.replace('<==location_plot==>',"""![]({{ site.baseurl }}""" + f"/assets/{name}_lat_lons.png)\n")
+                    # overview_text = overview_text.replace('<==location_plot==>',"""![]({{ site.baseurl }}""" + f"/assets/{name}_lat_lons.png)\n")
 
-                    text += overview_text
+                    # text += overview_text
                     # remove the first line
                     text = text.split('\n', 1)[1]
                     text += f"""{name} P50 Energy Yield: {energy_yield:.2f} GWh\n\n"""

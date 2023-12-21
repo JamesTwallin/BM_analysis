@@ -5,11 +5,6 @@ date: 2023-12-21
 category: windfarm
 layout: post
 ---
-# Overview
-
-### Data
-
-![]({{ site.baseurl }}/assets/Middle Muir Wind Farm_lat_lons.png)
 Middle Muir Wind Farm P50 Energy Yield: 105.63 GWh
 
 MIDMW-1

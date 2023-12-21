@@ -5,11 +5,6 @@ date: 2023-12-21
 category: windfarm
 layout: post
 ---
-# Overview
-
-### Data
-
-![]({{ site.baseurl }}/assets/Westermost Rough Wind Farm_lat_lons.png)
 Westermost Rough Wind Farm P50 Energy Yield: 887.55 GWh
 
 WTMSO-1

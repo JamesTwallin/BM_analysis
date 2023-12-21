@@ -5,11 +5,6 @@ date: 2023-12-21
 category: windfarm
 layout: post
 ---
-# Overview
-
-### Data
-
-![]({{ site.baseurl }}/assets/Clashindarroch Wind Farm_lat_lons.png)
 Clashindarroch Wind Farm P50 Energy Yield: 85.51 GWh
 
 CLDRW-1

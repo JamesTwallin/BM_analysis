@@ -5,11 +5,6 @@ date: 2023-12-21
 category: windfarm
 layout: post
 ---
-# Overview
-
-### Data
-
-![]({{ site.baseurl }}/assets/Glens of Foudland Wind Farm_lat_lons.png)
 Glens of Foudland Wind Farm P50 Energy Yield: 54.97 GWh
 
 GLOFW-1

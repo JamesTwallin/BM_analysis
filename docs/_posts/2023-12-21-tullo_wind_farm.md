@@ -5,11 +5,6 @@ date: 2023-12-21
 category: windfarm
 layout: post
 ---
-# Overview
-
-### Data
-
-![]({{ site.baseurl }}/assets/Tullo Wind Farm_lat_lons.png)
 Tullo Wind Farm P50 Energy Yield: 89.20 GWh
 
 TULWW-1

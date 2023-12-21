@@ -5,11 +5,6 @@ date: 2023-12-21
 category: windfarm
 layout: post
 ---
-# Overview
-
-### Data
-
-![]({{ site.baseurl }}/assets/Fallago Rig Wind Farm_lat_lons.png)
 Fallago Rig Wind Farm P50 Energy Yield: 372.48 GWh
 
 FALGW-1
