@@ -34,14 +34,15 @@ Then this means that we can just use historic data to predict what the wind farm
 
 This results in something which looks like this:
 
-![]({{ site.baseurl }}/assets/4_BEATO-1_unseen.png)
+![]({{ site.baseurl }}/assets/1_SHRSO-1_unseen.png)
 
 ### Method
 
 1. Get the weather data and wind farm data
-2. Train an ML model to understand how weather data influences wind farm output
-3. Use the ML model to make predictions for generation going back many years (to 1990), by making predictions using ERA5 reanalysis datasets*
-4. Use both the actual and predicted generation data to understand what a typical year's energy production is for each wind farm
+2. Use the B1610 data to get the actual generation for each wind farm, add the curtailment data back into the generation data to get the corrected generation data
+3. Train an ML model to understand how weather data influences wind farm output
+4. Use the ML model to make predictions for generation going back many years (to 1990), by making predictions using ERA5 reanalysis datasets*
+5. Use both the actual and predicted generation data to understand what a typical year's energy production is for each wind farm
 
 *in order to get a full picture, we need to consider that we're talking about a typical year (i.e. not only for the years we have data for). In order to do this, we use ERA5 reanalysis data to create a hindcast.
 

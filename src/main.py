@@ -78,7 +78,7 @@ if __name__ == "__main__":
 	filt = windfarm_details['capacity'] > 1
 	windfarm_details = windfarm_details[filt]
 	weather_df = weather.fetch_all_weather_data()
-	curtailment_df = bmrs_obj.get_all_accepted_volumes_data(id='BAV')
+	curtailment_df = bmrs_obj.get_all_accepted_volumes_data(id='BAV', update=True)
 	common_data_obj = {}
 	common_data_obj['weather_df'] = weather_df
 	common_data_obj['curtailment_df'] = curtailment_df
@@ -99,7 +99,7 @@ if __name__ == "__main__":
 			try:
 				nearest_lat, nearest_lon = helpers.get_nearest_lat_lon(lat, lon)
 				weather_df = helpers.get_nearest_weather_data(common_data_obj['weather_df'], nearest_lat, nearest_lon)
-				bmu_obj = BMU(bmu)
+				bmu_obj = BMU(bmu, update=True)
 				gen_df = bmu_obj.get_all_gen_data()
 				bav_df = bmrs_obj.get_bav_data_for_bmu(bmu)
 				ws_df = calculate_wind_speed_and_direction(weather_df)

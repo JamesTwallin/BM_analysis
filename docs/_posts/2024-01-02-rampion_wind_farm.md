@@ -1,0 +1,41 @@
+---
+title: Rampion Wind Farm
+author: James Twallin
+date: 2024-01-02
+category: windfarm
+layout: post
+---
+![]({{ site.baseurl }}/assets/rampion_wind_farm_lat_lons.png)
+
+Rampion Wind Farm P50 Energy Yield: 0.00 GWh
+
+RMPNO-1
+-------------
+### Unseen Data 
+scatter plot of wind speed vs power output for unseen data
+![]({{ site.baseurl }}/assets/1_RMPNO-1_unseen.png)
+### Hindcast 
+plot of predicted vs actual energy yield
+![]({{ site.baseurl }}/assets/2_RMPNO-1_pcey.png)
+### Scatter of Average Daily Generation 
+
+![]({{ site.baseurl }}/assets/3_RMPNO-1_scatter.png)
+### Expected Annual Yield 
+This is the typical output for the windfarm, using the hindcast data and the actual data to create a profile for the typical year. This is the P50 energy yield, which is the expected annual energy yield with a 50% probability of being exceeded
+![]({{ site.baseurl }}/assets/4_RMPNO-1_p50.png)
+
+RMPNO-2
+-------------
+### Unseen Data 
+scatter plot of wind speed vs power output for unseen data
+![]({{ site.baseurl }}/assets/1_RMPNO-2_unseen.png)
+### Hindcast 
+plot of predicted vs actual energy yield
+![]({{ site.baseurl }}/assets/2_RMPNO-2_pcey.png)
+### Scatter of Average Daily Generation 
+
+![]({{ site.baseurl }}/assets/3_RMPNO-2_scatter.png)
+### Expected Annual Yield 
+This is the typical output for the windfarm, using the hindcast data and the actual data to create a profile for the typical year. This is the P50 energy yield, which is the expected annual energy yield with a 50% probability of being exceeded
+![]({{ site.baseurl }}/assets/4_RMPNO-2_p50.png)
+

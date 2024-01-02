@@ -404,7 +404,7 @@ class BMU:
             if self.update:
                 self._update_gen_data(start_date, end_date, redo)
 
-            gen_data_file = os.path.join(self.preprocessed_folder_path, f'{self.bmu_id}_generation_data.parquet')
+            gen_data_file = os.path.join(self.preprocessed_folder_path, f'{self.bmu_id}_generation_data.parquet') 
             os.makedirs(self.preprocessed_folder_path, exist_ok=True)
             if os.path.exists(gen_data_file):
                 all_data = pd.read_parquet(gen_data_file)
@@ -478,16 +478,16 @@ class BMU:
 
 if __name__ == "__main__":
 
-    bmus = helpers.get_list_of_bmu_ids_from_custom_windfarm_csv()
-    for bmu in bmus:
-        try:
-            bmu_obj = BMU(bmu, update=True)
-            bmu_obj.get_all_gen_data()
-        except Exception as e:
-            print(f"Error processing {bmu}: {e}")
-        finally:
-            bmu_obj.plot_data_coverage()
+    # bmus = helpers.get_list_of_bmu_ids_from_custom_windfarm_csv()
+    # for bmu in bmus:
+    #     try:
+    #         bmu_obj = BMU(bmu, update=True)
+    #         bmu_obj.get_all_gen_data()
+    #     except Exception as e:
+    #         print(f"Error processing {bmu}: {e}")
+    #     finally:
+    #         bmu_obj.plot_data_coverage()
 
 
-#     # bmrs_obj = BMRS()
-#     # bm_data = bmrs_obj.get_all_accepted_volumes_data('BAV', update=True)
+    bmrs_obj = BMRS()
+    bm_data = bmrs_obj.get_all_accepted_volumes_data('BAV', update=True)

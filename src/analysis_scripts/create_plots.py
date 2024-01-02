@@ -13,7 +13,7 @@ print(project_root_path)
 description_dict = {'scatter': """### Scatter of Average Daily Generation \n""", 
                     'unseen': """### Unseen Data \nscatter plot of wind speed vs power output for unseen data""",
                     'pcey': """### Hindcast \nplot of predicted vs actual energy yield""",
-                    'p50': """### Expected Annual Yield \nplot of predicted vs actual energy yield for unseen data"""}
+                    'p50': """### Expected Annual Yield \nThis is the typical output for the windfarm, using the hindcast data and the actual data to create a profile for the typical year. This is the P50 energy yield, which is the expected annual energy yield with a 50% probability of being exceeded"""}
 
 def enforce_list(_string_list):
     try:
@@ -82,7 +82,7 @@ def append_html_to_md(windfarm_df):
 
 
                     filename = f'{name.lower()}_lat_lons'.replace(' ', '_')
-                    text += ("""![]({{ site.baseurl }}""" + f"/assets/{filename}.png)\n")    
+                    text += ("""![]({{ site.baseurl }}""" + f"/assets/{filename}.png)\n\n")    
 
     
                     # remove the first line
