@@ -160,6 +160,8 @@ class BMRS:
     def _read_and_concatenate_dataframes(self, dates, id):
         try:
             file_paths = [os.path.join(self.folder_path, f"{date}_{id}.parquet") for date in dates]
+            # assert that all files exist
+            file_paths = [file_path for file_path in file_paths if os.path.exists(file_path)]
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 dataframes = list(executor.map(pd.read_parquet, file_paths))
             return pd.concat(dataframes, ignore_index=True)
@@ -488,6 +490,6 @@ if __name__ == "__main__":
     #     finally:
     #         bmu_obj.plot_data_coverage()
 
-
+ 
     bmrs_obj = BMRS()
     bm_data = bmrs_obj.get_all_accepted_volumes_data('BAV', update=True)
