@@ -48,9 +48,9 @@ def append_html_to_md(windfarm_df):
     # your code to write data
 
         for index, row in windfarm_df.iterrows():
-            date_string = dt.datetime.now().strftime("%Y-%m-%d")
+            date_string = dt.datetime.now().strftime("%Y-%m-01")
             name = row['name']
-            md_file_path = os.path.join(project_root_path, 'docs', '_posts', f"{date_string}-{name.lower().replace(' ', '_')}.md")
+            md_file_path = os.path.join(project_root_path, 'docs', '_posts', f"{name.lower().replace(' ', '_')}.md")
             
             with open(md_file_path, 'w', encoding='utf-8') as md_file:
                 try:
