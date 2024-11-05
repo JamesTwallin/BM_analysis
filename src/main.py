@@ -4,13 +4,13 @@ import sys
 
 
 # Custom modules
-from src.energy_yield.pcey import PCEY
-import src.utils.helpers as helpers
-import src.data_handling.weather as weather
+from energy_yield.pcey import PCEY
+import utils.helpers as helpers
+import data_handling.weather as weather
 
 
-from src.data_handling.bmrs import BMRS, BMU
-from src.energy_yield import matplotlib_plotting as pcey_plotting
+from data_handling.bmrs import BMRS, BMU
+from energy_yield import matplotlib_plotting as pcey_plotting
 
 # curvefit
 
