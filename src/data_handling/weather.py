@@ -7,10 +7,11 @@ import xarray as xr
 import pandas as pd
 import concurrent.futures
 import netCDF4
+import cdsapi
+import sys
 
-# Custom modules
-import src.utils.helpers as helpers
-
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import utils.helpers as helpers
 # Global variable for project root path
 project_root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -20,6 +21,48 @@ client = boto3.client('s3', config=botocore.client.Config(signature_version=boto
 def get_era5_data(date, variable, locs):
     folder = os.path.join(project_root_path, 'data', 'weather_data')
     os.makedirs(folder, exist_ok=True)
+
+
+
+    dataset = "reanalysis-era5-single-levels"
+    request = {
+        "product_type": ["reanalysis"],
+        "variable": [
+            "10m_u_component_of_wind",
+            "10m_v_component_of_wind"
+        ],
+        "year": [f"{date.year}"],
+        "month": [f"{date.month}"],
+        "day": [ "01", "02", "03",
+        "04", "05", "06",
+        "07", "08", "09",
+        "10", "11", "12",
+        "13", "14", "15",
+        "16", "17", "18",
+        "19", "20", "21",
+        "22", "23", "24",
+        "25", "26", "27",
+        "28", "29", "30",
+        "31"],
+        "time": [
+            "00:00", "01:00", "02:00",
+            "03:00", "04:00", "05:00",
+            "06:00", "07:00", "08:00",
+            "09:00", "10:00", "11:00",
+            "12:00", "13:00", "14:00",
+            "15:00", "16:00", "17:00",
+            "18:00", "19:00", "20:00",
+            "21:00", "22:00", "23:00"
+        ],
+        "data_format": "netcdf",
+        "download_format": "zip",
+        "area": [62, -6, 48, 5]
+    }
+
+    client = cdsapi.Client()
+    client.retrieve(dataset, request).download(target=f"{date.year}{str(date.month).zfill(2)}_{variable}.zip")
+    
+
     
     drive_filename = os.path.join(folder, f"{date.year}_{str(date.month).zfill(2)}_{variable}.parquet")
 
@@ -33,7 +76,10 @@ def get_era5_data(date, variable, locs):
     local_file_path = os.path.join(folder, data_file)
     if not os.path.isfile(local_file_path):
         print("Downloading from S3:", s3_data_key)
-        client.download_file(era5_bucket, s3_data_key, local_file_path)
+        try:
+            client.download_file(era5_bucket, s3_data_key, local_file_path)
+        except botocore.exceptions.ClientError as e:
+            raise e
 
     print("Reading and processing:", local_file_path)
     ds = xr.open_dataset(local_file_path)
@@ -84,7 +130,7 @@ if __name__ == "__main__":
     variables = ['eastward_wind_at_100_metres','northward_wind_at_100_metres']
     arg_list = []
     today = dt.datetime.utcnow().strftime('%Y-%m-%d')
-    month_range = pd.date_range('1990-01-01',today,freq='1MS')
+    month_range = pd.date_range('2024-08-01',today,freq='1MS')
     var_month = [(v,m) for v in variables for m in month_range]
     with concurrent.futures.ProcessPoolExecutor(max_workers=4) as executor:
       for variable, month in var_month:

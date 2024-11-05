@@ -11,7 +11,7 @@ import tqdm
 import datetime as dt
 
 
-import src.utils.helpers as helpers
+import utils.helpers as helpers
 global api_key
 api_key = helpers.get_credentials()
 
